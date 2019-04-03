@@ -65,7 +65,7 @@ function initBot() {
     console.log("Got a new value: " + userValue);
     let dateToAdd = new Date(); // TODO: replace this with the date of the message
     let row = {
-      Timestamp: dateToAdd,
+      Timestamp: dateToAdd.toLocaleString(),
       Year: dateToAdd.getFullYear(),
       Month: dateToAdd.getMonth() + 1,
       Day: dateToAdd.getDay(),

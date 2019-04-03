@@ -43,27 +43,31 @@ async.series([
     else {
         console.log("✅ Login successful, bot is running now");
         // App logic
-        bot.hears(/(\d+)/, function (_a) {
-            var match = _a.match, reply = _a.reply;
-            var userValue = match[1];
-            console.log("Got a new value: " + userValue);
-            var dateToAdd = new Date(); // TODO: replace this with the date of the message
-            var row = {
-                Timestamp: dateToAdd,
-                Year: dateToAdd.getFullYear(),
-                Month: dateToAdd.getMonth() + 1,
-                Day: dateToAdd.getDay(),
-                Hour: dateToAdd.getHours(),
-                Minute: dateToAdd.getMinutes(),
-                Type: "Enough time for myself",
-                Value: userValue
-            };
-            console.log(row);
-            sheet.addRow(row, function (error, row) {
-                reply("It's saved in the books for you");
-            });
-        });
-        // has to be last
-        bot.launch();
+        initBot();
     }
 });
+// App logic
+function initBot() {
+    bot.hears(/(\d+)/, function (_a) {
+        var match = _a.match, reply = _a.reply;
+        var userValue = match[1];
+        console.log("Got a new value: " + userValue);
+        var dateToAdd = new Date(); // TODO: replace this with the date of the message
+        var row = {
+            Timestamp: dateToAdd.toLocaleString(),
+            Year: dateToAdd.getFullYear(),
+            Month: dateToAdd.getMonth() + 1,
+            Day: dateToAdd.getDay(),
+            Hour: dateToAdd.getHours(),
+            Minute: dateToAdd.getMinutes(),
+            Type: "Enough time for myself",
+            Value: userValue
+        };
+        console.log(row);
+        sheet.addRow(row, function (error, row) {
+            reply("It's saved in the books for you");
+        });
+    });
+    // has to be last
+    bot.launch();
+}
