@@ -26,7 +26,7 @@ This repo contains a simple Telegram bot that has a limited amount of responsibi
 
 There are 2 ways to input data: by the user telling the bot to ask for all the values, and by a regular interval of the bot asking you (similar to the [mood bot](https://github.com/krausefx/mood))
 
-### User initiates data inputs
+### Configuration
 
 `lifesheet.json`
 
@@ -40,6 +40,7 @@ There are 2 ways to input data: by the user telling the bot to ask for all the v
         "alcoholIntake": {
           "human": "Alcohol intake",
           "question": "How much alcohol did you drink today?",
+          "type": "range",
           "replies": {
             "5": "Haha, hope you had a good time and the calories were all worth it. Make sure to still hit your protein goal and eat extra clean the next few days" 
           }
@@ -47,7 +48,13 @@ There are 2 ways to input data: by the user telling the bot to ask for all the v
         "macroAdherence": {
           "human": "Macro Adherence",
           "question": "How closely did you follow today's macro tracking?",
+          "type": "range"
         },
+        "numberOfDailySteps": {
+          "human": "Number of Daily Steps",
+          "question": "How many steps did you take according to Apple Health?",
+          "type": "number"
+        }
         ...
       },
       "productivity": {
@@ -69,8 +76,11 @@ Available values for `schedule`:
 - `daily`
 - `weekly`
 - `monthly`
+- `manual`
 
-*Note*: `fourTimesADay` actually means 3 times a day, as the user will sleep while one of the questions is asked, depending on the time zone. 
+*Note*: `fourTimesADay` actually means 3 times a day, as the user will sleep while one of the questions is asked, depending on the time zone.
+
+### User initiates data inputs 
 
 ### TODO: 
 - [ ] How to phrase the points to be posivite and include expectations
@@ -128,14 +138,11 @@ This will trigger questions that take longer to reply, so they're only done week
   - Do you feel like having to travel somewhere? 
   - Do you feel like you're missing out on things?
 
-### Recurring questions
-
-For some values (like the mood) it makes sense for the bot to actively ask you to do things. 
-
-
 ### Reminders
 
 There should be something built-in to remind the user to run the `/week` and the other commands if they didn't in a given time.
+
+e.g. if a `/sleeping` task is defined to be `/daily`, it would remind the user 25h after the previous entry. The user may then choose to ignore it or run the command whenever the want. The key is that the user always has to manually trigger the inputs, as we never want to ask them at a wrong time, or have an overlap of multiple "surveys"
 
 ## Ideas
 
