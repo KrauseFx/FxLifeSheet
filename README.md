@@ -20,7 +20,7 @@ As every person is so vastly different, has cares about different metrics in the
 
 **Assumptions**
 
-- The user is in random time zones at random times and switches often, therefore the bot can't know about your daily schedule
+- The user is in random time zones at random times and switches often, therefore the bot can't know about your daily schedule. This puts a lot of focus on averages, as it doesn't matter if a value was entered at 11pm that day, or 8am the next one, the numbers will even out, as only daily, weekly and monthly averages are considered when rendering graphs.
 
 This repo contains a simple Telegram bot that has a limited amount of responsibilities.
 
@@ -28,25 +28,51 @@ There are 2 ways to input data: by the user telling the bot to ask for all the v
 
 ### User initiates data inputs
 
+`lifesheet.json`
+
 ```json
 {
   "sleeping": {
     "description": "Use this right when going to bed",
+    "schedule": "daily",
     "categories": {
       "fitness": {
         "alcoholIntake": {
+          "human": "Alcohol intake",
+          "question": "How much alcohol did you drink today?",
           "replies": {
             "5": "Haha, hope you had a good time and the calories were all worth it. Make sure to still hit your protein goal and eat extra clean the next few days" 
           }
-        }
+        },
+        "macroAdherence": {
+          "human": "Macro Adherence",
+          "question": "How closely did you follow today's macro tracking?",
+        },
+        ...
+      },
+      "productivity": {
+        "learnedNewSkills"
       }
     }
-  }
+  },
+  "week": {
+    "description": "",
+    "schedule": "weekly"
+    ...
+  },
 }
 ```
 
+Available values for `schedule`:
+
+- `fourTimesADay`
+- `daily`
+- `weekly`
+- `monthly`
+
+*Note*: `fourTimesADay` actually means 3 times a day, as the user will sleep while one of the questions is asked, depending on the time zone. 
+
 ### TODO: 
-- [ ] Percentage
 - [ ] How to phrase the points to be posivite and include expectations
 - [ ] Use of Telegram `Force Reply` feature
 
@@ -66,7 +92,7 @@ This will trigger the end-of-day questions like
 
 - Fitness related:
   - Alcohol intake
-  - Macro addherence
+  - Macro adherence
   - Hunger issues?
   - Fatigu/Lethargy?
   - Feel stressed?
