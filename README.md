@@ -35,31 +35,26 @@ There are 2 ways to input data: by the user telling the bot to ask for all the v
   "sleeping": {
     "description": "Use this right when going to bed",
     "schedule": "daily",
-    "categories": {
-      "fitness": {
-        "alcoholIntake": {
-          "human": "Alcohol intake",
-          "question": "How much alcohol did you drink today?",
-          "type": "range",
-          "replies": {
-            "5": "Haha, hope you had a good time and the calories were all worth it. Make sure to still hit your protein goal and eat extra clean the next few days" 
-          }
-        },
-        "macroAdherence": {
-          "human": "Macro Adherence",
-          "question": "How closely did you follow today's macro tracking?",
-          "type": "range"
-        },
-        "numberOfDailySteps": {
-          "human": "Number of Daily Steps",
-          "question": "How many steps did you take according to Apple Health?",
-          "type": "number"
+    "values": {
+      "alcoholIntake": {
+        "human": "Alcohol intake",
+        "question": "How much alcohol did you drink today?",
+        "type": "range",
+        "replies": {
+          "5": "Haha, hope you had a good time and the calories were all worth it. Make sure to still hit your protein goal and eat extra clean the next few days" 
         }
-        ...
       },
-      "productivity": {
-        "learnedNewSkills"
+      "macroAdherence": {
+        "human": "Macro Adherence",
+        "question": "How closely did you follow today's macro tracking?",
+        "type": "range"
+      },
+      "numberOfDailySteps": {
+        "human": "Number of Daily Steps",
+        "question": "How many steps did you take according to Apple Health?",
+        "type": "number"
       }
+      ...
     }
   },
   "week": {
@@ -96,7 +91,7 @@ This will trigger the morning questions, like:
 
 #### Evening
 
-`/sleeping`
+`/asleep`
 
 This will trigger the end-of-day questions like
 
@@ -150,3 +145,14 @@ e.g. if a `/sleeping` task is defined to be `/daily`, it would remind the user 2
   - Question "Do you feel like you're missing out on things?", user replies with "Yes, feeling sad", bot replies with "Okay, now think about 3 actions you can take to solve this, and implemnent at least one"
 
 
+## Development
+
+### Running locally
+
+```
+npm run dev
+```
+
+### Debugging
+
+After using `npm run dev`, open [chrome://inspect](chrome://inspect) to use the Chrome Dev Tools
