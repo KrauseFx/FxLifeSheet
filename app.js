@@ -1,5 +1,6 @@
 // Third party dependencies
-var Moment = require("moment");
+var moment = require("moment");
+console.log(moment().week());
 // Telegram setup
 var Telegraf = require("telegraf");
 var Router = Telegraf.Router, Markup = Telegraf.Markup, Extra = Telegraf.Extra;
@@ -60,6 +61,7 @@ function initBot() {
             " for question " +
             currentlyAskedQuestionKey);
         var dateToAdd = new Date();
+        var weekOfYear = moment().week();
         var row = {
             Timestamp: dateToAdd.toLocaleString(),
             Year: dateToAdd.getFullYear(),
