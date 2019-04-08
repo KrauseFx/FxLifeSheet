@@ -238,14 +238,35 @@ function initBot() {
 }
 
 function saveLastRun(command) {
-  // TODO: check for existing value
-  let row = {
-    Command: command,
-    LastRun: moment().valueOf() // unix timestamp
-  };
-  lastRunSheet.addRow(row, function(error, row) {
-    console.log("Stored timestamp of last run for " + command);
-  });
+  lastRunSheet.getRows(
+    {
+      offset: 1,
+      limit: 100
+    },
+    function(error, rows) {
+      var updatedExistingRow = false;
+      for (let i = 0; i < rows.length; i++) {
+        let currentRow = rows[i];
+        let currentCommand = currentRow.command;
+        if (command == currentCommand) {
+          updatedExistingRow = true;
+
+          currentRow.lastrun = moment().valueOf(); // unix timestamp
+          currentRow.save();
+        }
+      }
+
+      if (!updatedExistingRow) {
+        let row = {
+          Command: command,
+          LastRun: moment().valueOf() // unix timestamp
+        };
+        lastRunSheet.addRow(row, function(error, row) {
+          console.log("Stored timestamp of last run for " + command);
+        });
+      }
+    }
+  );
 }
 
 function initScheduler() {
