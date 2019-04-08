@@ -78,17 +78,17 @@ function initBot() {
         " for question " +
         currentlyAskedQuestionKey
     );
-    let dateToAdd = new Date();
-    let weekOfYear = moment().week();
+    let dateToAdd = moment();
 
     let row = {
-      Timestamp: dateToAdd.toLocaleString(),
-      Year: dateToAdd.getFullYear(),
-      Month: dateToAdd.getMonth() + 1,
-      Day: dateToAdd.getDay(),
-      Hour: dateToAdd.getHours(),
-      Minute: dateToAdd.getMinutes(),
-      Week: weekOfYear,
+      Timestamp: dateToAdd.format(),
+      Year: dateToAdd.year(),
+      Month: dateToAdd.month() + 1,
+      Day: dateToAdd.date(),
+      Hour: dateToAdd.hours(),
+      Minute: dateToAdd.minutes(),
+      Week: dateToAdd.week(),
+      Quarter: dateToAdd.quarter(),
       Type: currentlyAskedQuestionKey,
       Value: userValue
     };
