@@ -1,0 +1,30 @@
+{
+  "sleeping": {
+    "description": "Use this right when going to bed",
+    "schedule": "daily",
+    "values": [
+      {
+        "key": "alcoholIntake",
+        "human": "Alcohol intake",
+        "question": "How much alcohol did you drink today?",
+        "type": "range",
+        "replies": {
+          "5": "Haha, hope you had a good time and the calories were all worth it. Make sure to still hit your protein goal and eat extra clean the next few days" 
+        }
+      },
+      {
+        "key": "macroAdherence",
+        "human": "Macro Adherence",
+        "question": "How closely did you follow today's macro tracking?",
+        "type": "range"
+      },
+      {
+        "key": "numberOfDailySteps",
+        "human": "Number of Daily Steps",
+        "question": "How many steps did you take according to Apple Health?",
+        "type": "number"
+      }
+    ]
+  },
+  "week": {}
+}

@@ -14,7 +14,11 @@ var doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEETS_SHEET_ID);
 var sheet;
 // State
 var currentlyAskedQuestionKey = null;
-var currentlyAskedQuestionMessageId = null;
+var currentlyAskedQuestionMessageId = null; // The Telegram message ID reference
+var currentlyAskedQuestionQueue = null; // keep track of all the questions about to be asked
+var userConfig = require("./config.json");
+console.log("Loaded user config:");
+console.log(userConfig);
 async.series([
     function setAuth(step) {
         // var creds = {
@@ -47,6 +51,28 @@ async.series([
         initBot();
     }
 });
+function triggerNextQuestionFromQueue(ctx) {
+    var currentQuestion = currentlyAskedQuestionQueue.shift();
+    if (currentQuestion == null) {
+        ctx.reply("All done for now, let's do this 💪");
+        // Finished
+        return;
+    }
+    // Looks like Telegram has some limitations:
+    // - No way to use `force_reply` together with a custom keyboard (https://github.com/KrauseFx/FxLifeSheet/issues/5)
+    // - No way to update existing messages together with a custom keyboard https://core.telegram.org/bots/api#updating-messages
+    //
+    // TODO: use currentQuestion.type
+    ctx
+        .reply(currentQuestion.question, Markup.keyboard([["7", "8", "9"], ["4", "5", "6"], ["1", "2", "3"]])
+        .oneTime()
+        .extra())
+        .then(function (_a) {
+        var message_id = _a.message_id;
+        currentlyAskedQuestionMessageId = message_id;
+    });
+    currentlyAskedQuestionKey = currentQuestion.key;
+}
 // App logic
 function initBot() {
     bot.hears(/(\d+)/, function (ctx) {
@@ -77,6 +103,7 @@ function initBot() {
             // TODO: replace with editing the existing message (ID in currentlyAskedQuestionMessageId, however couldn't get it to work)
             ctx.reply("Success ✅", Extra.inReplyTo(currentlyAskedQuestionMessageId));
         });
+        triggerNextQuestionFromQueue(ctx);
     });
     // As we get no benefit of using `bot.command` to add commands, we might as well use
     // regexes, which then allows us to let the user's JSON define the available commands
@@ -94,19 +121,12 @@ function initBot() {
         console.log(ctx);
         // user entered a command to start the survey
         var command = ctx.match[1];
-        if (command == "awake") {
-            // Looks like Telegram has some limitations:
-            // - No way to use `force_reply` together with a custom keyboard (https://github.com/KrauseFx/FxLifeSheet/issues/5)
-            // - No way to update existing messages together with a custom keyboard https://core.telegram.org/bots/api#updating-messages
-            ctx
-                .reply("How well did you sleep today?", Markup.keyboard([["7", "8", "9"], ["4", "5", "6"], ["1", "2", "3"]])
-                .oneTime()
-                .extra())
-                .then(function (_a) {
-                var message_id = _a.message_id;
-                currentlyAskedQuestionMessageId = message_id;
-            });
-            currentlyAskedQuestionKey = "sleepQuality";
+        var matchingCommandObject = userConfig[command];
+        if (matchingCommandObject && matchingCommandObject.values) {
+            console.log("User wants to run:");
+            console.log(matchingCommandObject);
+            currentlyAskedQuestionQueue = matchingCommandObject.values;
+            triggerNextQuestionFromQueue(ctx);
         }
     });
     bot.start(function (ctx) { return ctx.reply("Welcome to FxLifeSheet"); });

@@ -18,8 +18,28 @@ var doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEETS_SHEET_ID);
 var sheet;
 
 // State
-var currentlyAskedQuestionKey = null;
-var currentlyAskedQuestionMessageId = null;
+var currentlyAskedQuestionKey: String = null;
+var currentlyAskedQuestionMessageId: String = null; // The Telegram message ID reference
+let currentlyAskedQuestionQueue: Array<QuestionToAsk> = null; // keep track of all the questions about to be asked
+
+interface QuestionToAsk {
+  key: String;
+  human: String;
+  question: String;
+  type: String; // TODO: replace
+  // TODO: add `replies` key
+}
+
+// Interfaces
+interface Command {
+  description: String;
+  schedule: String; // TODO: replace
+  values: Array<QuestionToAsk>;
+}
+
+let userConfig: { [key: string]: Command } = require("./config.json");
+console.log("Loaded user config:");
+console.log(userConfig);
 
 async.series(
   [
@@ -53,12 +73,37 @@ async.series(
       console.log("Error: " + err);
     } else {
       console.log("✅ Login successful, bot is running now");
-
       // App logic
       initBot();
     }
   }
 );
+
+function triggerNextQuestionFromQueue(ctx) {
+  let currentQuestion = currentlyAskedQuestionQueue.shift();
+  if (currentQuestion == null) {
+    ctx.reply("All done for now, let's do this 💪");
+    // Finished
+    return;
+  }
+
+  // Looks like Telegram has some limitations:
+  // - No way to use `force_reply` together with a custom keyboard (https://github.com/KrauseFx/FxLifeSheet/issues/5)
+  // - No way to update existing messages together with a custom keyboard https://core.telegram.org/bots/api#updating-messages
+  //
+  // TODO: use currentQuestion.type
+  ctx
+    .reply(
+      currentQuestion.question,
+      Markup.keyboard([["7", "8", "9"], ["4", "5", "6"], ["1", "2", "3"]])
+        .oneTime()
+        .extra()
+    )
+    .then(({ message_id }) => {
+      currentlyAskedQuestionMessageId = message_id;
+    });
+  currentlyAskedQuestionKey = currentQuestion.key;
+}
 
 // App logic
 function initBot() {
@@ -97,6 +142,8 @@ function initBot() {
       // TODO: replace with editing the existing message (ID in currentlyAskedQuestionMessageId, however couldn't get it to work)
       ctx.reply("Success ✅", Extra.inReplyTo(currentlyAskedQuestionMessageId));
     });
+
+    triggerNextQuestionFromQueue(ctx);
   });
 
   // As we get no benefit of using `bot.command` to add commands, we might as well use
@@ -117,21 +164,13 @@ function initBot() {
 
     // user entered a command to start the survey
     let command = ctx.match[1];
-    if (command == "awake") {
-      // Looks like Telegram has some limitations:
-      // - No way to use `force_reply` together with a custom keyboard (https://github.com/KrauseFx/FxLifeSheet/issues/5)
-      // - No way to update existing messages together with a custom keyboard https://core.telegram.org/bots/api#updating-messages
-      ctx
-        .reply(
-          "How well did you sleep today?",
-          Markup.keyboard([["7", "8", "9"], ["4", "5", "6"], ["1", "2", "3"]])
-            .oneTime()
-            .extra()
-        )
-        .then(({ message_id }) => {
-          currentlyAskedQuestionMessageId = message_id;
-        });
-      currentlyAskedQuestionKey = "sleepQuality";
+    let matchingCommandObject = userConfig[command];
+
+    if (matchingCommandObject && matchingCommandObject.values) {
+      console.log("User wants to run:");
+      console.log(matchingCommandObject);
+      currentlyAskedQuestionQueue = matchingCommandObject.values;
+      triggerNextQuestionFromQueue(ctx);
     }
   });
 

@@ -6,7 +6,7 @@ To track all my relevant quantified data in a central place, in which I fully ow
 
 ### Sub goals
 
-As every person is so vastly different, has cares about different metrics in their life, this solution has to be highly customizable.
+As every person is so vastly different, and cares about different metrics in their life, this solution has to be highly customizable.
 
 - Fully own the data in a usable format
 - Easily add/remove data I track at any time
