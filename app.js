@@ -15,7 +15,7 @@ var sheet;
 // State
 var currentlyAskedQuestionObject = null;
 var currentlyAskedQuestionMessageId = null; // The Telegram message ID reference
-var currentlyAskedQuestionQueue = null; // keep track of all the questions about to be asked
+var currentlyAskedQuestionQueue = []; // keep track of all the questions about to be asked
 var userConfig = require("./config.json");
 console.log("Loaded user config:");
 console.log(userConfig);
@@ -92,7 +92,11 @@ function triggerNextQuestionFromQueue(ctx) {
     else {
         // TODO: reset keyboard here
     }
-    ctx.reply(currentQuestion.question, keyboard).then(function (_a) {
+    var question = currentQuestion.question +
+        " (" +
+        currentlyAskedQuestionQueue.length +
+        " more)";
+    ctx.reply(question, keyboard).then(function (_a) {
         var message_id = _a.message_id;
         currentlyAskedQuestionMessageId = message_id;
     });
@@ -154,8 +158,10 @@ function initBot() {
         if (matchingCommandObject && matchingCommandObject.values) {
             console.log("User wants to run:");
             console.log(matchingCommandObject);
-            currentlyAskedQuestionQueue = matchingCommandObject.values.slice(0); // .clone basically
-            triggerNextQuestionFromQueue(ctx);
+            currentlyAskedQuestionQueue = currentlyAskedQuestionQueue.concat(matchingCommandObject.values.slice(0)); // slice is a poor human's .clone basically
+            if (currentlyAskedQuestionObject == null) {
+                triggerNextQuestionFromQueue(ctx);
+            }
         }
     });
     bot.start(function (ctx) { return ctx.reply("Welcome to FxLifeSheet"); });

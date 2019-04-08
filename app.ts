@@ -20,7 +20,7 @@ var sheet;
 // State
 var currentlyAskedQuestionObject: QuestionToAsk = null;
 var currentlyAskedQuestionMessageId: String = null; // The Telegram message ID reference
-let currentlyAskedQuestionQueue: Array<QuestionToAsk> = null; // keep track of all the questions about to be asked
+let currentlyAskedQuestionQueue: Array<QuestionToAsk> = []; // keep track of all the questions about to be asked
 
 interface QuestionToAsk {
   key: String;
@@ -127,7 +127,12 @@ function triggerNextQuestionFromQueue(ctx) {
     // TODO: reset keyboard here
   }
 
-  ctx.reply(currentQuestion.question, keyboard).then(({ message_id }) => {
+  let question =
+    currentQuestion.question +
+    " (" +
+    currentlyAskedQuestionQueue.length +
+    " more)";
+  ctx.reply(question, keyboard).then(({ message_id }) => {
     currentlyAskedQuestionMessageId = message_id;
   });
 }
@@ -198,8 +203,6 @@ function initBot() {
   });
 
   bot.hears(/\/(\w+)/, ctx => {
-    console.log(ctx);
-
     // user entered a command to start the survey
     let command = ctx.match[1];
     let matchingCommandObject = userConfig[command];
@@ -207,8 +210,12 @@ function initBot() {
     if (matchingCommandObject && matchingCommandObject.values) {
       console.log("User wants to run:");
       console.log(matchingCommandObject);
-      currentlyAskedQuestionQueue = matchingCommandObject.values.slice(0); // .clone basically
-      triggerNextQuestionFromQueue(ctx);
+      currentlyAskedQuestionQueue = currentlyAskedQuestionQueue.concat(
+        matchingCommandObject.values.slice(0)
+      ); // slice is a poor human's .clone basically
+      if (currentlyAskedQuestionObject == null) {
+        triggerNextQuestionFromQueue(ctx);
+      }
     }
   });
 
