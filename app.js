@@ -167,6 +167,9 @@ function initBot() {
             console.log("User wants to run:");
             console.log(matchingCommandObject);
             saveLastRun(command);
+            if (currentlyAskedQuestionQueue.length > 0) {
+                ctx.reply("^ Okay, but please answer my previous question also, thanks ^", Extra.inReplyTo(currentlyAskedQuestionMessageId));
+            }
             currentlyAskedQuestionQueue = currentlyAskedQuestionQueue.concat(matchingCommandObject.values.slice(0)); // slice is a poor human's .clone basically
             if (currentlyAskedQuestionObject == null) {
                 triggerNextQuestionFromQueue(ctx);
