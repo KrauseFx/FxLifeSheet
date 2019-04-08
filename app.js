@@ -11,11 +11,14 @@ var async = require("async");
 // spreadsheet key is the long id in the sheets URL
 console.log("Loading " + process.env.GOOGLE_SHEETS_SHEET_ID);
 var doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEETS_SHEET_ID);
-var sheet;
+var rawDataSheet;
+var lastRunSheet;
 // State
 var currentlyAskedQuestionObject = null;
 var currentlyAskedQuestionMessageId = null; // The Telegram message ID reference
 var currentlyAskedQuestionQueue = []; // keep track of all the questions about to be asked
+var cachedCtx = null; // TODO: this obviously hsa to be removed and replaced with something better
+var lastCommandReminder = {}; // to not spam the user on each interval
 var userConfig = require("./config.json");
 console.log("Loaded user config:");
 console.log(userConfig);
@@ -31,13 +34,14 @@ async.series([
     function getInfoAndWorksheets(step) {
         doc.getInfo(function (err, info) {
             console.log("Loaded doc: " + info.title + " by " + info.author.email);
-            sheet = info.worksheets[0];
+            rawDataSheet = info.worksheets[0];
+            lastRunSheet = info.worksheets[1];
             console.log("sheet 1: " +
-                sheet.title +
+                rawDataSheet.title +
                 " " +
-                sheet.rowCount +
+                rawDataSheet.rowCount +
                 "x" +
-                sheet.colCount);
+                rawDataSheet.colCount);
             step();
         });
     }
@@ -49,6 +53,7 @@ async.series([
         console.log("✅ Login successful, bot is running now");
         // App logic
         initBot();
+        initScheduler();
     }
 });
 function getButtonText(number) {
@@ -95,7 +100,7 @@ function triggerNextQuestionFromQueue(ctx) {
     var question = currentQuestion.question +
         " (" +
         currentlyAskedQuestionQueue.length +
-        " more)";
+        " more questions)";
     ctx.reply(question, keyboard).then(function (_a) {
         var message_id = _a.message_id;
         currentlyAskedQuestionMessageId = message_id;
@@ -129,10 +134,11 @@ function initBot() {
             Minute: dateToAdd.minutes(),
             Week: dateToAdd.week(),
             Quarter: dateToAdd.quarter(),
-            Type: currentlyAskedQuestionObject.key,
+            Key: currentlyAskedQuestionObject.key,
+            Type: currentlyAskedQuestionObject.type,
             Value: userValue
         };
-        sheet.addRow(row, function (error, row) {
+        rawDataSheet.addRow(row, function (error, row) {
             // TODO: replace with editing the existing message (ID in currentlyAskedQuestionMessageId, however couldn't get it to work)
             // ctx.reply("Success ✅", Extra.inReplyTo(currentlyAskedQuestionMessageId));
         });
@@ -151,13 +157,14 @@ function initBot() {
         });
     });
     bot.hears(/\/(\w+)/, function (ctx) {
-        console.log(ctx);
+        cachedCtx = ctx;
         // user entered a command to start the survey
         var command = ctx.match[1];
         var matchingCommandObject = userConfig[command];
         if (matchingCommandObject && matchingCommandObject.values) {
             console.log("User wants to run:");
             console.log(matchingCommandObject);
+            saveLastRun(command);
             currentlyAskedQuestionQueue = currentlyAskedQuestionQueue.concat(matchingCommandObject.values.slice(0)); // slice is a poor human's .clone basically
             if (currentlyAskedQuestionObject == null) {
                 triggerNextQuestionFromQueue(ctx);
@@ -170,4 +177,71 @@ function initBot() {
     bot.hears("hi", function (ctx) { return ctx.reply("Hey there"); });
     // has to be last
     bot.launch();
+}
+function saveLastRun(command) {
+    // TODO: check for existing value
+    var row = {
+        Command: command,
+        LastRun: moment().valueOf() // unix timestamp
+    };
+    lastRunSheet.addRow(row, function (error, row) {
+        console.log("Stored timestamp of last run for " + command);
+    });
+}
+function initScheduler() {
+    // Cron job to check if we need to run a given question again
+    setInterval(function () {
+        lastRunSheet.getRows({
+            offset: 1,
+            limit: 100
+        }, function (error, rows) {
+            for (var i = 0; i < rows.length; i++) {
+                var currentRow = rows[i];
+                var command = currentRow.command;
+                var lastRun = moment(Number(currentRow.lastrun));
+                if (userConfig[command] == null) {
+                    console.error("Error, command not found: " + command);
+                    break;
+                }
+                var scheduleType = userConfig[command].schedule;
+                var timeDifferenceHours = moment().diff(moment(lastRun), "hours"); //hours
+                var shouldRemindUser = false;
+                if (scheduleType == "fourTimesADay") {
+                    if (timeDifferenceHours >= 24 / 4) {
+                        shouldRemindUser = true;
+                    }
+                }
+                else if (scheduleType == "daily") {
+                    if (timeDifferenceHours >= 24 * 1.1) {
+                        shouldRemindUser = true;
+                    }
+                }
+                else if (scheduleType == "weekly") {
+                    if (timeDifferenceHours >= 24 * 7 * 1.05) {
+                        shouldRemindUser = true;
+                    }
+                }
+                else if (scheduleType == "manual") {
+                    // Never remind the user
+                }
+                else {
+                    console.error("Unknown schedule type " + scheduleType);
+                }
+                var lastReminderDiffInHours = 100; // not reminded yet by default
+                if (lastCommandReminder[command]) {
+                    lastReminderDiffInHours = moment().diff(moment(Number(lastCommandReminder[command])), "hours");
+                }
+                if (shouldRemindUser &&
+                    cachedCtx != null &&
+                    lastReminderDiffInHours > 1) {
+                    cachedCtx.reply("Please run /" +
+                        command +
+                        " again, it's been " +
+                        timeDifferenceHours +
+                        " hours since you last filled it out");
+                    lastCommandReminder[command] = moment().valueOf(); // unix timestamp
+                }
+            }
+        });
+    }, 3000);
 }

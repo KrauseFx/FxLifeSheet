@@ -78,7 +78,6 @@ Available values for `schedule`:
 - `fourTimesADay`
 - `daily`
 - `weekly`
-- `monthly`
 - `manual`
 
 *Note*: `fourTimesADay` actually means 3 times a day, as the user will sleep while one of the questions is asked, depending on the time zone.
