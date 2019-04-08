@@ -31,7 +31,10 @@ async.series([
         doc.useServiceAccountAuth(creds, step);
     },
     function getInfoAndWorksheets(step) {
-        doc.getInfo(function (err, info) {
+        doc.getInfo(function (error, info) {
+            if (error) {
+                console.error(error);
+            }
             console.log("Loaded doc: " + info.title + " by " + info.author.email);
             rawDataSheet = info.worksheets[0];
             lastRunSheet = info.worksheets[1];
