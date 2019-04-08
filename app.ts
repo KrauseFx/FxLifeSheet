@@ -13,8 +13,8 @@ var GoogleSpreadsheet = require("google-spreadsheet");
 var async = require("async");
 
 // spreadsheet key is the long id in the sheets URL
-console.log("Loading " + process.env.GOOGLE_SHEETS_SHEET_ID);
-var doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEETS_SHEET_ID);
+console.log("Loading " + process.env.GOOGLE_SHEETS_DOC_ID);
+var doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEETS_DOC_ID);
 var rawDataSheet;
 var lastRunSheet;
 

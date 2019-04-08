@@ -1,4 +1,10 @@
 {
   "version": 2,
-  "name": "LifeFxSheet"
+  "name": "LifeFxSheet",
+  "env": {
+    "TELEGRAM_BOT_TOKEN": "@telegram-bot-token",
+    "GOOGLE_SHEETS_DOC_ID": "@google-sheets-doc-id",
+    "GOOGLE_SHEETS_CLIENT_EMAIL": "@google-sheets-client-email",
+    "GOOGLE_SHEETS_PRIVATE_KEY": "@google-sheets-private-key"
+  }
 }

@@ -9,8 +9,8 @@ var bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
 var GoogleSpreadsheet = require("google-spreadsheet");
 var async = require("async");
 // spreadsheet key is the long id in the sheets URL
-console.log("Loading " + process.env.GOOGLE_SHEETS_SHEET_ID);
-var doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEETS_SHEET_ID);
+console.log("Loading " + process.env.GOOGLE_SHEETS_DOC_ID);
+var doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEETS_DOC_ID);
 var rawDataSheet;
 var lastRunSheet;
 // State
@@ -28,7 +28,6 @@ async.series([
             client_email: process.env.GOOGLE_SHEETS_CLIENT_EMAIL,
             private_key: process.env.GOOGLE_SHEETS_PRIVATE_KEY.replace(/\\n/g, "\n")
         };
-        // var creds = require("./credentials.json");
         doc.useServiceAccountAuth(creds, step);
     },
     function getInfoAndWorksheets(step) {
@@ -228,9 +227,9 @@ function initScheduler() {
                     }
                 }
                 else if (scheduleType == "daily") {
-                    // if (timeDifferenceHours >= 24 * 1.1) {
-                    shouldRemindUser = true;
-                    // }
+                    if (timeDifferenceHours >= 24 * 1.1) {
+                        shouldRemindUser = true;
+                    }
                 }
                 else if (scheduleType == "weekly") {
                     if (timeDifferenceHours >= 24 * 7 * 1.05) {
