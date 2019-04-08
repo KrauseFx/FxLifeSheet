@@ -24,11 +24,11 @@ console.log("Loaded user config:");
 console.log(userConfig);
 async.series([
     function setAuth(step) {
-        // var creds = {
-        //   client_email: process.env.GOOGLE_SHEETS_CLIENT_EMAIL,
-        //   private_key: process.env.GOOGLE_SHEETS_PRIVATE_KEY
-        // };
-        var creds = require("./credentials.json");
+        var creds = {
+            client_email: process.env.GOOGLE_SHEETS_CLIENT_EMAIL,
+            private_key: process.env.GOOGLE_SHEETS_PRIVATE_KEY.replace(/\\n/g, "\n")
+        };
+        // var creds = require("./credentials.json");
         doc.useServiceAccountAuth(creds, step);
     },
     function getInfoAndWorksheets(step) {
@@ -179,13 +179,29 @@ function initBot() {
     bot.launch();
 }
 function saveLastRun(command) {
-    // TODO: check for existing value
-    var row = {
-        Command: command,
-        LastRun: moment().valueOf() // unix timestamp
-    };
-    lastRunSheet.addRow(row, function (error, row) {
-        console.log("Stored timestamp of last run for " + command);
+    lastRunSheet.getRows({
+        offset: 1,
+        limit: 100
+    }, function (error, rows) {
+        var updatedExistingRow = false;
+        for (var i = 0; i < rows.length; i++) {
+            var currentRow = rows[i];
+            var currentCommand = currentRow.command;
+            if (command == currentCommand) {
+                updatedExistingRow = true;
+                currentRow.lastrun = moment().valueOf(); // unix timestamp
+                currentRow.save();
+            }
+        }
+        if (!updatedExistingRow) {
+            var row = {
+                Command: command,
+                LastRun: moment().valueOf() // unix timestamp
+            };
+            lastRunSheet.addRow(row, function (error, row) {
+                console.log("Stored timestamp of last run for " + command);
+            });
+        }
     });
 }
 function initScheduler() {
@@ -212,9 +228,9 @@ function initScheduler() {
                     }
                 }
                 else if (scheduleType == "daily") {
-                    if (timeDifferenceHours >= 24 * 1.1) {
-                        shouldRemindUser = true;
-                    }
+                    // if (timeDifferenceHours >= 24 * 1.1) {
+                    shouldRemindUser = true;
+                    // }
                 }
                 else if (scheduleType == "weekly") {
                     if (timeDifferenceHours >= 24 * 7 * 1.05) {

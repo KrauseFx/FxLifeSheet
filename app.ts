@@ -48,11 +48,10 @@ console.log(userConfig);
 async.series(
   [
     function setAuth(step) {
-      // var creds = {
-      //   client_email: process.env.GOOGLE_SHEETS_CLIENT_EMAIL,
-      //   private_key: process.env.GOOGLE_SHEETS_PRIVATE_KEY
-      // };
-      var creds = require("./credentials.json");
+      var creds = {
+        client_email: process.env.GOOGLE_SHEETS_CLIENT_EMAIL,
+        private_key: process.env.GOOGLE_SHEETS_PRIVATE_KEY.replace(/\\n/g, "\n")
+      };
 
       doc.useServiceAccountAuth(creds, step);
     },
