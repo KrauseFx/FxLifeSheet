@@ -2,7 +2,7 @@
   "scripts": {
     "prettier": "prettier app.ts --write",
     "dev": "source .keys && prettier app.ts --write && tsc app.ts && node --inspect app.js",
-    "prod": "source .keys && prettier app.ts --write && tsc app.ts && NODE_ENV=production node app.js"
+    "prod": "prettier app.ts --write && tsc app.ts && NODE_ENV=production node app.js"
   },
   "dependencies": {
     "google-spreadsheet": "^2.0.7",
