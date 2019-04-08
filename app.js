@@ -13,7 +13,7 @@ console.log("Loading " + process.env.GOOGLE_SHEETS_SHEET_ID);
 var doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEETS_SHEET_ID);
 var sheet;
 // State
-var currentlyAskedQuestionKey = null;
+var currentlyAskedQuestionObject = null;
 var currentlyAskedQuestionMessageId = null; // The Telegram message ID reference
 var currentlyAskedQuestionQueue = null; // keep track of all the questions about to be asked
 var userConfig = require("./config.json");
@@ -51,8 +51,26 @@ async.series([
         initBot();
     }
 });
+function getButtonText(number) {
+    var emojiNumber = {
+        "0": "0️⃣",
+        "1": "1️⃣",
+        "2": "2️⃣",
+        "3": "3️⃣",
+        "4": "4️⃣",
+        "5": "5️⃣"
+    }[number];
+    if (currentlyAskedQuestionObject.buttons &&
+        currentlyAskedQuestionObject.buttons[number]) {
+        return emojiNumber + " - " + currentlyAskedQuestionObject.buttons[number];
+    }
+    else {
+        return number;
+    }
+}
 function triggerNextQuestionFromQueue(ctx) {
     var currentQuestion = currentlyAskedQuestionQueue.shift();
+    currentlyAskedQuestionObject = currentQuestion;
     if (currentQuestion == null) {
         ctx.reply("All done for now, let's do this 💪");
         // Finished
@@ -61,17 +79,23 @@ function triggerNextQuestionFromQueue(ctx) {
     // Looks like Telegram has some limitations:
     // - No way to use `force_reply` together with a custom keyboard (https://github.com/KrauseFx/FxLifeSheet/issues/5)
     // - No way to update existing messages together with a custom keyboard https://core.telegram.org/bots/api#updating-messages
-    //
-    // TODO: use currentQuestion.type
-    ctx
-        .reply(currentQuestion.question, Markup.keyboard([["7", "8", "9"], ["4", "5", "6"], ["1", "2", "3"]])
-        .oneTime()
-        .extra())
-        .then(function (_a) {
+    var keyboard = null;
+    if (currentQuestion.type == "range") {
+        keyboard = Markup.keyboard([
+            [getButtonText("5"), getButtonText("4")],
+            [getButtonText("3"), getButtonText("2")],
+            [getButtonText("1"), getButtonText("0")]
+        ])
+            .oneTime()
+            .extra();
+    }
+    else {
+        // TODO: reset keyboard here
+    }
+    ctx.reply(currentQuestion.question, keyboard).then(function (_a) {
         var message_id = _a.message_id;
         currentlyAskedQuestionMessageId = message_id;
     });
-    currentlyAskedQuestionKey = currentQuestion.key;
 }
 // App logic
 function initBot() {
@@ -85,7 +109,12 @@ function initBot() {
         console.log("Got a new value: " +
             userValue +
             " for question " +
-            currentlyAskedQuestionKey);
+            currentlyAskedQuestionObject.key);
+        if (currentlyAskedQuestionObject.replies &&
+            currentlyAskedQuestionObject.replies[userValue]) {
+            // Check if there is a custom reply, and if, use that
+            ctx.reply(currentlyAskedQuestionObject.replies[userValue], Extra.inReplyTo(ctx.update.message.message_id));
+        }
         var dateToAdd = moment();
         var row = {
             Timestamp: dateToAdd.format(),
@@ -96,12 +125,12 @@ function initBot() {
             Minute: dateToAdd.minutes(),
             Week: dateToAdd.week(),
             Quarter: dateToAdd.quarter(),
-            Type: currentlyAskedQuestionKey,
+            Type: currentlyAskedQuestionObject.key,
             Value: userValue
         };
         sheet.addRow(row, function (error, row) {
             // TODO: replace with editing the existing message (ID in currentlyAskedQuestionMessageId, however couldn't get it to work)
-            ctx.reply("Success ✅", Extra.inReplyTo(currentlyAskedQuestionMessageId));
+            // ctx.reply("Success ✅", Extra.inReplyTo(currentlyAskedQuestionMessageId));
         });
         triggerNextQuestionFromQueue(ctx);
     });
@@ -125,7 +154,7 @@ function initBot() {
         if (matchingCommandObject && matchingCommandObject.values) {
             console.log("User wants to run:");
             console.log(matchingCommandObject);
-            currentlyAskedQuestionQueue = matchingCommandObject.values;
+            currentlyAskedQuestionQueue = matchingCommandObject.values.slice(0); // .clone basically
             triggerNextQuestionFromQueue(ctx);
         }
     });
