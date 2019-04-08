@@ -1,6 +1,6 @@
 // Third party dependencies
 var moment = require("moment");
-console.log(moment().week());
+var needle = require("needle");
 // Telegram setup
 var Telegraf = require("telegraf");
 var Router = Telegraf.Router, Markup = Telegraf.Markup, Extra = Telegraf.Extra;
@@ -69,6 +69,7 @@ function initBot() {
             Day: dateToAdd.getDay(),
             Hour: dateToAdd.getHours(),
             Minute: dateToAdd.getMinutes(),
+            Week: weekOfYear,
             Type: currentlyAskedQuestionKey,
             Value: userValue
         };
@@ -79,6 +80,16 @@ function initBot() {
     });
     // As we get no benefit of using `bot.command` to add commands, we might as well use
     // regexes, which then allows us to let the user's JSON define the available commands
+    bot.hears("/report", function (_a) {
+        var replyWithPhoto = _a.replyWithPhoto;
+        console.log("Generating report...");
+        replyWithPhoto({
+            url: "https://datastudio.google.com/reporting/1a-1rVk-4ZFOg0WTNNGRvJDXMTNXpl5Uy/page/MpTm/thumbnail?sz=s3000"
+        }).then(function (_a) {
+            var message_id = _a.message_id;
+            console.log("Success");
+        });
+    });
     bot.hears(/\/(\w+)/, function (ctx) {
         console.log(ctx);
         // user entered a command to start the survey

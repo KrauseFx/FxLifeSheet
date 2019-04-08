@@ -1,5 +1,6 @@
 // Third party dependencies
 const moment = require("moment");
+var needle = require("needle");
 
 // Telegram setup
 const Telegraf = require("telegraf");
@@ -100,6 +101,16 @@ function initBot() {
 
   // As we get no benefit of using `bot.command` to add commands, we might as well use
   // regexes, which then allows us to let the user's JSON define the available commands
+
+  bot.hears("/report", ({ replyWithPhoto }) => {
+    console.log("Generating report...");
+    replyWithPhoto({
+      url:
+        "https://datastudio.google.com/reporting/1a-1rVk-4ZFOg0WTNNGRvJDXMTNXpl5Uy/page/MpTm/thumbnail?sz=s3000"
+    }).then(({ message_id }) => {
+      console.log("Success");
+    });
+  });
 
   bot.hears(/\/(\w+)/, ctx => {
     console.log(ctx);
