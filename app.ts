@@ -343,5 +343,5 @@ function initScheduler() {
         }
       }
     );
-  }, 3000);
+  }, 30000);
 }
