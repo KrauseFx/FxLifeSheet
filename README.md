@@ -69,7 +69,6 @@ This will trigger the end-of-day questions like
   - Fatigu/Lethargy?
   - Feel stressed?
   - Caffeine intake?
-  - How energeized did you feel today?
   - How healthy do you feel today?
   - Number of steps according to Apple Health
 - Productivity related

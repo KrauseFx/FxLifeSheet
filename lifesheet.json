@@ -2,7 +2,7 @@
   "mood": {
     "description": "Track my current mood during the day",
     "schedule": "fourTimesADay",
-    "values": [
+    "questions": [
       {
         "key": "mood",
         "human": "Mood",
@@ -27,7 +27,11 @@
   "awake": {
     "description": "Use this right when you woke up",
     "schedule": "daily",
-    "values": [
+    "questions": [
+      {
+        "header": "🌇 Good morning",
+        "type": "header"
+      },
       {
         "key": "sleepQuality",
         "human": "Sleep Quality",
@@ -61,7 +65,11 @@
   "asleep": {
     "description": "Use this right when going to bed",
     "schedule": "daily",
-    "values": [
+    "questions": [
+      {
+        "question": "💪 Let's talk fitness first",
+        "type": "header"
+      },
       {
         "key": "alcoholIntake",
         "human": "Alcohol intake",
@@ -73,7 +81,7 @@
           "3": "Had 2 drinks",
           "2": "Had 3 drinks",
           "1": "Had 4-5 drinks",
-          "0": "Got wasted",
+          "0": "Got wasted"
         },
         "replies": {
           "5": "Haha, hope you had a good time and the calories were all worth it. Make sure to still hit your protein goal and eat extra clean the next few days"
@@ -90,8 +98,8 @@
           "3": "Two meals outside, rest scaled",
           "2": "Ate outside only",
           "1": "Didn't track, but used mind",
-          "0": "Just ate whatever",
-        },
+          "0": "Just ate whatever"
+        }
       },
       {
         "key": "hungry",
@@ -108,9 +116,23 @@
         }
       },
       {
+        "key": "fatigu",
+        "human": "Fatigude",
+        "question": "Have you felt energized overall today?",
+        "type": "range",
+        "buttons": {
+          "5": "Felt full of energy",
+          "4": "Enough energy and great workout",
+          "3": "Good energy",
+          "2": "Average energy",
+          "1": "Felt tired, okay workout",
+          "0": "Didn't feel like doing a lot"
+        }
+      },
+      {
         "key": "stress",
         "human": "Stress issues",
-        "question": "Have you been feeling stressed today?",
+        "question": "Did you feel stressed today?",
         "type": "range",
         "buttons": {
           "5": "Very calm and aware",
@@ -122,12 +144,187 @@
         }
       },
       {
-        "key": "numberOfDailySteps",
+        "key": "caffeine",
+        "human": "Caffeine",
+        "question": "How much caffeine did you drink today? (Coffee, Club Mate, Energy Drinks)",
+        "type": "range",
+        "buttons": {
+          "5": "No caffeine",
+          "4": "1 drink",
+          "3": "2 drinks",
+          "2": "3 drinks",
+          "1": "4 drinks",
+          "0": "5 drinks or more"
+        }
+      },
+      {
+        "key": "healthy",
+        "human": "Healthy",
+        "question": "How healthy do you feel?",
+        "type": "range",
+        "buttons": {
+          "5": "Fully healthy & energized",
+          "4": "Healthy",
+          "3": "Might have a slight cold",
+          "2": "Having a cold",
+          "1": "Stayed home due to health",
+          "0": "Actually sick"
+        }
+      },
+      {
+        "key": "dailySteps",
         "human": "Number of Daily Steps",
         "question": "How many steps did you take according to Apple Health?",
         "type": "number"
+      },
+      {
+        "question": "🧠 Let's talk productivity",
+        "type": "header"
+      },
+      {
+        "key": "problemSolving",
+        "human": "Problem Solving",
+        "question": "Did you work on any technical challenges and problem solving?",
+        "type": "range",
+        "buttons": {
+          "5": "Exciting challenges",
+          "4": "Interesting challenges",
+          "3": "Did some coding",
+          "2": "No actual challenges",
+          "1": "Just a little bit",
+          "0": "Nothing"
+        }
+      },
+      {
+        "question": "👥 Let's talk social life",
+        "type": "header"
+      },
+      {
+        "key": "timeByMyself",
+        "human": "Time by myself",
+        "question": "Did you feel like you had enough time by yourself to do what you care about?",
+        "type": "range",
+        "buttons": {
+          "5": "Enough time",
+          "4": "Just enough time",
+          "3": "Good amount of time, could be more",
+          "2": "Busy day, could be less",
+          "1": "Barely time for myself",
+          "0": "No time by myself"
+        },
+        "replies": {
+          "1": "Take a step back and think how you can improve this for the next days",
+          "0": "Take a step back and think how you can improve this for the next days"
+        }
+      },
+      {
+        "key": "controlOfTime",
+        "human": "Control of my time",
+        "question": "Did you feel like you were in control over your time and schedule?",
+        "type": "range",
+        "buttons": {
+          "5": "In full control",
+          "4": "In control, some constraints",
+          "3": "A few constraints, but still in control",
+          "2": "Average",
+          "1": "Many constraints",
+          "0": "Day was out of my control"
+        },
+        "replies": {
+          "1": "Take a step back and think how you can improve this for the next days",
+          "0": "Take a step back and think how you can improve this for the next days"
+        }
+      },
+      {
+        "key": "socializing",
+        "human": "Socializing",
+        "question": "Did you feel like you socalized enough?",
+        "type": "range",
+        "buttons": {
+          "5": "Felt statisfied with the amount of socializing",
+          "4": "Almost perfect amount",
+          "3": "Socializing was okay",
+          "2": "Feel like I should socialize more",
+          "1": "Not enough socializing",
+          "0": "Feeling isolated"
+        }
+      },
+      {
+        "key": "goingOut",
+        "human": "Going Out",
+        "question": "Do you feel like you went out enough, to restaurants, bars, dancing?",
+        "type": "range",
+        "buttons": {
+          "5": "Felt statisfied with the amount of going out",
+          "4": "Felt pretty good about it",
+          "3": "Did just enough",
+          "2": "I want to go out more",
+          "1": "I feel like I'm missing out",
+          "0": "I'm unhappy about not getting out"
+        }
+      },
+      {
+        "question": "⚙️ Let's talk personal growth",
+        "type": "header"
+      },
+      {
+        "key": "learned",
+        "human": "Learned",
+        "question": "Did you learn/try something new? (skill or activity)",
+        "type": "range",
+        "buttons": {
+          "5": "Learned multiple new things",
+          "4": "Learned some new things",
+          "3": "Learned something new",
+          "2": "Improved somehting existing",
+          "1": "Didn't learn anything",
+          "0": "I feel like I should learn more"
+        }
+      },
+      {
+        "key": "comfortZone",
+        "human": "Comfort Zone",
+        "question": "Did you get out of your comfort zone",
+        "type": "range",
+        "buttons": {
+          "5": "Did something(s) I was really scared about",
+          "4": "Did something(s) I was worried about",
+          "3": "Did something I wouldn't have done before",
+          "2": "Did something new",
+          "1": "Did smaller tweaks",
+          "0": "Didn't do anything new"
+        }
+      },
+      {
+        "key": "minutesRead",
+        "human": "Number of minutes read",
+        "question": "How many minutes of Audible did you listen to today? Audible://",
+        "type": "number"
+      },
+      {
+        "question": "🧩 Let's wrap things up",
+        "type": "header"
+      },
+      {
+        "key": "meditated",
+        "human": "Number of minutes meditated",
+        "question": "How many minutes did you meditate today?",
+        "type": "number"
+      },
+      {
+        "key": "excitedAboutFuture",
+        "human": "Excited about future",
+        "question": "Do you feel excited about what's ahead in the future?",
+        "type": "range",
+        "buttons": {
+          "5": "Pumped about what's next",
+          "4": "Excited about what's next",
+          "3": "Optimistic about what's next",
+          "2": "Feeling pretty good about it",
+          "1": "Some uncertainty about what's coming up",
+          "0": "Worried about what's next"
+        }
       }
     ]
-  },
-  "week": {}
+  }
 }
