@@ -25,6 +25,13 @@ let currentlyAskedQuestionQueue: Array<QuestionToAsk> = []; // keep track of all
 var cachedCtx = null; // TODO: this obviously hsa to be removed and replaced with something better
 var lastCommandReminder: { [key: string]: Number } = {}; // to not spam the user on each interval
 
+// Interfaces
+interface Command {
+  description: String;
+  schedule: String;
+  questions: [QuestionToAsk];
+}
+
 interface QuestionToAsk {
   key: String;
   human: String;
@@ -32,13 +39,6 @@ interface QuestionToAsk {
   type: String; // TODO: replace
   buttons: { [key: string]: String };
   replies: { [key: string]: String };
-}
-
-// Interfaces
-interface Command {
-  description: String;
-  schedule: String; // TODO: replace
-  values: Array<QuestionToAsk>;
 }
 
 let userConfig: { [key: string]: Command } = require("./lifesheet.json");
@@ -113,21 +113,28 @@ function getButtonText(number) {
 }
 
 function triggerNextQuestionFromQueue(ctx) {
-  let currentQuestion = currentlyAskedQuestionQueue.shift();
-  currentlyAskedQuestionObject = currentQuestion;
+  let keyboard = Extra.markup(m => m.removeKeyboard()); // default keyboard
 
-  if (currentQuestion == null) {
-    ctx.reply("All done for now, let's do this 💪");
+  currentlyAskedQuestionObject = currentlyAskedQuestionQueue.shift();
+
+  if (currentlyAskedQuestionObject == null) {
+    ctx.reply("All done for now, let's do this 💪", keyboard);
     // Finished
+    return;
+  }
+
+  if (currentlyAskedQuestionObject.type == "header") {
+    // This is information only, just print and go to the next one
+    ctx.reply(currentlyAskedQuestionObject.question, keyboard);
+    triggerNextQuestionFromQueue(ctx);
     return;
   }
 
   // Looks like Telegram has some limitations:
   // - No way to use `force_reply` together with a custom keyboard (https://github.com/KrauseFx/FxLifeSheet/issues/5)
   // - No way to update existing messages together with a custom keyboard https://core.telegram.org/bots/api#updating-messages
-  let keyboard = null;
 
-  if (currentQuestion.type == "range") {
+  if (currentlyAskedQuestionObject.type == "range") {
     keyboard = Markup.keyboard([
       [getButtonText("5")],
       [getButtonText("4")],
@@ -138,8 +145,6 @@ function triggerNextQuestionFromQueue(ctx) {
     ])
       .oneTime()
       .extra();
-  } else {
-    keyboard = Extra.markup(m => m.removeKeyboard());
   }
 
   let questionAppendix = currentlyAskedQuestionQueue.length + " more question";
@@ -150,7 +155,8 @@ function triggerNextQuestionFromQueue(ctx) {
     questionAppendix = "last question";
   }
 
-  let question = currentQuestion.question + " (" + questionAppendix + ")";
+  let question =
+    currentlyAskedQuestionObject.question + " (" + questionAppendix + ")";
   ctx.reply(question, keyboard).then(({ message_id }) => {
     currentlyAskedQuestionMessageId = message_id;
   });
@@ -228,19 +234,25 @@ function initBot() {
     let command = ctx.match[1];
     let matchingCommandObject = userConfig[command];
 
-    if (matchingCommandObject && matchingCommandObject.values) {
+    if (matchingCommandObject && matchingCommandObject.questions) {
       console.log("User wants to run:");
       console.log(matchingCommandObject);
       saveLastRun(command);
-      if (currentlyAskedQuestionQueue.length > 0) {
+      if (
+        currentlyAskedQuestionQueue.length > 0 &&
+        currentlyAskedQuestionMessageId
+      ) {
+        // Happens when the user triggers another survey, without having completed the first one yet
         ctx.reply(
           "^ Okay, but please answer my previous question also, thanks ^",
           Extra.inReplyTo(currentlyAskedQuestionMessageId)
         );
       }
+
       currentlyAskedQuestionQueue = currentlyAskedQuestionQueue.concat(
-        matchingCommandObject.values.slice(0)
-      ); // slice is a poor human's .clone basically
+        matchingCommandObject.questions.slice(0)
+      ); // slice is a poor human's .clone basicall
+
       if (currentlyAskedQuestionObject == null) {
         triggerNextQuestionFromQueue(ctx);
       }
@@ -304,7 +316,10 @@ function initScheduler() {
           let lastRun = moment(Number(currentRow.lastrun));
 
           if (userConfig[command] == null) {
-            console.error("Error, command not found: " + command);
+            console.error(
+              "Error, command not found, means it's not on the last run sheet, probably due to renaming a command: " +
+                command
+            );
             break;
           }
 
