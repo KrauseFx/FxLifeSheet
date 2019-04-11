@@ -96,9 +96,9 @@ This will trigger questions that take longer to reply, so they're only done week
 
 - Fitness related
   - Current macros
-    - # g Carbs
-    - # g Protein
-    - # g Fat
+    - g of Carbs
+    - g of Protein
+    - g of Fat
   - Body measurements
     - Band
       - Chest (covers lats, eben gemessen, engaged)
