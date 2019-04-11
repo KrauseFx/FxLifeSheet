@@ -131,7 +131,8 @@ function triggerNextQuestionFromQueue(ctx) {
       .oneTime()
       .extra();
   } else {
-    // TODO: reset keyboard here
+    keyboard = Extra.markup(m => m.removeKeyboard());
+  }
   }
 
   let question =
