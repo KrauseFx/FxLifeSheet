@@ -97,14 +97,19 @@ function getButtonText(number) {
     "5": "5️⃣"
   }[number];
 
-  if (
-    currentlyAskedQuestionObject.buttons &&
-    currentlyAskedQuestionObject.buttons[number]
-  ) {
-    return emojiNumber + " - " + currentlyAskedQuestionObject.buttons[number];
-  } else {
-    return number;
+  if (currentlyAskedQuestionObject.buttons == null) {
+    // Assign default values
+    currentlyAskedQuestionObject.buttons = {
+      "0": "Terrible",
+      "1": "Bad",
+      "2": "Okay",
+      "3": "Good",
+      "4": "Great",
+      "5": "Excellent"
+    };
   }
+
+  return emojiNumber + " " + currentlyAskedQuestionObject.buttons[number];
 }
 
 function triggerNextQuestionFromQueue(ctx) {
