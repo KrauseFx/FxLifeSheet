@@ -129,9 +129,12 @@ function triggerNextQuestionFromQueue(ctx) {
 
   if (currentQuestion.type == "range") {
     keyboard = Markup.keyboard([
-      [getButtonText("5"), getButtonText("4")],
-      [getButtonText("3"), getButtonText("2")],
-      [getButtonText("1"), getButtonText("0")]
+      [getButtonText("5")],
+      [getButtonText("4")],
+      [getButtonText("3")],
+      [getButtonText("2")],
+      [getButtonText("1")],
+      [getButtonText("0")]
     ])
       .oneTime()
       .extra();
