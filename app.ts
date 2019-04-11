@@ -141,13 +141,16 @@ function triggerNextQuestionFromQueue(ctx) {
   } else {
     keyboard = Extra.markup(m => m.removeKeyboard());
   }
+
+  let questionAppendix = currentlyAskedQuestionQueue.length + " more question";
+  if (currentlyAskedQuestionQueue.length != 1) {
+    questionAppendix += "s";
+  }
+  if (currentlyAskedQuestionQueue.length == 0) {
+    questionAppendix = "last question";
   }
 
-  let question =
-    currentQuestion.question +
-    " (" +
-    currentlyAskedQuestionQueue.length +
-    " more questions)";
+  let question = currentQuestion.question + " (" + questionAppendix + ")";
   ctx.reply(question, keyboard).then(({ message_id }) => {
     currentlyAskedQuestionMessageId = message_id;
   });
