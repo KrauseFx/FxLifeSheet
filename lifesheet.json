@@ -27,6 +27,34 @@
         "type": "range"
       },
       {
+        "key": "hugry",
+        "human": "Hungry",
+        "question": "Have you been feeling hungry today?",
+        "type": "range",
+        "buttons": {
+          "5": "Felt full and energized",
+          "4": "Macros aligned perfectly with my hunger",
+          "3": "Comfortably matched my macros",
+          "2": "Managed to squeeze in those macros",
+          "1": "Felt hungry here and then",
+          "0": "Stomach growl parts of the day"
+        }
+      },
+      {
+        "key": "stress",
+        "human": "Stress issues",
+        "question": "Have you been feeling stressed today?",
+        "type": "range",
+        "buttons": {
+          "5": "Very calm and aware",
+          "4": "Calm & relaxed",
+          "3": "Neutral",
+          "2": "Lots to do",
+          "1": "Stressed & Overwhelmed",
+          "0": "Very stressed, not sure where to start"
+        }
+      },
+      {
         "key": "numberOfDailySteps",
         "human": "Number of Daily Steps",
         "question": "How many steps did you take according to Apple Health?",

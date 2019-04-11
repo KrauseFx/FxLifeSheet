@@ -41,7 +41,7 @@ interface Command {
   values: Array<QuestionToAsk>;
 }
 
-let userConfig: { [key: string]: Command } = require("./config.json");
+let userConfig: { [key: string]: Command } = require("./lifesheet.json");
 console.log("Loaded user config:");
 console.log(userConfig);
 
