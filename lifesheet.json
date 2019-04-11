@@ -1,4 +1,29 @@
 {
+  "mood": {
+    "description": "Track my current mood during the day",
+    "schedule": "fourTimesADay",
+    "values": [
+      {
+        "key": "mood",
+        "human": "Mood",
+        "question": "How are you feeling today?",
+        "type": "range",
+        "buttons": {
+          "5": "pumped, energized",
+          "4": "happy, excited",
+          "3": "good",
+          "2": "okay",
+          "1": "sad, unhappy",
+          "0": "nervous"
+        },
+        "replies": {
+          "5": "💫 Awesome to hear, maybe take 2 minutes to reflect on why you're feeling great, and maybe add a note (once that feature is built I guess)",
+          "1": "Feeling down sometimes is okay. Maybe take 2 minutes to reflect on why you're not feeling better. Sending hugs 🤗🤗🤗",
+          "0": "Feeling down sometimes is okay. Maybe take 2 minutes to reflect on why you're not feeling better. Sending hugs 🤗🤗🤗"
+        }
+      }
+    ]
+  },
   "sleeping": {
     "description": "Use this right when going to bed",
     "schedule": "daily",
@@ -17,7 +42,7 @@
           "0": "No alcohol"
         },
         "replies": {
-          "5": "Haha, hope you had a good time and the calories were all worth it. Make sure to still hit your protein goal and eat extra clean the next few days" 
+          "5": "Haha, hope you had a good time and the calories were all worth it. Make sure to still hit your protein goal and eat extra clean the next few days"
         }
       },
       {
