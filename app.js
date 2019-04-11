@@ -81,18 +81,23 @@ function getButtonText(number) {
     return emojiNumber + " " + currentlyAskedQuestionObject.buttons[number];
 }
 function triggerNextQuestionFromQueue(ctx) {
-    var currentQuestion = currentlyAskedQuestionQueue.shift();
-    currentlyAskedQuestionObject = currentQuestion;
-    if (currentQuestion == null) {
-        ctx.reply("All done for now, let's do this 💪");
+    var keyboard = Extra.markup(function (m) { return m.removeKeyboard(); }); // default keyboard
+    currentlyAskedQuestionObject = currentlyAskedQuestionQueue.shift();
+    if (currentlyAskedQuestionObject == null) {
+        ctx.reply("All done for now, let's do this 💪", keyboard);
         // Finished
+        return;
+    }
+    if (currentlyAskedQuestionObject.type == "header") {
+        // This is information only, just print and go to the next one
+        ctx.reply(currentlyAskedQuestionObject.question, keyboard);
+        triggerNextQuestionFromQueue(ctx);
         return;
     }
     // Looks like Telegram has some limitations:
     // - No way to use `force_reply` together with a custom keyboard (https://github.com/KrauseFx/FxLifeSheet/issues/5)
     // - No way to update existing messages together with a custom keyboard https://core.telegram.org/bots/api#updating-messages
-    var keyboard = null;
-    if (currentQuestion.type == "range") {
+    if (currentlyAskedQuestionObject.type == "range") {
         keyboard = Markup.keyboard([
             [getButtonText("5")],
             [getButtonText("4")],
@@ -104,9 +109,6 @@ function triggerNextQuestionFromQueue(ctx) {
             .oneTime()
             .extra();
     }
-    else {
-        keyboard = Extra.markup(function (m) { return m.removeKeyboard(); });
-    }
     var questionAppendix = currentlyAskedQuestionQueue.length + " more question";
     if (currentlyAskedQuestionQueue.length != 1) {
         questionAppendix += "s";
@@ -114,7 +116,7 @@ function triggerNextQuestionFromQueue(ctx) {
     if (currentlyAskedQuestionQueue.length == 0) {
         questionAppendix = "last question";
     }
-    var question = currentQuestion.question + " (" + questionAppendix + ")";
+    var question = currentlyAskedQuestionObject.question + " (" + questionAppendix + ")";
     ctx.reply(question, keyboard).then(function (_a) {
         var message_id = _a.message_id;
         currentlyAskedQuestionMessageId = message_id;
@@ -175,14 +177,16 @@ function initBot() {
         // user entered a command to start the survey
         var command = ctx.match[1];
         var matchingCommandObject = userConfig[command];
-        if (matchingCommandObject && matchingCommandObject.values) {
+        if (matchingCommandObject && matchingCommandObject.questions) {
             console.log("User wants to run:");
             console.log(matchingCommandObject);
             saveLastRun(command);
-            if (currentlyAskedQuestionQueue.length > 0) {
+            if (currentlyAskedQuestionQueue.length > 0 &&
+                currentlyAskedQuestionMessageId) {
+                // Happens when the user triggers another survey, without having completed the first one yet
                 ctx.reply("^ Okay, but please answer my previous question also, thanks ^", Extra.inReplyTo(currentlyAskedQuestionMessageId));
             }
-            currentlyAskedQuestionQueue = currentlyAskedQuestionQueue.concat(matchingCommandObject.values.slice(0)); // slice is a poor human's .clone basically
+            currentlyAskedQuestionQueue = currentlyAskedQuestionQueue.concat(matchingCommandObject.questions.slice(0)); // slice is a poor human's .clone basicall
             if (currentlyAskedQuestionObject == null) {
                 triggerNextQuestionFromQueue(ctx);
             }
@@ -233,7 +237,8 @@ function initScheduler() {
                 var command = currentRow.command;
                 var lastRun = moment(Number(currentRow.lastrun));
                 if (userConfig[command] == null) {
-                    console.error("Error, command not found: " + command);
+                    console.error("Error, command not found, means it's not on the last run sheet, probably due to renaming a command: " +
+                        command);
                     break;
                 }
                 var scheduleType = userConfig[command].schedule;
