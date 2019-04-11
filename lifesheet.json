@@ -24,7 +24,41 @@
       }
     ]
   },
-  "sleeping": {
+  "awake": {
+    "description": "Use this right when you woke up",
+    "schedule": "daily",
+    "values": [
+      {
+        "key": "sleepQuality",
+        "human": "Sleep Quality",
+        "question": "How would you rate your quality of sleep?",
+        "type": "range",
+        "buttons": {
+          "5": "Excellent, feeling refreshed",
+          "4": "Great, feeling good",
+          "3": "Good, slighty above average",
+          "2": "Solid, slightly tired",
+          "1": "Tired, restless sleep",
+          "0": "Miserable"
+        }
+      },
+      {
+        "key": "sleepDuration",
+        "human": "Sleep Duration",
+        "question": "How long did you sleep tonight?",
+        "type": "range",
+        "buttons": {
+          "5": "8 hours or more",
+          "4": "7:30 - 8:00 hours",
+          "3": "7:00 - 7:30 hours",
+          "2": "6:30 - 7:00 hours",
+          "1": "6:00 - 6:30 hours",
+          "0": "Less than 6 hours"
+        }
+      }
+    ]
+  },
+  "asleep": {
     "description": "Use this right when going to bed",
     "schedule": "daily",
     "values": [
@@ -34,12 +68,12 @@
         "question": "How much alcohol did you drink today?",
         "type": "range",
         "buttons": {
-          "5": "Got wasted",
-          "4": "Had 4-5 drinks",
-          "3": "Had 3 drinks",
-          "2": "Had 2 drinks",
-          "1": "Had 1 drink",
-          "0": "No alcohol"
+          "5": "No alcohol",
+          "4": "Had 1 drink",
+          "3": "Had 2 drinks",
+          "2": "Had 3 drinks",
+          "1": "Had 4-5 drinks",
+          "0": "Got wasted",
         },
         "replies": {
           "5": "Haha, hope you had a good time and the calories were all worth it. Make sure to still hit your protein goal and eat extra clean the next few days"
@@ -49,10 +83,18 @@
         "key": "macroAdherence",
         "human": "Macro Adherence",
         "question": "How closely did you follow today's macro tracking?",
-        "type": "range"
+        "type": "range",
+        "buttons": {
+          "5": "Was able to scale 90% of my food",
+          "4": "One outside meal, rest scaled",
+          "3": "Two meals outside, rest scaled",
+          "2": "Ate outside only",
+          "1": "Didn't track, but used mind",
+          "0": "Just ate whatever",
+        },
       },
       {
-        "key": "hugry",
+        "key": "hungry",
         "human": "Hungry",
         "question": "Have you been feeling hungry today?",
         "type": "range",
@@ -62,7 +104,7 @@
           "3": "Comfortably matched my macros",
           "2": "Managed to squeeze in those macros",
           "1": "Felt hungry here and then",
-          "0": "Stomach growl parts of the day"
+          "0": "Stomach growling parts of the day"
         }
       },
       {

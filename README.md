@@ -87,6 +87,7 @@ This will trigger the end-of-day questions like
   - Medidated
   - Note: what was the main thing I did today?
   - Binary: Did I set goals for the next day?
+  - Do you feel excited about what's ahead in the future?
 
 #### Week
 
