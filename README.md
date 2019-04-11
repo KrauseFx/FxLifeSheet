@@ -41,9 +41,11 @@ Available values for `schedule`:
 
 ### User initiates data inputs 
 
-### TODO: 
-- [ ] How to phrase the points to be posivite and include expectations
-- [ ] Use of Telegram `Force Reply` feature
+#### Mood
+
+Using `fourTimesADay`, this will replace the mood bot
+
+- How are you feeling today?
 
 #### Morning
 
@@ -51,6 +53,7 @@ Available values for `schedule`:
 
 This will trigger the morning questions, like:
 
+- Sleep duration
 - Sleep quality
 
 #### Evening
@@ -65,14 +68,25 @@ This will trigger the end-of-day questions like
   - Hunger issues?
   - Fatigu/Lethargy?
   - Feel stressed?
+  - Caffeine intake?
+  - How energeized did you feel today?
+  - How healthy do you feel today?
+  - Number of steps according to Apple Health
 - Productivity related
-  - Solve technical challenges
-  - Learned new skills
+  - Did I solve actual programming/technical problems?
 - Social
+  - Felt like enough time by myself?
+  - Felt like enough in control of my own time and schedule?
   - Felt like enough socializing?
-  - Enough time by myself?
+  - Felt like enough going out, bars, restaurants, dancing etc.
+- Personal growth
+  - Learned new skills or things?
+  - Went out of my comfort zone?
+  - Number of minutes of Audible
 - Other
   - Medidated
+  - Note: what was the main thing I did today?
+  - Binary: Did I set goals for the next day?
 
 #### Week
 
@@ -81,20 +95,45 @@ This will trigger the end-of-day questions like
 This will trigger questions that take longer to reply, so they're only done weekly
 
 - Fitness related
-  - Body measurements
-  - Current weight (as weight is measured in mfp anyway)
   - Current macros
-  - Training adherence
+    - # g Carbs
+    - # g Protein
+    - # g Fat
+  - Body measurements
+    - Band
+      - Chest (covers lats, eben gemessen, engaged)
+      - Right Arm (engaged, lift up)
+      - Left Arm (engaged, lift up)
+      - 2" above (relaxed, 3 fingers above belly)
+      - Belly
+      - 2" below (relaxed, 3 fingers above belly)
+      - Hip (right above, include butt in measurement)
+      - Right Thigh (widest part of legs)
+      - Left Thigh (widest part of legs)
+    - Fat caliper
+      - Fat caliper avg left/right biceps
+      - Fat caliper right above belly button, von oben
+      - Fat caliper avg right next to belly button, von oben
+  - Current weight (weekly, as weight is measured in mfp anyway)
+  - Overall training adherence
+  - Note: Comments on fitness
 - Productivity
-  - Overall happiness with progress of the week
+  - Overall happiness with life progress of the week, do I go into the right direction?
   - Number of open Trello tasks (from [whereisfelix.today](https://whereisfelix.today))
+  - Number of emails in Inbox less than 5?
   - Average daily hours on computer
-  - Weekly total iOS screen time (minus MyFitnessPal and Strong app)
+  - Average daily iOS screen time (minus MyFitnessPal and Strong app)
+- Social
+  - Felt like spent enough time with family?
+  - Had deep conversations with close friends?
 - Other
-  - Locations (cities)
-  - Got out of my comfort zone, experienced/tried new things
-  - Do you feel like having to travel somewhere? 
+  - Did I travel, this includes every city more than 1h away, this is relevant for both fitness and productivity
+  - Note of all locations I was at (cities)
+  - Got out of my comfort zone & experienced/tried new things?
+  - Do you feel like having to travel somewhere?
   - Do you feel like you're missing out on things?
+  - Played computer games by myself
+  - Played computer games with friends or family?
 
 ### Reminders
 
