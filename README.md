@@ -28,50 +28,7 @@ There are 2 ways to input data: by the user telling the bot to ask for all the v
 
 ### Configuration
 
-`lifesheet.json`
-
-```json
-{
-  "sleeping": {
-    "description": "Use this right when going to bed",
-    "schedule": "daily",
-    "values": {
-      "alcoholIntake": {
-        "human": "Alcohol intake",
-        "question": "How much alcohol did you drink today?",
-        "type": "range",
-        "buttons": {
-          "5": "Got wasted",
-          "4": "Had 4-5 drinks",
-          "3": "Had 3 drinks",
-          "2": "Had 2 drinks",
-          "1": "Had 1 drink",
-          "0": "No alcohol"
-        },
-        "replies": {
-          "5": "Haha, hope you had a good time and the calories were all worth it. Make sure to still hit your protein goal and eat extra clean the next few days" 
-        }
-      },
-      "macroAdherence": {
-        "human": "Macro Adherence",
-        "question": "How closely did you follow today's macro tracking?",
-        "type": "range"
-      },
-      "numberOfDailySteps": {
-        "human": "Number of Daily Steps",
-        "question": "How many steps did you take according to Apple Health?",
-        "type": "number"
-      }
-      ...
-    }
-  },
-  "week": {
-    "description": "",
-    "schedule": "weekly"
-    ...
-  },
-}
-```
+[`lifesheet.json`](./lifesheet.json)
 
 Available values for `schedule`:
 
@@ -128,7 +85,6 @@ This will trigger questions that take longer to reply, so they're only done week
   - Current weight (as weight is measured in mfp anyway)
   - Current macros
   - Training adherence
-  - Average daily steps
 - Productivity
   - Overall happiness with progress of the week
   - Number of open Trello tasks (from [whereisfelix.today](https://whereisfelix.today))
