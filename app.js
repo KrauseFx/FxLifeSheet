@@ -19,7 +19,7 @@ var currentlyAskedQuestionMessageId = null; // The Telegram message ID reference
 var currentlyAskedQuestionQueue = []; // keep track of all the questions about to be asked
 var cachedCtx = null; // TODO: this obviously hsa to be removed and replaced with something better
 var lastCommandReminder = {}; // to not spam the user on each interval
-var userConfig = require("./config.json");
+var userConfig = require("./lifesheet.json");
 console.log("Loaded user config:");
 console.log(userConfig);
 async.series([
@@ -67,13 +67,18 @@ function getButtonText(number) {
         "4": "4️⃣",
         "5": "5️⃣"
     }[number];
-    if (currentlyAskedQuestionObject.buttons &&
-        currentlyAskedQuestionObject.buttons[number]) {
-        return emojiNumber + " - " + currentlyAskedQuestionObject.buttons[number];
+    if (currentlyAskedQuestionObject.buttons == null) {
+        // Assign default values
+        currentlyAskedQuestionObject.buttons = {
+            "0": "Terrible",
+            "1": "Bad",
+            "2": "Okay",
+            "3": "Good",
+            "4": "Great",
+            "5": "Excellent"
+        };
     }
-    else {
-        return number;
-    }
+    return emojiNumber + " " + currentlyAskedQuestionObject.buttons[number];
 }
 function triggerNextQuestionFromQueue(ctx) {
     var currentQuestion = currentlyAskedQuestionQueue.shift();
@@ -89,20 +94,27 @@ function triggerNextQuestionFromQueue(ctx) {
     var keyboard = null;
     if (currentQuestion.type == "range") {
         keyboard = Markup.keyboard([
-            [getButtonText("5"), getButtonText("4")],
-            [getButtonText("3"), getButtonText("2")],
-            [getButtonText("1"), getButtonText("0")]
+            [getButtonText("5")],
+            [getButtonText("4")],
+            [getButtonText("3")],
+            [getButtonText("2")],
+            [getButtonText("1")],
+            [getButtonText("0")]
         ])
             .oneTime()
             .extra();
     }
     else {
-        // TODO: reset keyboard here
+        keyboard = Extra.markup(function (m) { return m.removeKeyboard(); });
     }
-    var question = currentQuestion.question +
-        " (" +
-        currentlyAskedQuestionQueue.length +
-        " more questions)";
+    var questionAppendix = currentlyAskedQuestionQueue.length + " more question";
+    if (currentlyAskedQuestionQueue.length != 1) {
+        questionAppendix += "s";
+    }
+    if (currentlyAskedQuestionQueue.length == 0) {
+        questionAppendix = "last question";
+    }
+    var question = currentQuestion.question + " (" + questionAppendix + ")";
     ctx.reply(question, keyboard).then(function (_a) {
         var message_id = _a.message_id;
         currentlyAskedQuestionMessageId = message_id;
