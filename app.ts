@@ -202,6 +202,8 @@ function initBot() {
     let dateToAdd = moment();
     let row = {
       Timestamp: dateToAdd.valueOf(),
+      YearMonth: dateToAdd.format("YYYYMM"),
+      YearWeek: dateToAdd.format("YYYYWW"),
       Year: dateToAdd.year(),
       Quarter: dateToAdd.quarter(),
       Month: dateToAdd.format("MM"), // to get the leading 0 needed for Google Data Studio
