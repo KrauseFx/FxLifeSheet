@@ -90,8 +90,12 @@ function triggerNextQuestionFromQueue(ctx) {
     }
     if (currentlyAskedQuestionObject.type == "header") {
         // This is information only, just print and go to the next one
-        ctx.reply(currentlyAskedQuestionObject.question, keyboard);
-        triggerNextQuestionFromQueue(ctx);
+        ctx
+            .reply(currentlyAskedQuestionObject.question, keyboard)
+            .then(function (_a) {
+            var message_id = _a.message_id;
+            triggerNextQuestionFromQueue(ctx);
+        });
         return;
     }
     // Looks like Telegram has some limitations:
@@ -106,6 +110,11 @@ function triggerNextQuestionFromQueue(ctx) {
             [getButtonText("1")],
             [getButtonText("0")]
         ])
+            .oneTime()
+            .extra();
+    }
+    else if (currentlyAskedQuestionObject.type == "boolean") {
+        keyboard = Markup.keyboard([["1: Yes"], ["0: No"]])
             .oneTime()
             .extra();
     }

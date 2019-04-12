@@ -59,7 +59,13 @@
           "1": "6:00 - 6:30 hours",
           "0": "Less than 6 hours"
         }
-      }
+      },
+      {
+        "key": "sleepWokeUpYourself",
+        "human": "Sleep woke up by yourself",
+        "question": "Did you wake up by yourself?",
+        "type": "boolean"
+      },
     ]
   },
   "asleep": {
@@ -178,24 +184,6 @@
         "type": "number"
       },
       {
-        "question": "🧠 Let's talk productivity",
-        "type": "header"
-      },
-      {
-        "key": "problemSolving",
-        "human": "Problem Solving",
-        "question": "Did you work on any technical challenges and problem solving?",
-        "type": "range",
-        "buttons": {
-          "5": "Exciting challenges",
-          "4": "Interesting challenges",
-          "3": "Did some coding",
-          "2": "No actual challenges",
-          "1": "Just a little bit",
-          "0": "Nothing"
-        }
-      },
-      {
         "question": "👥 Let's talk social life",
         "type": "header"
       },
@@ -302,7 +290,7 @@
         "type": "number"
       },
       {
-        "question": "🧩 Let's wrap things up",
+        "question": "🧠 Let's talk productivity",
         "type": "header"
       },
       {
@@ -310,6 +298,30 @@
         "human": "Number of minutes meditated",
         "question": "How many minutes did you meditate today?",
         "type": "number"
+      },
+      {
+        "key": "problemSolving",
+        "human": "Problem Solving",
+        "question": "Did you work on any technical challenges and problem solving?",
+        "type": "range",
+        "buttons": {
+          "5": "Exciting challenges",
+          "4": "Interesting challenges",
+          "3": "Did some coding",
+          "2": "No actual challenges",
+          "1": "Just a little bit",
+          "0": "Nothing"
+        }
+      },
+      {
+        "key": "goalsNextDay",
+        "human": "Set goals for next day",
+        "question": "Did you set goals for the next day?",
+        "type": "boolean"
+      },
+      {
+        "question": "🧩 Let's wrap things up",
+        "type": "header"
       },
       {
         "key": "excitedAboutFuture",
