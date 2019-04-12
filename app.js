@@ -203,6 +203,16 @@ function initBot() {
                 triggerNextQuestionFromQueue(ctx);
             }
         }
+        else {
+            ctx
+                .reply("Sorry, I don't have a command for `" +
+                command +
+                "` - supported commands:")
+                .then(function (_a) {
+                var message_id = _a.message_id;
+                ctx.reply("/" + Object.keys(userConfig).join("\n/"));
+            });
+        }
     });
     bot.start(function (ctx) { return ctx.reply("Welcome to FxLifeSheet"); });
     bot.help(function (ctx) { return ctx.reply("TODO: This will include the help section"); });

@@ -270,6 +270,16 @@ function initBot() {
       if (currentlyAskedQuestionObject == null) {
         triggerNextQuestionFromQueue(ctx);
       }
+    } else {
+      ctx
+        .reply(
+          "Sorry, I don't have a command for `" +
+            command +
+            "` - supported commands:\n\n/skip"
+        )
+        .then(({ message_id }) => {
+          ctx.reply("/" + Object.keys(userConfig).join("\n/"));
+        });
     }
   });
 
