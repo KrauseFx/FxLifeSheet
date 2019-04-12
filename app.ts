@@ -125,8 +125,9 @@ function triggerNextQuestionFromQueue(ctx) {
 
   if (currentlyAskedQuestionObject.type == "header") {
     // This is information only, just print and go to the next one
-    ctx.reply(currentlyAskedQuestionObject.question, keyboard);
-    triggerNextQuestionFromQueue(ctx);
+    ctx.reply(currentlyAskedQuestionObject.question, keyboard).then(({ message_id }) => {
+      triggerNextQuestionFromQueue(ctx);
+    });;
     return;
   }
 
