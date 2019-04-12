@@ -154,7 +154,7 @@ function initBot() {
             Timestamp: dateToAdd.valueOf(),
             Year: dateToAdd.year(),
             Quarter: dateToAdd.quarter(),
-            Month: dateToAdd.month() + 1,
+            Month: dateToAdd.format("MM"),
             Day: dateToAdd.date(),
             Hour: dateToAdd.hours(),
             Minute: dateToAdd.minutes(),

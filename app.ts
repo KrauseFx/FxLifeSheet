@@ -204,7 +204,7 @@ function initBot() {
       Timestamp: dateToAdd.valueOf(),
       Year: dateToAdd.year(),
       Quarter: dateToAdd.quarter(),
-      Month: dateToAdd.month() + 1,
+      Month: dateToAdd.format("MM"), // to get the leading 0 needed for Google Data Studio
       Day: dateToAdd.date(),
       Hour: dateToAdd.hours(),
       Minute: dateToAdd.minutes(),
