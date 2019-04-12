@@ -235,6 +235,13 @@ function initBot() {
     });
   });
 
+  bot.hears("/skip", ctx => {
+    console.log("user is skipping this question");
+    ctx.reply("Okay, skipping question. If you see yourself skipping a question too often, maybe it's time to rephrase or remove it").then(({ message_id }) => {
+      triggerNextQuestionFromQueue(ctx);
+    });
+  });
+
   bot.hears(/\/(\w+)/, ctx => {
     cachedCtx = ctx;
     // user entered a command to start the survey

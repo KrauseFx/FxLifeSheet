@@ -181,6 +181,9 @@ function initBot() {
             console.log("Success");
         });
     });
+    bot.hears("/skip", function (ctx) {
+        triggerNextQuestionFromQueue(ctx);
+    });
     bot.hears(/\/(\w+)/, function (ctx) {
         cachedCtx = ctx;
         // user entered a command to start the survey

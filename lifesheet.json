@@ -65,7 +65,7 @@
         "human": "Sleep woke up by yourself",
         "question": "Did you wake up by yourself?",
         "type": "boolean"
-      },
+      }
     ]
   },
   "asleep": {
