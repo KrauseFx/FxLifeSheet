@@ -5,7 +5,6 @@
     "questions": [
       {
         "key": "mood",
-        "human": "Mood",
         "question": "How are you feeling today?",
         "type": "range",
         "buttons": {
@@ -34,7 +33,6 @@
       },
       {
         "key": "sleepQuality",
-        "human": "Sleep Quality",
         "question": "How would you rate your quality of sleep?",
         "type": "range",
         "buttons": {
@@ -48,7 +46,6 @@
       },
       {
         "key": "sleepDuration",
-        "human": "Sleep Duration",
         "question": "How long did you sleep tonight?",
         "type": "range",
         "buttons": {
@@ -62,7 +59,6 @@
       },
       {
         "key": "sleepWokeUpYourself",
-        "human": "Sleep woke up by yourself",
         "question": "Did you wake up by yourself?",
         "type": "boolean"
       }
@@ -78,7 +74,6 @@
       },
       {
         "key": "alcoholIntake",
-        "human": "Alcohol intake",
         "question": "How much alcohol did you drink today?",
         "type": "range",
         "buttons": {
@@ -95,7 +90,6 @@
       },
       {
         "key": "macroAdherence",
-        "human": "Macro Adherence",
         "question": "How closely did you follow today's macro tracking?",
         "type": "range",
         "buttons": {
@@ -109,7 +103,6 @@
       },
       {
         "key": "hungry",
-        "human": "Hungry",
         "question": "Have you been feeling hungry today?",
         "type": "range",
         "buttons": {
@@ -123,7 +116,6 @@
       },
       {
         "key": "fatigu",
-        "human": "Fatigude",
         "question": "Have you felt energized overall today?",
         "type": "range",
         "buttons": {
@@ -137,7 +129,6 @@
       },
       {
         "key": "stress",
-        "human": "Stress issues",
         "question": "Did you feel stressed today?",
         "type": "range",
         "buttons": {
@@ -151,7 +142,6 @@
       },
       {
         "key": "caffeine",
-        "human": "Caffeine",
         "question": "How much caffeine did you drink today? (Coffee, Club Mate, Energy Drinks)",
         "type": "range",
         "buttons": {
@@ -165,7 +155,6 @@
       },
       {
         "key": "healthy",
-        "human": "Healthy",
         "question": "How healthy do you feel?",
         "type": "range",
         "buttons": {
@@ -179,7 +168,6 @@
       },
       {
         "key": "dailySteps",
-        "human": "Number of Daily Steps",
         "question": "How many steps did you take according to Apple Health?",
         "type": "number"
       },
@@ -189,7 +177,6 @@
       },
       {
         "key": "timeByMyself",
-        "human": "Time by myself",
         "question": "Did you feel like you had enough time by yourself to do what you care about?",
         "type": "range",
         "buttons": {
@@ -207,7 +194,6 @@
       },
       {
         "key": "controlOfTime",
-        "human": "Control of my time",
         "question": "Did you feel like you were in control over your time and schedule?",
         "type": "range",
         "buttons": {
@@ -225,7 +211,6 @@
       },
       {
         "key": "socializing",
-        "human": "Socializing",
         "question": "Did you feel like you socalized enough?",
         "type": "range",
         "buttons": {
@@ -239,7 +224,6 @@
       },
       {
         "key": "goingOut",
-        "human": "Going Out",
         "question": "Do you feel like you went out enough, to restaurants, bars, dancing?",
         "type": "range",
         "buttons": {
@@ -257,7 +241,6 @@
       },
       {
         "key": "learned",
-        "human": "Learned",
         "question": "Did you learn/try something new? (skill or activity)",
         "type": "range",
         "buttons": {
@@ -271,7 +254,6 @@
       },
       {
         "key": "comfortZone",
-        "human": "Comfort Zone",
         "question": "Did you get out of your comfort zone",
         "type": "range",
         "buttons": {
@@ -285,7 +267,6 @@
       },
       {
         "key": "minutesRead",
-        "human": "Number of minutes read",
         "question": "How many minutes of Audible did you listen to today? Audible://",
         "type": "number"
       },
@@ -295,13 +276,11 @@
       },
       {
         "key": "meditated",
-        "human": "Number of minutes meditated",
         "question": "How many minutes did you meditate today?",
         "type": "number"
       },
       {
         "key": "problemSolving",
-        "human": "Problem Solving",
         "question": "Did you work on any technical challenges and problem solving?",
         "type": "range",
         "buttons": {
@@ -315,7 +294,6 @@
       },
       {
         "key": "goalsNextDay",
-        "human": "Set goals for next day",
         "question": "Did you set goals for the next day?",
         "type": "boolean"
       },
@@ -325,7 +303,6 @@
       },
       {
         "key": "excitedAboutFuture",
-        "human": "Excited about future",
         "question": "Do you feel excited about what's ahead in the future?",
         "type": "range",
         "buttons": {
@@ -336,6 +313,263 @@
           "1": "Some uncertainty about what's coming up",
           "0": "Worried about what's next"
         }
+      }
+    ]
+  },
+  "week": {
+    "description": "Use this once a week, ideally Monday or Tuesday morning",
+    "schedule": "weekly",
+    "questions": [
+      {
+        "question": "💪 Let's talk fitness first",
+        "type": "header"
+      },
+      {
+        "key": "weight",
+        "question": "Current weight, please take the average of the last few days, in lbs",
+        "type": "number"
+      },
+      {
+        "key": "trainingAdherence",
+        "question": "How was last week's training sessions?",
+        "type": "range",
+        "buttons": {
+          "5": "Increased volume in big exercises",
+          "4": "Increased most volumes",
+          "3": "Workouts felt great",
+          "2": "Workouts were good",
+          "1": "Not enough energy for good workouts",
+          "0": "Worked out less than 3 times last week"
+        }
+      },
+      {
+        "key": "macrosCarbs",
+        "question": "How many daily grams of carbs was your MFP goal?",
+        "type": "number"
+      },
+      {
+        "key": "macrosProtein",
+        "question": "How many daily grams of protein was your MFP goal?",
+        "type": "number"
+      },
+      {
+        "key": "macrosFat",
+        "question": "How many daily grams of fat was your MFP goal?",
+        "type": "number"
+      },
+      {
+        "question": "⌲ Now onto the body measurements",
+        "type": "header"
+      },
+      {
+        "key": "measurementTapeChest",
+        "question": "Chest tape measurement, covers lats, measure on one level, engage chest",
+        "type": "number"
+      },
+      {
+        "key": "measurementTapeRightArm",
+        "question": "Right arm tape measurement, lift up and flex",
+        "type": "number"
+      },
+      {
+        "key": "measurementTapeLeftArm",
+        "question": "Left arm tape measurement, lift up and flex",
+        "type": "number"
+      },
+      {
+        "key": "measurementTapeAboveBelly",
+        "question": "Measure 3 fingers above belly button",
+        "type": "number"
+      },
+      {
+        "key": "measurementTapeAroundBelly",
+        "question": "Measure around belly button",
+        "type": "number"
+      },
+      {
+        "key": "measurementTapeUnderBelly",
+        "question": "Measure 3 fingers under belly button",
+        "type": "number"
+      },
+      {
+        "key": "measurementTapeHip",
+        "question": "Measure tape around hip, should measure butt also",
+        "type": "number"
+      },
+      {
+        "key": "measurementTapeRightThigh",
+        "question": "Measure tape around right thigh, widest part of the leg",
+        "type": "number"
+      },
+      {
+        "key": "measurementTapeLeftThigh",
+        "question": "Measure tape around left thigh, widest part of the leg",
+        "type": "number"
+      },
+      {
+        "question": "🎅 Now onto the fat caliper measurements",
+        "type": "header"
+      },
+      {
+        "key": "measurementFatCaliperBiceps",
+        "question": "Fat caliper, average value for both left and right biceps",
+        "type": "number"
+      },
+      {
+        "key": "measurementFatCaliperAboveBelly",
+        "question": "Fat caliper, right above belly button, from top",
+        "type": "number"
+      },
+      {
+        "key": "measurementFatCaliperNextToBelly",
+        "question": "Fat caliper, right next to belly button, from top",
+        "type": "number"
+      },
+      {
+        "question": "🧠 Let's talk productivity",
+        "type": "header"
+      },
+      {
+        "key": "weekLifeProgress",
+        "question": "Do you feel like you moved into the right direction in life the past week?",
+        "type": "range",
+        "buttons": {
+          "5": "Had a plan and executed successfully",
+          "4": "Followed previous plan and continued",
+          "3": "Felt like it was the right direction",
+          "2": "Not sure",
+          "1": "Felt all over the place",
+          "0": "Unsure where to go"
+        }
+      },
+      {
+        "key": "openTrelloTasks",
+        "question": "How many open todos do you currently have? Take from https://whereisfelix.today",
+        "type": "number"
+      },
+      {
+        "key": "inboxZero",
+        "question": "Do you have less than 5 emails in your inbox?",
+        "type": "binary"
+      },
+      {
+        "key": "weeklyComputerTime",
+        "question": "How many hours did you spend on your computer last week? Check Timing app, select `Past 7 days` and use `Total time`",
+        "type": "number"
+      },
+      {
+        "key": "weeklyPhoneTime",
+        "question": "How many hours did you spend on your phone last week? Check Screen Time and remove all Fitness apps from the time",
+        "type": "number"
+      },
+      {
+        "question": "👥 Let's talk social life",
+        "type": "header"
+      },
+      {
+        "key": "enoughTimeFamily",
+        "question": "Do you feel like you've took enough time last week to spend with your family (siblings, parents and greater family)? If based outside Austria, apply this to FaceTime calls",
+        "type": "range",
+        "buttons": {
+          "5": "Spent enough time",
+          "4": "Spent a good amount of time",
+          "3": "Spent time with them",
+          "2": "Spent some time with them",
+          "1": "Should spend more time",
+          "0": "Wasn't able to spend time"
+        }
+      },
+      {
+        "key": "deepConversations",
+        "question": "Did you have deep conversations with close friends/family last week?",
+        "type": "range",
+        "buttons": {
+          "5": "Had one or more multi-hour long talks",
+          "4": "Had one more more insightful talks",
+          "3": "Some, but could be more",
+          "2": "Some, but should be more",
+          "1": "No real deep conversations",
+          "0": "No deep converations, but I need it"
+        }
+      },
+      {
+        "key": "sexualInteractions",
+        "question": "Were you happy with your sex life last week?",
+        "type": "range",
+        "buttons": {
+          "5": "",
+          "4": "",
+          "3": "",
+          "2": "",
+          "1": "",
+          "0": ""
+        }
+      },
+      {
+        "question": "🎁 Let's wrap things up",
+        "type": "header"
+      },
+      {
+        "key": "travel",
+        "question": "How much did you travel last week?",
+        "type": "range",
+        "buttons": {
+          "5": "Mostly stationary, minimal commute",
+          "4": "Normal travel/commute",
+          "3": "More than usual travels through car or train",
+          "2": "Longer travels through car or train",
+          "1": "1 flight",
+          "0": "2 flights or more"
+        }
+      },
+      {
+        "key": "travelLiving",
+        "question": "Did you live stationary?",
+        "type": "range",
+        "buttons": {
+          "5": "Stayed in a familiar env",
+          "4": "Stayed in a semi-permanent env",
+          "3": "Stayed in a new environment",
+          "2": "Stayed at least 2 places",
+          "1": "Stayed at more than 3 places",
+          "0": "Lots of one-off stays"
+        }
+      },
+      {
+        "key": "urgeToTravel",
+        "question": "Do you feel like you have to travel somewhere, or otherwise you might be missing out?",
+        "type": "range",
+        "buttons": {
+          "5": "Happy and statisfied with where I am",
+          "4": "Happy with the current situation",
+          "3": "Got a little urge to go somewhere",
+          "2": "Feel like needing a little change",
+          "1": "I'd like to travel somewhere for a bit",
+          "0": "I'd like to do a longer travel again"
+        }
+      },
+      {
+        "key": "fomo",
+        "question": "Do you feel like you're missing out on things?",
+        "type": "range",
+        "buttons": {
+          "5": "Happy and statisfied",
+          "4": "Overall happy",
+          "3": "Did things, but could have done better",
+          "2": "Felt like I didn't do enough",
+          "1": "Felt like I missed out on things",
+          "0": "Felt like I missed out on major things"
+        }
+      },
+      {
+        "key": "playedComputerGamesAlone",
+        "question": "Did you play computer games by yourself last week?",
+        "type": "binary"
+      },
+      {
+        "key": "playedComputerGamesFriends",
+        "question": "Did you play computer games with friends last week?",
+        "type": "binary"
       }
     ]
   }
