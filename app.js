@@ -151,15 +151,17 @@ function initBot() {
         }
         var dateToAdd = moment();
         var row = {
-            Timestamp: dateToAdd.format(),
+            Timestamp: dateToAdd.valueOf(),
             Year: dateToAdd.year(),
+            Quarter: dateToAdd.quarter(),
             Month: dateToAdd.month() + 1,
             Day: dateToAdd.date(),
             Hour: dateToAdd.hours(),
             Minute: dateToAdd.minutes(),
             Week: dateToAdd.week(),
-            Quarter: dateToAdd.quarter(),
             Key: currentlyAskedQuestionObject.key,
+            Human: currentlyAskedQuestionObject.human,
+            Question: currentlyAskedQuestionObject.question,
             Type: currentlyAskedQuestionObject.type,
             Value: userValue
         };
@@ -182,7 +184,13 @@ function initBot() {
         });
     });
     bot.hears("/skip", function (ctx) {
-        triggerNextQuestionFromQueue(ctx);
+        console.log("user is skipping this question");
+        ctx
+            .reply("Okay, skipping question. If you see yourself skipping a question too often, maybe it's time to rephrase or remove it")
+            .then(function (_a) {
+            var message_id = _a.message_id;
+            triggerNextQuestionFromQueue(ctx);
+        });
     });
     bot.hears(/\/(\w+)/, function (ctx) {
         cachedCtx = ctx;
@@ -207,7 +215,7 @@ function initBot() {
             ctx
                 .reply("Sorry, I don't have a command for `" +
                 command +
-                "` - supported commands:")
+                "` - supported commands:\n\n/skip")
                 .then(function (_a) {
                 var message_id = _a.message_id;
                 ctx.reply("/" + Object.keys(userConfig).join("\n/"));
