@@ -28,7 +28,7 @@
     "schedule": "daily",
     "questions": [
       {
-        "header": "🌇 Good morning",
+        "question": "🌇 Good morning",
         "type": "header"
       },
       {
@@ -115,7 +115,7 @@
         }
       },
       {
-        "key": "fatigu",
+        "key": "energy",
         "question": "Have you felt energized overall today?",
         "type": "range",
         "buttons": {

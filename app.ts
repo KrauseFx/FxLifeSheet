@@ -123,6 +123,12 @@ function triggerNextQuestionFromQueue(ctx) {
     return;
   }
 
+  if (currentlyAskedQuestionObject.question == null) {
+    console.error("No text defined for");
+    console.error(currentlyAskedQuestionObject);
+    // TODO: move this to centralized error handling
+  }
+
   if (currentlyAskedQuestionObject.type == "header") {
     // This is information only, just print and go to the next one
     ctx
