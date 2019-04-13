@@ -459,7 +459,7 @@
       },
       {
         "key": "weeklyComputerTime",
-        "question": "How many hours did you spend on your computer last week? Check Timing app, select `Past 7 days` and use `Total time`",
+        "question": "How many hours did you spend on your computer last week? Check Timing app, select `Past 7 days` and use `Total time`, round to nearest fullest hour",
         "type": "number"
       },
       {
@@ -499,7 +499,20 @@
       },
       {
         "key": "sexualInteractions",
-        "question": "Were you happy with your sex life last week?",
+        "question": "Sexual interactions",
+        "type": "range",
+        "buttons": {
+          "5": "",
+          "4": "",
+          "3": "",
+          "2": "",
+          "1": "",
+          "0": ""
+        }
+      },
+      {
+        "key": "sexLife",
+        "question": "Are you happy with your current sex life",
         "type": "range",
         "buttons": {
           "5": "",
@@ -545,7 +558,7 @@
         "question": "Do you feel like you have to travel somewhere, or otherwise you might be missing out?",
         "type": "range",
         "buttons": {
-          "5": "Happy and statisfied with where I am",
+          "5": "Happy and statisfied - no travels needed",
           "4": "Happy with the current situation",
           "3": "Got a little urge to go somewhere",
           "2": "Feel like needing a little change",
@@ -569,12 +582,12 @@
       {
         "key": "playedComputerGamesAlone",
         "question": "Did you play computer games by yourself last week?",
-        "type": "binary"
+        "type": "boolean"
       },
       {
         "key": "playedComputerGamesFriends",
         "question": "Did you play computer games with friends last week?",
-        "type": "binary"
+        "type": "boolean"
       }
     ]
   }
