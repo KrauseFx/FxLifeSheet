@@ -49,10 +49,10 @@
         "question": "How long did you sleep tonight?",
         "type": "range",
         "buttons": {
-          "5": "8 hours or more",
-          "4": "7:30 - 8:00 hours",
-          "3": "7:00 - 7:30 hours",
-          "2": "6:30 - 7:00 hours",
+          "5": "9 hours or more",
+          "4": "8:00 - 9:00 hours",
+          "3": "7:30 - 8:00 hours",
+          "2": "6:30 - 7:30 hours",
           "1": "6:00 - 6:30 hours",
           "0": "Less than 6 hours"
         }
@@ -247,7 +247,7 @@
           "5": "Learned multiple new things",
           "4": "Learned some new things",
           "3": "Learned something new",
-          "2": "Improved somehting existing",
+          "2": "Improved something existing",
           "1": "Didn't learn anything",
           "0": "I feel like I should learn more"
         }
@@ -278,6 +278,11 @@
         "key": "meditated",
         "question": "How many minutes did you meditate today?",
         "type": "number"
+      },
+      {
+        "key": "watchedTV",
+        "question": "Did you watch TV or a movie?",
+        "type": "boolean"
       },
       {
         "key": "problemSolving",
