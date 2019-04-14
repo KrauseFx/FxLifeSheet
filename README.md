@@ -146,6 +146,17 @@ e.g. if a `/sleeping` task is defined to be `/daily`, it would remind the user 2
 - For each question, add replies depending on the response, similar to what the [mood bot](https://github.com/krausefx/mood) is already doing, e.g.
   - Question "Do you feel like you're missing out on things?", user replies with "Yes, feeling sad", bot replies with "Okay, now think about 3 actions you can take to solve this, and implemnent at least one"
 
+## Telegram
+
+### Insert for available commands
+
+```
+mood - Track your mood
+awake - First thing in the morning
+asleep - Right before going to sleep
+week - Once per week metrics
+skip - Skip a question that was asked
+```
 
 ## Development
 
