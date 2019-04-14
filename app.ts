@@ -1,6 +1,7 @@
 // Third party dependencies
 const moment = require("moment");
 var needle = require("needle");
+var http = require("http");
 
 // Telegram setup
 const Telegraf = require("telegraf");
@@ -24,6 +25,7 @@ var currentlyAskedQuestionMessageId: String = null; // The Telegram message ID r
 let currentlyAskedQuestionQueue: Array<QuestionToAsk> = []; // keep track of all the questions about to be asked
 var cachedCtx = null; // TODO: this obviously hsa to be removed and replaced with something better
 var lastCommandReminder: { [key: string]: Number } = {}; // to not spam the user on each interval
+var lastMoodData = null; // used for the moods API
 
 // Interfaces
 interface Command {
@@ -83,6 +85,7 @@ async.series(
       // App logic
       initBot();
       initScheduler();
+      initMoodAPI();
     }
   }
 );
@@ -228,6 +231,14 @@ function initBot() {
       // TODO: replace with editing the existing message (ID in currentlyAskedQuestionMessageId, however couldn't get it to work)
       // ctx.reply("Success ✅", Extra.inReplyTo(currentlyAskedQuestionMessageId));
     });
+
+    if (currentlyAskedQuestionObject.key == "mood") {
+      // we only serve the current mood via an API
+      lastMoodData = {
+        time: dateToAdd,
+        value: Number(userValue)
+      };
+    }
 
     triggerNextQuestionFromQueue(ctx);
   });
@@ -409,4 +420,37 @@ function initScheduler() {
       }
     );
   }, 30000);
+}
+
+function initMoodAPI() {
+  // needed for the API endpoint used by https://whereisfelix.today
+  // Fetch the last entry from the before the container was spawned
+  // From then on the cashe is refreshed when the user enters the value
+  let currentMood = rawDataSheet.getRows(
+    {
+      offset: 0,
+      limit: 1,
+      orderby: "timestamp",
+      reverse: true,
+      query: "key=mood"
+    },
+    function(error, rows) {
+      if (error) {
+        console.error(error);
+      }
+      let lastMoodRow = rows[0];
+      lastMoodData = {
+        time: moment(Number(lastMoodRow.timestamp)).format(),
+        value: Number(lastMoodRow.value)
+      };
+    }
+  );
+
+  http
+    .createServer(function(req, res) {
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.write(JSON.stringify(lastMoodData));
+      return res.end();
+    })
+    .listen(8080);
 }

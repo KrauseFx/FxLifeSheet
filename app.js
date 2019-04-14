@@ -1,6 +1,7 @@
 // Third party dependencies
 var moment = require("moment");
 var needle = require("needle");
+var http = require("http");
 // Telegram setup
 var Telegraf = require("telegraf");
 var Router = Telegraf.Router, Markup = Telegraf.Markup, Extra = Telegraf.Extra;
@@ -19,6 +20,7 @@ var currentlyAskedQuestionMessageId = null; // The Telegram message ID reference
 var currentlyAskedQuestionQueue = []; // keep track of all the questions about to be asked
 var cachedCtx = null; // TODO: this obviously hsa to be removed and replaced with something better
 var lastCommandReminder = {}; // to not spam the user on each interval
+var lastMoodData = null; // used for the moods API
 var userConfig = require("./lifesheet.json");
 console.log("Loaded user config:");
 console.log(userConfig);
@@ -56,6 +58,7 @@ async.series([
         // App logic
         initBot();
         initScheduler();
+        initMoodAPI();
     }
 });
 function getButtonText(number) {
@@ -176,6 +179,15 @@ function initBot() {
             // TODO: replace with editing the existing message (ID in currentlyAskedQuestionMessageId, however couldn't get it to work)
             // ctx.reply("Success ✅", Extra.inReplyTo(currentlyAskedQuestionMessageId));
         });
+        console.log("Key: " + currentlyAskedQuestionObject.key);
+        if (currentlyAskedQuestionObject.key == "mood") {
+            // we only serve the current mood via an API
+            lastMoodData = {
+                time: dateToAdd,
+                value: Number(userValue)
+            };
+            console.log("setting: " + lastMoodData);
+        }
         triggerNextQuestionFromQueue(ctx);
     });
     // As we get no benefit of using `bot.command` to add commands, we might as well use
@@ -319,4 +331,32 @@ function initScheduler() {
             }
         });
     }, 30000);
+}
+function initMoodAPI() {
+    // needed for the API endpoint used by https://whereisfelix.today
+    // Fetch the last entry from the before the container was spawned
+    // From then on the cashe is refreshed when the user enters the value
+    var currentMood = rawDataSheet.getRows({
+        offset: 0,
+        limit: 1,
+        orderby: "timestamp",
+        reverse: true,
+        query: "key=mood"
+    }, function (error, rows) {
+        if (error) {
+            console.error(error);
+        }
+        var lastMoodRow = rows[0];
+        lastMoodData = {
+            time: moment(Number(lastMoodRow.timestamp)).format(),
+            value: Number(lastMoodRow.value)
+        };
+    });
+    http
+        .createServer(function (req, res) {
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.write(JSON.stringify(lastMoodData));
+        return res.end();
+    })
+        .listen(8080);
 }
