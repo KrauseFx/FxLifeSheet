@@ -452,5 +452,5 @@ function initMoodAPI() {
       res.write(JSON.stringify(lastMoodData));
       return res.end();
     })
-    .listen(8080);
+    .listen(process.env.PORT);
 }
