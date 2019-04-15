@@ -79,6 +79,11 @@
     "schedule": "daily",
     "questions": [
       {
+        "key": "city",
+        "question": "Please share your location, this is used to get your city, country, continent, currency, and weather details",
+        "type": "location"
+      },
+      {
         "question": "💪 Let's talk fitness first",
         "type": "header"
       },
@@ -343,11 +348,6 @@
       {
         "question": "🧩 Let's wrap things up",
         "type": "header"
-      },
-      {
-        "key": "city",
-        "question": "What city are you going to bed at right now? You can share your location via Telegram",
-        "type": "text"
       },
       {
         "key": "worryNotes",

@@ -223,7 +223,7 @@ function initBot() {
         var today = moment();
         if (moment()
             .format("HH")
-            .hour() < 7) {
+            .hours() < 7) {
             // this is being run after midnight,
             // as I have the tendency to stay up until later
             // we will fetch the weather from yesterday
