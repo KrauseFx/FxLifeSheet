@@ -55,6 +55,11 @@
           "2": "6:30 - 7:30 hours",
           "1": "6:00 - 6:30 hours",
           "0": "Less than 6 hours"
+        },
+        "replies": {
+          "2": "Make sure to get to bed earlier, or move early morning appointments to get the full 8 hours of sleep",
+          "1": "Make sure to get to bed earlier, or move early morning appointments to get the full 8 hours of sleep",
+          "0": "Make sure to get to bed earlier, or move early morning appointments to get the full 8 hours of sleep",
         }
       },
       {
