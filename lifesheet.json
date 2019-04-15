@@ -66,6 +66,11 @@
         "key": "sleepWokeUpYourself",
         "question": "Did you wake up by yourself?",
         "type": "boolean"
+      },
+      {
+        "key": "whatWouldMakeTodayGreat",
+        "question": "What would make today great?",
+        "type": "text"
       }
     ]
   },
@@ -183,6 +188,16 @@
           "1": "Stayed home due to health",
           "0": "Actually sick"
         }
+      },
+      {
+        "key": "creatineIntake",
+        "question": "Did you take your creatine today?",
+        "type": "boolean"
+      },
+      {
+        "key": "fishoilIntake",
+        "question": "Did you take your fish oil today?",
+        "type": "boolean"
       },
       {
         "key": "dailySteps",
@@ -327,6 +342,11 @@
       {
         "key": "city",
         "question": "What city are you going to bed at right now? You can share your location via Telegram",
+        "type": "text"
+      },
+      {
+        "key": "worryNotes",
+        "question": "Write down the number one thing you're worried about right now, and try to describe why you think it's an issue. If none comes to mind, run /skip",
         "type": "text"
       },
       {
