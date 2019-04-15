@@ -132,6 +132,13 @@ function triggerNextQuestionFromQueue(ctx) {
         questionAppendix +=
             "You can use a Bear note, and then paste the deep link to the note here";
     }
+    else if (currentlyAskedQuestionObject.type == "location") {
+        keyboard = Extra.markup(function (markup) {
+            return markup.keyboard([
+                markup.locationRequestButton("📡 Send location")
+            ]);
+        });
+    }
     questionAppendix = currentlyAskedQuestionQueue.length + " more question";
     if (currentlyAskedQuestionQueue.length != 1) {
         questionAppendix += "s";
@@ -182,6 +189,62 @@ function initBot() {
             triggerNextQuestionFromQueue(ctx);
         });
     });
+    bot.on("location", function (ctx) {
+        if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
+            return;
+        }
+        var location = ctx.update.message.location;
+        var lat = location.latitude;
+        var lng = location.longitude;
+        var url = "https://api.opencagedata.com/geocode/v1/json?q=" +
+            lat +
+            "+" +
+            lng +
+            "&key=" +
+            process.env.OPEN_CAGE_API_KEY;
+        needle.get(url, function (error, response, body) {
+            if (error) {
+                console.error(error);
+            }
+            var result = body["results"][0];
+            // we have some custom handling of the data here, as we get
+            // so much useful data, that we want to insert more rows here
+            insertNewValue(lat, null, "locationLat", "number");
+            insertNewValue(lng, null, "locationLng", "number");
+            insertNewValue(result["components"]["country"], null, "locationCountry", "text");
+            insertNewValue(result["components"]["country_code"], null, "locationCountryCode", "text");
+            insertNewValue(result["formatted"], null, "locationAddress", "text");
+            insertNewValue(result["components"]["continent"], null, "locationContinent", "text");
+            insertNewValue(result["annotations"]["currency"]["name"], null, "locationCurrency", "text");
+            insertNewValue(result["annotations"]["timezone"]["short_name"], null, "timezone", "text");
+            var city = result["components"]["City"] || result["components"]["state"]; // vienna is not a city according to their API
+            insertNewValue(city, null, "locationCity", "text");
+        });
+        var weatherURL = "https://api.apixu.com/v1/history.json?key=" +
+            process.env.WEATHER_API_KEY +
+            "&q=" +
+            lat +
+            ";" +
+            lng +
+            "&dt=" +
+            moment().format("YYYY-MM-DD");
+        // we use the `/history` API so we get the average/max/min temps of the day instead of the current one (late at night)
+        needle.get(weatherURL, function (error, response, body) {
+            if (error) {
+                console.error(error);
+            }
+            var result = body["forecast"]["forecastday"][0];
+            var resultDay = result["day"];
+            insertNewValue(resultDay["avgtemp_c"], null, "weatherCelsius", "number");
+            insertNewValue(resultDay["totalprecip_mm"], null, "weatherRain", "number");
+            insertNewValue(resultDay["avghumidity"], null, "weatherHumidity", "number");
+            var dayDurationHours = moment("2000-01-01 " + result["astro"]["sunset"]).diff(moment("2000-01-01 " + result["astro"]["sunrise"]), "minutes") / 60.0;
+            insertNewValue(dayDurationHours, ctx, // hacky, we just pass this, so that we only sent a confirmation text once
+            "weatherHoursOfSunlight", "number");
+            // hacky, as at this point, the other http request might not be complete yet
+            triggerNextQuestionFromQueue(ctx);
+        });
+    });
     // parse commands to start a survey
     bot.hears(/\/(\w+)/, function (ctx) {
         if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
@@ -221,6 +284,40 @@ function initBot() {
     // has to be last
     bot.launch();
 }
+function insertNewValue(parsedUserValue, ctx, key, type) {
+    console.log("Inserting value '" + parsedUserValue + "' for key " + key);
+    var dateToAdd = moment();
+    var row = {
+        Timestamp: dateToAdd.valueOf(),
+        YearMonth: dateToAdd.format("YYYYMM"),
+        YearWeek: dateToAdd.format("YYYYWW"),
+        Year: dateToAdd.year(),
+        Quarter: dateToAdd.quarter(),
+        Month: dateToAdd.format("MM"),
+        Day: dateToAdd.date(),
+        Hour: dateToAdd.hours(),
+        Minute: dateToAdd.minutes(),
+        Week: dateToAdd.week(),
+        Key: key,
+        Question: currentlyAskedQuestionObject.question,
+        Type: type,
+        Value: parsedUserValue
+    };
+    rawDataSheet.addRow(row, function (error, row) {
+        // TODO: replace with editing the existing message (ID in currentlyAskedQuestionMessageId, however couldn't get it to work)
+        // if (ctx) {
+        //   // we don't use this for location sending as we have many values for that
+        //   ctx.reply("Success ✅", Extra.inReplyTo(currentlyAskedQuestionMessageId));
+        // }
+    });
+    if (key == "mood") {
+        // we only serve the current mood via an API
+        lastMoodData = {
+            time: dateToAdd,
+            value: Number(parsedUserValue)
+        };
+    }
+}
 function parseUserInput(ctx) {
     if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
         return;
@@ -237,7 +334,6 @@ function parseUserInput(ctx) {
     // user replied with a value
     var userValue = ctx.match[1];
     var parsedUserValue = null;
-    console.log(userValue);
     if (currentlyAskedQuestionObject.type != "text") {
         // First, see if it starts with emoji number, for which we have to do custom
         // parsing instead
@@ -273,41 +369,13 @@ function parseUserInput(ctx) {
         // Check if there is a custom reply, and if, use that
         ctx.reply(currentlyAskedQuestionObject.replies[parsedUserValue], Extra.inReplyTo(ctx.update.message.message_id));
     }
-    var dateToAdd = moment();
-    var row = {
-        Timestamp: dateToAdd.valueOf(),
-        YearMonth: dateToAdd.format("YYYYMM"),
-        YearWeek: dateToAdd.format("YYYYWW"),
-        Year: dateToAdd.year(),
-        Quarter: dateToAdd.quarter(),
-        Month: dateToAdd.format("MM"),
-        Day: dateToAdd.date(),
-        Hour: dateToAdd.hours(),
-        Minute: dateToAdd.minutes(),
-        Week: dateToAdd.week(),
-        Key: currentlyAskedQuestionObject.key,
-        Human: currentlyAskedQuestionObject.human,
-        Question: currentlyAskedQuestionObject.question,
-        Type: currentlyAskedQuestionObject.type,
-        Value: parsedUserValue
-    };
-    rawDataSheet.addRow(row, function (error, row) {
-        // TODO: replace with editing the existing message (ID in currentlyAskedQuestionMessageId, however couldn't get it to work)
-        // ctx.reply("Success ✅", Extra.inReplyTo(currentlyAskedQuestionMessageId));
-    });
-    if (currentlyAskedQuestionObject.key == "mood") {
-        // we only serve the current mood via an API
-        lastMoodData = {
-            time: dateToAdd,
-            value: Number(userValue)
-        };
-    }
+    insertNewValue(parsedUserValue, ctx, currentlyAskedQuestionObject.key, currentlyAskedQuestionObject.type);
     triggerNextQuestionFromQueue(ctx);
 }
 function sendAvailableCommands(ctx) {
     ctx.reply("Available commands:").then(function (_a) {
         var message_id = _a.message_id;
-        ctx.reply("\n\n/skip\n/report\n/" + Object.keys(userConfig).join("\n/"));
+        ctx.reply("\n\n/skip\n/report\n\n/" + Object.keys(userConfig).join("\n/"));
     });
 }
 function saveLastRun(command) {

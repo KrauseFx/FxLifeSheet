@@ -325,6 +325,11 @@
         "type": "header"
       },
       {
+        "key": "city",
+        "question": "What city are you going to bed at right now? You can share your location via Telegram",
+        "type": "text"
+      },
+      {
         "key": "mainAccomplishment",
         "question": "What was your main accomplishment of today",
         "type": "text"
