@@ -165,7 +165,6 @@ function initBot() {
             .then(function (_a) {
             var message_id = _a.message_id;
             ctx.reply("Full report: https://datastudio.google.com/s/uwV1-Pv9dk4");
-            console.log("Success");
         });
     });
     bot.hears("/skip", function (ctx) {
@@ -232,7 +231,6 @@ function parseUserInput(ctx) {
         // parsing instead
         if (currentlyAskedQuestionObject.type == "range" ||
             currentlyAskedQuestionObject.type == "boolean") {
-            console.log(userValue[0]);
             var tryToParseNumber = parseInt(userValue[0]);
             if (!isNaN(tryToParseNumber)) {
                 parsedUserValue = tryToParseNumber;
