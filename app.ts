@@ -117,6 +117,7 @@ function getButtonText(number) {
 
 function triggerNextQuestionFromQueue(ctx) {
   let keyboard = Extra.markup(m => m.removeKeyboard()); // default keyboard
+  let questionAppendix = "";
 
   currentlyAskedQuestionObject = currentlyAskedQuestionQueue.shift();
 
@@ -163,9 +164,11 @@ function triggerNextQuestionFromQueue(ctx) {
       .extra();
   } else if (currentlyAskedQuestionObject.type == "text") {
     // use the default keyboard we set here anyway
+    questionAppendix +=
+      "You can use a Bear note, and then paste the deep link to the note here";
   }
 
-  let questionAppendix = currentlyAskedQuestionQueue.length + " more question";
+  questionAppendix = currentlyAskedQuestionQueue.length + " more question";
   if (currentlyAskedQuestionQueue.length != 1) {
     questionAppendix += "s";
   }
@@ -197,6 +200,10 @@ function initBot() {
   //
   // Those have to be above the regex match
   bot.hears("/report", ctx => {
+    if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
+      return;
+    }
+
     console.log("Generating report...");
     ctx
       .replyWithPhoto({
@@ -221,6 +228,10 @@ function initBot() {
 
   // parse commands to start a survey
   bot.hears(/\/(\w+)/, ctx => {
+    if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
+      return;
+    }
+
     cachedCtx = ctx;
     // user entered a command to start the survey
     let command = ctx.match[1];
@@ -268,6 +279,10 @@ function initBot() {
 }
 
 function parseUserInput(ctx) {
+  if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
+    return;
+  }
+
   if (currentlyAskedQuestionMessageId == null) {
     ctx
       .reply(

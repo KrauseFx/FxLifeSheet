@@ -85,6 +85,7 @@ function getButtonText(number) {
 }
 function triggerNextQuestionFromQueue(ctx) {
     var keyboard = Extra.markup(function (m) { return m.removeKeyboard(); }); // default keyboard
+    var questionAppendix = "";
     currentlyAskedQuestionObject = currentlyAskedQuestionQueue.shift();
     if (currentlyAskedQuestionObject == null) {
         ctx.reply("All done for now, let's do this 💪", keyboard);
@@ -128,8 +129,10 @@ function triggerNextQuestionFromQueue(ctx) {
     }
     else if (currentlyAskedQuestionObject.type == "text") {
         // use the default keyboard we set here anyway
+        questionAppendix +=
+            "You can use a Bear note, and then paste the deep link to the note here";
     }
-    var questionAppendix = currentlyAskedQuestionQueue.length + " more question";
+    questionAppendix = currentlyAskedQuestionQueue.length + " more question";
     if (currentlyAskedQuestionQueue.length != 1) {
         questionAppendix += "s";
     }
@@ -157,6 +160,9 @@ function initBot() {
     //
     // Those have to be above the regex match
     bot.hears("/report", function (ctx) {
+        if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
+            return;
+        }
         console.log("Generating report...");
         ctx
             .replyWithPhoto({
@@ -178,6 +184,9 @@ function initBot() {
     });
     // parse commands to start a survey
     bot.hears(/\/(\w+)/, function (ctx) {
+        if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
+            return;
+        }
         cachedCtx = ctx;
         // user entered a command to start the survey
         var command = ctx.match[1];
@@ -213,6 +222,9 @@ function initBot() {
     bot.launch();
 }
 function parseUserInput(ctx) {
+    if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
+        return;
+    }
     if (currentlyAskedQuestionMessageId == null) {
         ctx
             .reply("Sorry, I forgot the question I asked, this usually means it took too long for you to respond, please trigger the question again by running the `/` command")
