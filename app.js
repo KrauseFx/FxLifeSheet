@@ -202,6 +202,7 @@ function initBot() {
             lng +
             "&key=" +
             process.env.OPEN_CAGE_API_KEY;
+        console.log(url);
         needle.get(url, function (error, response, body) {
             if (error) {
                 console.error(error);
@@ -237,6 +238,7 @@ function initBot() {
             lng +
             "&dt=" +
             today.format("YYYY-MM-DD");
+        console.log(weatherURL);
         // we use the `/history` API so we get the average/max/min temps of the day instead of the current one (late at night)
         needle.get(weatherURL, function (error, response, body) {
             if (error) {
