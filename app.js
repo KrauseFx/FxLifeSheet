@@ -220,6 +220,15 @@ function initBot() {
             var city = result["components"]["City"] || result["components"]["state"]; // vienna is not a city according to their API
             insertNewValue(city, null, "locationCity", "text");
         });
+        var today = moment();
+        if (moment()
+            .format("HH")
+            .hour() < 7) {
+            // this is being run after midnight,
+            // as I have the tendency to stay up until later
+            // we will fetch the weather from yesterday
+            today = moment().subtract("1", "day");
+        }
         var weatherURL = "https://api.apixu.com/v1/history.json?key=" +
             process.env.WEATHER_API_KEY +
             "&q=" +
@@ -227,7 +236,7 @@ function initBot() {
             ";" +
             lng +
             "&dt=" +
-            moment().format("YYYY-MM-DD");
+            today.format("YYYY-MM-DD");
         // we use the `/history` API so we get the average/max/min temps of the day instead of the current one (late at night)
         needle.get(weatherURL, function (error, response, body) {
             if (error) {
