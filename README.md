@@ -83,9 +83,9 @@ This will trigger the end-of-day questions like
   - Went out of my comfort zone?
   - Number of minutes of Audible
 - Other
-  - Medidated
+  - Meditated
   - Note: what was the main thing I did today?
-  - Binary: Did I set goals for the next day?
+  - Boolean: Did I set goals for the next day?
   - Do you feel excited about what's ahead in the future?
 
 #### Week
@@ -151,11 +151,12 @@ e.g. if a `/sleeping` task is defined to be `/daily`, it would remind the user 2
 ### Insert for available commands
 
 ```
+skip - Skip a question that was asked
+report - Generate one page report
 mood - Track your mood
 awake - First thing in the morning
 asleep - Right before going to sleep
 week - Once per week metrics
-skip - Skip a question that was asked
 ```
 
 ## Development

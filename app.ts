@@ -161,6 +161,8 @@ function triggerNextQuestionFromQueue(ctx) {
     keyboard = Markup.keyboard([["1: Yes"], ["0: No"]])
       .oneTime()
       .extra();
+  } else if (currentlyAskedQuestionObject.type == "text") {
+    // use the default keyboard we set here anyway
   }
 
   let questionAppendix = currentlyAskedQuestionQueue.length + " more question";
@@ -180,80 +182,30 @@ function triggerNextQuestionFromQueue(ctx) {
 
 // App logic
 function initBot() {
-  bot.hears(/(\d+)/, ctx => {
-    if (currentlyAskedQuestionMessageId == null) {
-      ctx.reply(
-        "Sorry, I forgot the question I asked, this usually means it took too long for you to respond, please trigger the question again by running the `/` command"
-      );
-      return;
-    }
-
-    // user replied with a value
-    let userValue = ctx.match[1];
-    console.log(
-      "Got a new value: " +
-        userValue +
-        " for question " +
-        currentlyAskedQuestionObject.key
-    );
-
-    if (
-      currentlyAskedQuestionObject.replies &&
-      currentlyAskedQuestionObject.replies[userValue]
-    ) {
-      // Check if there is a custom reply, and if, use that
-      ctx.reply(
-        currentlyAskedQuestionObject.replies[userValue],
-        Extra.inReplyTo(ctx.update.message.message_id)
-      );
-    }
-
-    let dateToAdd = moment();
-    let row = {
-      Timestamp: dateToAdd.valueOf(),
-      YearMonth: dateToAdd.format("YYYYMM"),
-      YearWeek: dateToAdd.format("YYYYWW"),
-      Year: dateToAdd.year(),
-      Quarter: dateToAdd.quarter(),
-      Month: dateToAdd.format("MM"), // to get the leading 0 needed for Google Data Studio
-      Day: dateToAdd.date(),
-      Hour: dateToAdd.hours(),
-      Minute: dateToAdd.minutes(),
-      Week: dateToAdd.week(),
-      Key: currentlyAskedQuestionObject.key,
-      Human: currentlyAskedQuestionObject.human,
-      Question: currentlyAskedQuestionObject.question,
-      Type: currentlyAskedQuestionObject.type,
-      Value: userValue
-    };
-
-    rawDataSheet.addRow(row, function(error, row) {
-      // TODO: replace with editing the existing message (ID in currentlyAskedQuestionMessageId, however couldn't get it to work)
-      // ctx.reply("Success ✅", Extra.inReplyTo(currentlyAskedQuestionMessageId));
-    });
-
-    if (currentlyAskedQuestionObject.key == "mood") {
-      // we only serve the current mood via an API
-      lastMoodData = {
-        time: dateToAdd,
-        value: Number(userValue)
-      };
-    }
-
-    triggerNextQuestionFromQueue(ctx);
+  // parse numeric/text inputs
+  // `^([^\/].*)$` matches everything that doens't start with /
+  // This will enable us to get any user inputs, including longer texts
+  bot.hears(/^([^\/].*)$/, ctx => {
+    parseUserInput(ctx);
   });
 
   // As we get no benefit of using `bot.command` to add commands, we might as well use
   // regexes, which then allows us to let the user's JSON define the available commands
 
-  bot.hears("/report", ({ replyWithPhoto }) => {
+  //
+  // parse one-off commands:
+  //
+  // Those have to be above the regex match
+  bot.hears("/report", ctx => {
     console.log("Generating report...");
-    replyWithPhoto({
-      url:
-        "https://datastudio.google.com/reporting/1a-1rVk-4ZFOg0WTNNGRvJDXMTNXpl5Uy/page/MpTm/thumbnail?sz=s3000"
-    }).then(({ message_id }) => {
-      console.log("Success");
-    });
+    ctx
+      .replyWithPhoto({
+        url:
+          "https://datastudio.google.com/reporting/1a-1rVk-4ZFOg0WTNNGRvJDXMTNXpl5Uy/page/MpTm/thumbnail?sz=s3000"
+      })
+      .then(({ message_id }) => {
+        ctx.reply("Full report: https://datastudio.google.com/s/uwV1-Pv9dk4");
+      });
   });
 
   bot.hears("/skip", ctx => {
@@ -267,6 +219,7 @@ function initBot() {
       });
   });
 
+  // parse commands to start a survey
   bot.hears(/\/(\w+)/, ctx => {
     cachedCtx = ctx;
     // user entered a command to start the survey
@@ -297,13 +250,9 @@ function initBot() {
       }
     } else {
       ctx
-        .reply(
-          "Sorry, I don't have a command for `" +
-            command +
-            "` - supported commands:\n\n/skip"
-        )
+        .reply("Sorry, I don't know how to run `/" + command)
         .then(({ message_id }) => {
-          ctx.reply("/" + Object.keys(userConfig).join("\n/"));
+          sendAvailableCommands(ctx);
         });
     }
   });
@@ -316,6 +265,115 @@ function initBot() {
 
   // has to be last
   bot.launch();
+}
+
+function parseUserInput(ctx) {
+  if (currentlyAskedQuestionMessageId == null) {
+    ctx
+      .reply(
+        "Sorry, I forgot the question I asked, this usually means it took too long for you to respond, please trigger the question again by running the `/` command"
+      )
+      .then(({ message_id }) => {
+        sendAvailableCommands(ctx);
+      });
+    return;
+  }
+
+  // user replied with a value
+  let userValue = ctx.match[1];
+  let parsedUserValue = null;
+  console.log(userValue);
+
+  if (currentlyAskedQuestionObject.type != "text") {
+    // First, see if it starts with emoji number, for which we have to do custom
+    // parsing instead
+    if (
+      currentlyAskedQuestionObject.type == "range" ||
+      currentlyAskedQuestionObject.type == "boolean"
+    ) {
+      let tryToParseNumber = parseInt(userValue[0]);
+      if (!isNaN(tryToParseNumber)) {
+        parsedUserValue = tryToParseNumber;
+      } else {
+        ctx.reply(
+          "Sorry, looks like your input is invalid, please enter a valid number from the selection",
+          Extra.inReplyTo(ctx.update.message.message_id)
+        );
+      }
+    }
+
+    if (parsedUserValue == null) {
+      // parse the int/float, support both ints and floats
+      userValue = userValue.match(/^(\d+(\.\d+)?)$/);
+      if (userValue == null) {
+        ctx.reply(
+          "Sorry, looks like you entered an invalid number, please try again",
+          Extra.inReplyTo(ctx.update.message.message_id)
+        );
+        return;
+      }
+      parsedUserValue = userValue[1];
+    }
+  } else {
+    parsedUserValue = userValue; // raw value is fine
+  }
+  console.log(
+    "Got a new value: " +
+      parsedUserValue +
+      " for question " +
+      currentlyAskedQuestionObject.key
+  );
+
+  if (
+    currentlyAskedQuestionObject.replies &&
+    currentlyAskedQuestionObject.replies[parsedUserValue]
+  ) {
+    // Check if there is a custom reply, and if, use that
+    ctx.reply(
+      currentlyAskedQuestionObject.replies[parsedUserValue],
+      Extra.inReplyTo(ctx.update.message.message_id)
+    );
+  }
+
+  let dateToAdd = moment();
+  let row = {
+    Timestamp: dateToAdd.valueOf(),
+    YearMonth: dateToAdd.format("YYYYMM"),
+    YearWeek: dateToAdd.format("YYYYWW"),
+    Year: dateToAdd.year(),
+    Quarter: dateToAdd.quarter(),
+    Month: dateToAdd.format("MM"), // to get the leading 0 needed for Google Data Studio
+    Day: dateToAdd.date(),
+    Hour: dateToAdd.hours(),
+    Minute: dateToAdd.minutes(),
+    Week: dateToAdd.week(),
+    Key: currentlyAskedQuestionObject.key,
+    Human: currentlyAskedQuestionObject.human,
+    Question: currentlyAskedQuestionObject.question,
+    Type: currentlyAskedQuestionObject.type,
+    Value: parsedUserValue
+  };
+
+  rawDataSheet.addRow(row, function(error, row) {
+    // TODO: replace with editing the existing message (ID in currentlyAskedQuestionMessageId, however couldn't get it to work)
+    // ctx.reply("Success ✅", Extra.inReplyTo(currentlyAskedQuestionMessageId));
+  });
+
+  if (currentlyAskedQuestionObject.key == "mood") {
+    // we only serve the current mood via an API
+    lastMoodData = {
+      time: dateToAdd,
+      value: Number(userValue)
+    };
+  }
+
+  triggerNextQuestionFromQueue(ctx);
+}
+
+function sendAvailableCommands(ctx) {
+  ctx.reply("Available commands:").then(({ message_id }) => {
+    ctx.reply("\n\n/skip\n/report\n/" + Object.keys(userConfig).join("\n/"));
+  });
 }
 
 function saveLastRun(command) {

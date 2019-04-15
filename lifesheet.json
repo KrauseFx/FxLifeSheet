@@ -159,6 +159,19 @@
         }
       },
       {
+        "key": "sexDrive",
+        "question": "What's your current sex drive?",
+        "type": "range",
+        "buttons": {
+          "5": "",
+          "4": "",
+          "3": "",
+          "2": "",
+          "1": "",
+          "0": ""
+        }
+      },
+      {
         "key": "healthy",
         "question": "How healthy do you feel?",
         "type": "range",
@@ -312,6 +325,11 @@
         "type": "header"
       },
       {
+        "key": "mainAccomplishment",
+        "question": "What was your main accomplishment of today",
+        "type": "text"
+      },
+      {
         "key": "excitedAboutFuture",
         "question": "Do you feel excited about what's ahead in the future?",
         "type": "range",
@@ -323,6 +341,11 @@
           "1": "Some uncertainty about what's coming up",
           "0": "Worried about what's next"
         }
+      },
+      {
+        "key": "moodNotes",
+        "question": "What do you think was the main influence to your mood ratings today?",
+        "type": "text"
       }
     ]
   },
@@ -330,6 +353,10 @@
     "description": "Use this once a week, ideally Monday or Tuesday morning",
     "schedule": "weekly",
     "questions": [
+      {
+        "question": "🕺 If you could describe the last week in one sentence, what stood out?",
+        "type": "text"
+      },
       {
         "question": "💪 Let's talk fitness first",
         "type": "header"
@@ -436,6 +463,16 @@
         "type": "number"
       },
       {
+        "key": "macroNotes",
+        "question": "Notes about your macros, anything that stood out?",
+        "type": "text"
+      },
+      {
+        "key": "trainingNotes",
+        "question": "Notes about your training, anything that stood out?",
+        "type": "text"
+      },
+      {
         "question": "🧠 Let's talk productivity",
         "type": "header"
       },
@@ -460,7 +497,7 @@
       {
         "key": "inboxZero",
         "question": "Do you have less than 5 emails in your inbox?",
-        "type": "binary"
+        "type": "boolean"
       },
       {
         "key": "weeklyComputerTime",
