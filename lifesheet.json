@@ -205,6 +205,11 @@
         "type": "number"
       },
       {
+        "key": "numberOfSwarmCheckins",
+        "question": "How many Swarm check-ins did you do today? Feel free to ignore train stations and other smaller check-ins, it's about how many actual places (restaurants, bars, sights) you visited today",
+        "type": "number"
+      },
+      {
         "question": "👥 Let's talk social life",
         "type": "header"
       },
