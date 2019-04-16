@@ -435,6 +435,9 @@ function insertNewValue(parsedUserValue, ctx, key, type) {
   };
 
   rawDataSheet.addRow(row, function(error, row) {
+    if (error) {
+      console.error(error);
+    }
     // TODO: replace with editing the existing message (ID in currentlyAskedQuestionMessageId, however couldn't get it to work)
     // if (ctx) {
     //   // we don't use this for location sending as we have many values for that
