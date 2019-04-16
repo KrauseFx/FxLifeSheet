@@ -609,6 +609,10 @@ function initScheduler() {
             if (timeDifferenceHours >= 24 * 7 * 1.05) {
               shouldRemindUser = true;
             }
+          } else if (scheduleType == "monthly") {
+            if (timeDifferenceHours >= 24 * 30 * 1.05) {
+              shouldRemindUser = true;
+            }
           } else if (scheduleType == "manual") {
             // Never remind the user
           } else {
