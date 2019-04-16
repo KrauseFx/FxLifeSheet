@@ -43,9 +43,9 @@ interface QuestionToAsk {
 }
 
 let userConfig: { [key: string]: Command } = require("./lifesheet.json");
-console.log("Loaded user config:");
-console.log(userConfig);
+console.log("Successfully loaded user config");
 
+console.log("Starting Google Sheets Login, this might take a few seconds...");
 async.series(
   [
     function setAuth(step) {
@@ -80,11 +80,14 @@ async.series(
     if (err) {
       console.log("Error: " + err);
     } else {
-      console.log("✅ Login successful, bot is running now");
-      // App logic
+      console.log("Google login successful");
+      console.log("Setting up Telegram bot...");
       initBot();
+      console.log("Setting up background scheduler...");
       initScheduler();
+      console.log("Setting up web API");
       initMoodAPI();
+      console.log("Boot up complete");
     }
   }
 );
