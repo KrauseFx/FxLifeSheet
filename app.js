@@ -307,7 +307,7 @@ function initBot() {
 }
 function insertNewValue(parsedUserValue, ctx, key, type) {
     console.log("Inserting value '" + parsedUserValue + "' for key " + key);
-    var dateToAdd = moment("2019-02-15");
+    var dateToAdd = moment();
     var row = {
         Timestamp: dateToAdd.valueOf(),
         YearMonth: dateToAdd.format("YYYYMM"),
