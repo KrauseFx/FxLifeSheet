@@ -32,6 +32,7 @@ There are many questions that can be answered using this data, here are some mai
 - How does the weather/climate influence my mood
 - How does travel affect my mood?
 - How do certain macro nutrition goals affect my mood?
+- What amount of hours of sleep have the best influence on mood?
 
 #### Fitness related
 
@@ -55,6 +56,7 @@ There are many questions that can be answered using this data, here are some mai
   - productivity
   - stress
   - health
+  - sleep
   - feeling connected with friends
 
 #### Productivity
