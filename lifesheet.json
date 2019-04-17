@@ -94,6 +94,11 @@
         "type": "boolean"
       },
       {
+        "key": "weight",
+        "question": "Current weight, in lbs",
+        "type": "number"
+      },
+      {
         "key": "whatWouldMakeTodayGreat",
         "question": "What would make today great?",
         "type": "text"
@@ -421,11 +426,6 @@
       {
         "question": "💪 Let's talk fitness first",
         "type": "header"
-      },
-      {
-        "key": "weight",
-        "question": "Current weight, please take the average of the last few days, in lbs",
-        "type": "number"
       },
       {
         "key": "trainingAdherence",
