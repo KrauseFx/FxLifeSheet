@@ -23,6 +23,40 @@
       }
     ]
   },
+  "faron": {
+    "description": "Track the numbers Faron is tracking",
+    "schedule": "manual",
+    "questions": [
+      {
+        "question": "💪 Tracking progress with Faron, let's do this! 💪",
+        "type": "header"
+      },
+      {
+        "question": "All the numbers below must be measured by Faron, with shoes, and at the gym, in the afternoon around 4pm after using the bathroom. Subtract 1lbs from the total weight with shoes",
+        "type": "header"
+      },
+      {
+        "key": "faronGymWeightWithShoes",
+        "question": "Bodyweight with shoes, measured at gym (in lbs)",
+        "type": "number"
+      },
+      {
+        "key": "faronLeanBodyWeight",
+        "question": "Lean Body Weight (in lbs)",
+        "type": "number"
+      },
+      {
+        "key": "faronBodyFatPercent",
+        "question": "Calculated body fat percent. Enter without the % sign",
+        "type": "number"
+      },
+      {
+        "key": "faronBodyFatMass",
+        "question": "Calculated body fat mass (in lbs)",
+        "type": "number"
+      }
+    ]
+  },
   "awake": {
     "description": "Use this right when you woke up",
     "schedule": "daily",
@@ -47,20 +81,12 @@
       {
         "key": "sleepDuration",
         "question": "How long did you sleep tonight?",
-        "type": "range",
-        "buttons": {
-          "5": "9 hours or more",
-          "4": "8:00 - 9:00 hours",
-          "3": "7:30 - 8:00 hours",
-          "2": "6:30 - 7:30 hours",
-          "1": "6:00 - 6:30 hours",
-          "0": "Less than 6 hours"
-        },
-        "replies": {
-          "2": "Make sure to get to bed earlier, or move early morning appointments to get the full 8 hours of sleep",
-          "1": "Make sure to get to bed earlier, or move early morning appointments to get the full 8 hours of sleep",
-          "0": "Make sure to get to bed earlier, or move early morning appointments to get the full 8 hours of sleep"
-        }
+        "type": "number"
+      },
+      {
+        "key": "fitbitTimeAsleep",
+        "question": "How many hours asleep were you according to Fitbit (round to nearest 30mins)",
+        "type": "number"
       },
       {
         "key": "sleepWokeUpYourself",
@@ -210,6 +236,11 @@
         "type": "number"
       },
       {
+        "key": "fitbitRestingHeartRate",
+        "question": "What was today's resting heart rate according to FitBit",
+        "type": "number"
+      },
+      {
         "key": "numberOfSwarmCheckins",
         "question": "How many Swarm check-ins did you do today? Feel free to ignore train stations and other smaller check-ins, it's about how many actual places (restaurants, bars, sights) you visited today",
         "type": "number"
@@ -310,7 +341,7 @@
       },
       {
         "key": "minutesRead",
-        "question": "How many minutes of Audible did you listen to today? Audible://",
+        "question": "How many minutes of Audible did you listen to today?",
         "type": "number"
       },
       {
@@ -425,7 +456,7 @@
         "type": "number"
       },
       {
-        "question": "⌲ Now onto the body measurements",
+        "question": "⌲ Now onto the body measurements, please make sure to enter the number in cm!",
         "type": "header"
       },
       {

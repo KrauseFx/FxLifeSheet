@@ -238,6 +238,16 @@ function initBot() {
     if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
       return;
     }
+    if (currentlyAskedQuestionMessageId == null) {
+      ctx
+        .reply(
+          "Sorry, I forgot the question I asked, this usually means it took too long for you to respond, please trigger the question again by running the `/` command"
+        )
+        .then(({ message_id }) => {
+          sendAvailableCommands(ctx);
+        });
+      return;
+    }
     let location = ctx.update.message.location;
     let lat = location.latitude;
     let lng = location.longitude;
@@ -298,11 +308,7 @@ function initBot() {
     });
 
     let today = moment();
-    if (
-      moment()
-        .format("HH")
-        .hours() < 7
-    ) {
+    if (moment().hours() < 7) {
       // this is being run after midnight,
       // as I have the tendency to stay up until later
       // we will fetch the weather from yesterday

@@ -22,8 +22,8 @@ var cachedCtx = null; // TODO: this obviously hsa to be removed and replaced wit
 var lastCommandReminder = {}; // to not spam the user on each interval
 var lastMoodData = null; // used for the moods API
 var userConfig = require("./lifesheet.json");
-console.log("Loaded user config:");
-console.log(userConfig);
+console.log("Successfully loaded user config");
+console.log("Starting Google Sheets Login, this might take a few seconds...");
 async.series([
     function setAuth(step) {
         var creds = {
@@ -54,11 +54,14 @@ async.series([
         console.log("Error: " + err);
     }
     else {
-        console.log("✅ Login successful, bot is running now");
-        // App logic
+        console.log("Google login successful");
+        console.log("Setting up Telegram bot...");
         initBot();
+        console.log("Setting up background scheduler...");
         initScheduler();
+        console.log("Setting up web API");
         initMoodAPI();
+        console.log("Boot up complete");
     }
 });
 function getButtonText(number) {
@@ -193,6 +196,15 @@ function initBot() {
         if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
             return;
         }
+        if (currentlyAskedQuestionMessageId == null) {
+            ctx
+                .reply("Sorry, I forgot the question I asked, this usually means it took too long for you to respond, please trigger the question again by running the `/` command")
+                .then(function (_a) {
+                var message_id = _a.message_id;
+                sendAvailableCommands(ctx);
+            });
+            return;
+        }
         var location = ctx.update.message.location;
         var lat = location.latitude;
         var lng = location.longitude;
@@ -222,9 +234,7 @@ function initBot() {
             insertNewValue(city, null, "locationCity", "text");
         });
         var today = moment();
-        if (moment()
-            .format("HH")
-            .hours() < 7) {
+        if (moment().hours() < 7) {
             // this is being run after midnight,
             // as I have the tendency to stay up until later
             // we will fetch the weather from yesterday
@@ -297,7 +307,7 @@ function initBot() {
 }
 function insertNewValue(parsedUserValue, ctx, key, type) {
     console.log("Inserting value '" + parsedUserValue + "' for key " + key);
-    var dateToAdd = moment();
+    var dateToAdd = moment("2019-02-15");
     var row = {
         Timestamp: dateToAdd.valueOf(),
         YearMonth: dateToAdd.format("YYYYMM"),
@@ -315,6 +325,9 @@ function insertNewValue(parsedUserValue, ctx, key, type) {
         Value: parsedUserValue
     };
     rawDataSheet.addRow(row, function (error, row) {
+        if (error) {
+            console.error(error);
+        }
         // TODO: replace with editing the existing message (ID in currentlyAskedQuestionMessageId, however couldn't get it to work)
         // if (ctx) {
         //   // we don't use this for location sending as we have many values for that
@@ -446,6 +459,11 @@ function initScheduler() {
                 }
                 else if (scheduleType == "weekly") {
                     if (timeDifferenceHours >= 24 * 7 * 1.05) {
+                        shouldRemindUser = true;
+                    }
+                }
+                else if (scheduleType == "monthly") {
+                    if (timeDifferenceHours >= 24 * 30 * 1.05) {
                         shouldRemindUser = true;
                     }
                 }
