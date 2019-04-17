@@ -22,6 +22,47 @@ As every person is so vastly different, and cares about different metrics in the
 - Easy input, that make it "fun" to track the data
 - Clear separation between data input and analyzing data, as one has to work day to day while on-the-go, the other one requires a full desktop
 
+### Questions to answer
+
+There are many questions that can be answered using this data, here are some main ones I want to look into over the next few months
+
+#### Mood/Happines related:
+
+- How does the city I'm in influence my level of happiness?
+- How does the weather/climate influence my mood
+- How does travel affect my mood?
+- How do certain macro nutrition goals affect my mood?
+
+#### Fitness related
+
+- How do certain macro goals influence my lean body mass and fat levels?
+- How does my daily kcal intake affect my social life?
+- How does alcohol affect my training and fitness progress?
+- Do more daily steps influence
+  - my mood
+  - the amount of audio books I'm reading
+  - feeling connected with family & friends as often calling them
+- What are the areas in life that suffer while cutting (kcal deficit):
+  - mood
+  - stress
+  - productivity
+  - energy
+
+#### Travel
+
+- What are the areas in life that suffer when I travel? Investigate:
+  - fitness progress
+  - productivity
+  - stress
+  - health
+  - feeling connected with friends
+
+#### Productivity
+
+- How many hours did I spend on my phone and laptop over the months?
+- Do I stick to my yearly book goals and how do other factors influence how much I'm reading?
+- Am I more productive when I set the goals for the day the night before?
+
 ## Implementation
 
 **Assumptions**
