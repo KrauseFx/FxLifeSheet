@@ -421,7 +421,8 @@
     "questions": [
       {
         "question": "🕺 If you could describe the last week in one sentence, what stood out?",
-        "type": "text"
+        "type": "text",
+        "key": "lastWeekSummaryText"
       },
       {
         "question": "💪 Let's talk fitness first",

@@ -327,6 +327,9 @@ function insertNewValue(parsedUserValue, ctx, key, type) {
     rawDataSheet.addRow(row, function (error, row) {
         if (error) {
             console.error(error);
+            if (ctx) {
+                ctx.reply("Error saving value: " + error);
+            }
         }
         // TODO: replace with editing the existing message (ID in currentlyAskedQuestionMessageId, however couldn't get it to work)
         // if (ctx) {

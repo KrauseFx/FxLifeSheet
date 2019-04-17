@@ -1,5 +1,11 @@
 # FxLifeSheet
 
+[![Twitter: @KrauseFx](https://img.shields.io/badge/contact-@KrauseFx-blue.svg?style=flat)](https://twitter.com/KrauseFx)
+
+## Status of the project
+
+This is still a Work-in-Progress project. I'm using this for myself already, and things are working well. However there are still missing pieces, in particular the dashboard is currently hard-coded in Google Data Studio. I'll work on [finding an alternative](https://github.com/KrauseFx/FxLifeSheet/issues/34).
+
 ## Goal
 
 To track all my relevant quantified data in a central place, in which I fully own the data
