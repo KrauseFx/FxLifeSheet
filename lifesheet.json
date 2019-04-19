@@ -429,6 +429,11 @@
         "type": "header"
       },
       {
+        "key": "gym",
+        "question": "Did you work out in a gym today?",
+        "type": "boolean"
+      },
+      {
         "key": "trainingAdherence",
         "question": "How was last week's training sessions?",
         "type": "range",
