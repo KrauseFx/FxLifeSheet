@@ -417,6 +417,19 @@
         "key": "moodNotes",
         "question": "What do you think was the main influence to your mood ratings today?",
         "type": "text"
+      },
+      {
+        "key": "bedTime",
+        "question": "When did you go to bed tonight?",
+        "type": "range",
+        "buttons": {
+          "5": "Before midnight",
+          "4": "Midnight",
+          "3": "Before 0:30",
+          "2": "Before 1:00",
+          "1": "Before 1:30",
+          "0": "Later"
+        }
       }
     ]
   },
