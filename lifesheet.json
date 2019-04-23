@@ -473,8 +473,8 @@
         "question": "When did you go to bed tonight?",
         "type": "range",
         "buttons": {
-          "5": "Before midnight",
-          "4": "Midnight",
+          "5": "Before 11:30",
+          "4": "Before midnight",
           "3": "Before 0:30",
           "2": "Before 1:00",
           "1": "Before 1:30",
@@ -501,8 +501,8 @@
         "question": "How was last week's training sessions?",
         "type": "range",
         "buttons": {
-          "5": "Increased volume in big exercises",
-          "4": "Increased most volumes",
+          "5": "Increased volume in all exercises",
+          "4": "Increased some volumes",
           "3": "Workouts felt great",
           "2": "Workouts were good",
           "1": "Not enough energy for good workouts",
