@@ -166,10 +166,10 @@
         "type": "range",
         "buttons": {
           "5": "Felt full of energy",
-          "4": "Enough energy and great workout",
+          "4": "Great energy",
           "3": "Good energy",
           "2": "Average energy",
-          "1": "Felt tired, okay workout",
+          "1": "Felt tired/sluggish",
           "0": "Didn't feel like doing a lot"
         }
       },
@@ -211,6 +211,11 @@
           "1": "",
           "0": ""
         }
+      },
+      {
+        "key": "gym",
+        "question": "Did you work out in a gym today?",
+        "type": "boolean"
       },
       {
         "key": "healthy",
@@ -427,11 +432,6 @@
       {
         "question": "💪 Let's talk fitness first",
         "type": "header"
-      },
-      {
-        "key": "gym",
-        "question": "Did you work out in a gym today?",
-        "type": "boolean"
       },
       {
         "key": "trainingAdherence",
