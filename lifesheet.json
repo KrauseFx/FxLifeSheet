@@ -94,14 +94,44 @@
         "type": "boolean"
       },
       {
-        "key": "weight",
-        "question": "Current weight, in lbs",
-        "type": "number"
+        "key": "gratefulFor",
+        "question": "I am grateful for? [item 1]",
+        "type": "text"
+      },
+      {
+        "key": "gratefulFor",
+        "question": "I am grateful for? [item 2] /skip",
+        "type": "text"
+      },
+      {
+        "key": "gratefulFor",
+        "question": "I am grateful for? [item 3] /skip",
+        "type": "text"
       },
       {
         "key": "whatWouldMakeTodayGreat",
-        "question": "What would make today great?",
+        "question": "What would make today great? [item 1]",
         "type": "text"
+      },
+      {
+        "key": "whatWouldMakeTodayGreat",
+        "question": "What would make today great? [item 2] /skip",
+        "type": "text"
+      },
+      {
+        "key": "whatWouldMakeTodayGreat",
+        "question": "What would make today great? [item 3] /skip",
+        "type": "text"
+      },
+      {
+        "key": "dailyAffirmations",
+        "question": "Daily affirmations, I am...",
+        "type": "text"
+      },
+      {
+        "key": "weight",
+        "question": "Current weight, in lbs",
+        "type": "number"
       }
     ]
   },
@@ -109,6 +139,26 @@
     "description": "Use this right when going to bed",
     "schedule": "daily",
     "questions": [
+      {
+        "key": "amazingThingsThatHappenedToday",
+        "question": "3 amazing things that happened today... [item 1]",
+        "type": "text"
+      },
+      {
+        "key": "amazingThingsThatHappenedToday",
+        "question": "3 amazing things that happened today... [item 2]",
+        "type": "text"
+      },
+      {
+        "key": "amazingThingsThatHappenedToday",
+        "question": "3 amazing things that happened today... [item 3]",
+        "type": "text"
+      },
+      {
+        "key": "madeTodayEvenBetter",
+        "question": "How could I have made today even better?",
+        "type": "text"
+      },
       {
         "key": "city",
         "question": "Please share your location, this is used to get your city, country, continent, currency, and weather details",
