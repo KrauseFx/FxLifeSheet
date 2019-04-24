@@ -216,6 +216,23 @@ week - Once per week metrics
 npm run dev
 ```
 
+### Environment variables
+
+`.keys` file or however you manage your secret env variables:
+
+```
+export TELEGRAM_BOT_TOKEN=""
+export TELEGRAM_USER_ID=""
+
+export GOOGLE_SHEETS_DOC_ID=""
+export GOOGLE_SHEETS_CLIENT_EMAIL=""
+export GOOGLE_SHEETS_PRIVATE_KEY=""
+
+export OPEN_CAGE_API_KEY=""
+export WEATHER_API_KEY=""
+```
+
+
 ### Debugging
 
 After using `npm run dev`, open [chrome://inspect](chrome://inspect) to use the Chrome Dev Tools
