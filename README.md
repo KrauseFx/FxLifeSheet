@@ -216,6 +216,13 @@ week - Once per week metrics
 npm run dev
 ```
 
+### Debugging
+
+After using `npm run dev`, open [chrome://inspect](chrome://inspect) to use the Chrome Dev Tools
+
+
+### Setup
+
 ### Environment variables
 
 `.keys` file or however you manage your secret env variables:
@@ -232,7 +239,30 @@ export OPEN_CAGE_API_KEY=""
 export WEATHER_API_KEY=""
 ```
 
+### Spreadsheet
 
-### Debugging
+Long term, I'll provide a template. For now, the following options need to be met:
 
-After using `npm run dev`, open [chrome://inspect](chrome://inspect) to use the Chrome Dev Tools
+- A new Google Sheet
+- Give the Google Cloud Service acocunt edit access
+- Create the following columns in sheet one (first row):
+  - Timestamp
+  - YearMonth
+  - YearWeek
+  - Year
+  - Quarter
+  - Month
+  - Week
+  - Day
+  - Hour
+  - Minute
+  - Key
+  - Question
+  - Type
+  - Value
+- Select column B and C, and change the format to be `Plain Text` (this is needed for Google Data Studio)
+- Rename the sheet one to `RawData`
+- Create another sheet called `LastRun` and create 2 columns
+  - Command
+  - LastRun
+

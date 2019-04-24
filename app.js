@@ -38,14 +38,27 @@ async.series([
                 console.error(error);
             }
             console.log("Loaded doc: " + info.title + " by " + info.author.email);
-            rawDataSheet = info.worksheets[0];
-            lastRunSheet = info.worksheets[1];
-            console.log("sheet 1: " +
-                rawDataSheet.title +
-                " " +
+            for (var i = 0; i < info.worksheets.length; i++) {
+                // we iterate over those and check the name, as we don't want to use indexes to access a sheet directly
+                // to allow the user to order those sheets to however they want
+                var currentSheet = info.worksheets[i];
+                if (currentSheet.title.toLowerCase() == "rawdata") {
+                    rawDataSheet = currentSheet;
+                }
+                else if (currentSheet.title.toLowerCase() == "lastrun") {
+                    lastRunSheet = currentSheet;
+                }
+                else {
+                    console.log("Ignoring user's sheet named " + currentSheet.title);
+                }
+            }
+            if (rawDataSheet == null || lastRunSheet == null) {
+                console.error("Something is wrong with the Sheet, please make sure to create 2 sheets: RawData and LastRun, according to the project's README and try again");
+                return;
+            }
+            console.log("Found the relevant sheets, already " +
                 rawDataSheet.rowCount +
-                "x" +
-                rawDataSheet.colCount);
+                " existing data entries");
             step();
         });
     }
