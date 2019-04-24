@@ -320,7 +320,7 @@ function initBot() {
 }
 function insertNewValue(parsedUserValue, ctx, key, type) {
     console.log("Inserting value '" + parsedUserValue + "' for key " + key);
-    var dateToAdd = moment();
+    var dateToAdd = moment(ctx.update.message.date * 1000);
     var row = {
         Timestamp: dateToAdd.valueOf(),
         YearMonth: dateToAdd.format("YYYYMM"),
