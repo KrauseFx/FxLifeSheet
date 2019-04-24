@@ -303,7 +303,7 @@ function initBot() {
         "text"
       );
 
-      let city = result["components"]["City"] || result["components"]["state"]; // vienna is not a city according to their API
+      let city = result["components"]["city"] || result["components"]["state"]; // vienna is not a city according to their API
       insertNewValue(city, null, "locationCity", "text");
     });
 

@@ -230,7 +230,7 @@ function initBot() {
             insertNewValue(result["components"]["continent"], null, "locationContinent", "text");
             insertNewValue(result["annotations"]["currency"]["name"], null, "locationCurrency", "text");
             insertNewValue(result["annotations"]["timezone"]["short_name"], null, "timezone", "text");
-            var city = result["components"]["City"] || result["components"]["state"]; // vienna is not a city according to their API
+            var city = result["components"]["city"] || result["components"]["state"]; // vienna is not a city according to their API
             insertNewValue(city, null, "locationCity", "text");
         });
         var today = moment();
