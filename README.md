@@ -2,6 +2,9 @@
 
 [![Twitter: @KrauseFx](https://img.shields.io/badge/contact-@KrauseFx-blue.svg?style=flat)](https://twitter.com/KrauseFx)
 
+<img src="screenshots/Dashboard1.png" />
+<img src="screenshots/Dashboard2.png" />
+
 ## Status of the project
 
 This is still a Work-in-Progress project. I'm using this for myself already, and things are working well. However there are still missing pieces, in particular the dashboard is currently hard-coded in Google Data Studio. I'll work on [finding an alternative](https://github.com/KrauseFx/FxLifeSheet/issues/34).
@@ -262,7 +265,11 @@ Long term, I'll provide a template. For now, the following options need to be me
   - Value
 - Select column B and C, and change the format to be `Plain Text` (this is needed for Google Data Studio)
 - Rename the sheet one to `RawData`
+
+<img src="screenshots/Sheet1.png" />
+
 - Create another sheet called `LastRun` and create 2 columns
   - Command
   - LastRun
 
+<img src="screenshots/Sheet2.png" />
