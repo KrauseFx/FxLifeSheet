@@ -1,7 +1,7 @@
 {
   "scripts": {
     "prettier": "prettier app.ts --write",
-    "dev": "source .keys && prettier app.ts --write && tsc app.ts && node --inspect app.js",
+    "dev": "source .keys && prettier app.ts --write && tsc app.ts && node inspect app.js",
     "prod": "prettier app.ts --write && tsc app.ts && NODE_ENV=production node app.js"
   },
   "dependencies": {
