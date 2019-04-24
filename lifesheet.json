@@ -419,6 +419,16 @@
         "type": "boolean"
       },
       {
+        "key": "numberOfWorkMeetings",
+        "question": "How many work meetings did you have today? This includes work-related phone calls",
+        "type": "number"
+      },
+      {
+        "key": "numberOfPersonalMeetings",
+        "question": "How many personal meetings did you have today? This includes all 1:1 meet-ups, coffees and lunches with friends",
+        "type": "number"
+      },
+      {
         "key": "problemSolving",
         "question": "Did you work on any technical challenges and problem solving?",
         "type": "range",
