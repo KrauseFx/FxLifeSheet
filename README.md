@@ -273,3 +273,9 @@ Long term, I'll provide a template. For now, the following options need to be me
   - LastRun
 
 <img src="screenshots/Sheet2.png" />
+
+### Google Data Studio
+
+Right now, you'll need to setup Google Data studio to visualize your data. I created a [public report](https://datastudio.google.com/open/1xNRbyt_JicmYRw8DOB8DBuabaUyDhIAk) you can copy and connect with your data source. As data source, you'll need to select your Google Sheet and select `RawData` as the Sheet to use.
+
+The goal is to move away from Google Data Studio, see https://github.com/KrauseFx/FxLifeSheet/issues/34.
