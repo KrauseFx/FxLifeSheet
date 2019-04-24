@@ -312,7 +312,9 @@ function initBot() {
         }
     });
     bot.start(function (ctx) { return ctx.reply("Welcome to FxLifeSheet"); });
-    bot.help(function (ctx) { return ctx.reply("TODO: This will include the help section"); });
+    bot.help(function (ctx) {
+        return ctx.reply("No in-bot help right now, for now please visit https://github.com/KrauseFx/FxLifeSheet");
+    });
     bot.on("sticker", function (ctx) { return ctx.reply("Sorry, I don't support stickers"); });
     bot.hears("hi", function (ctx) { return ctx.reply("Hey there"); });
     // has to be last
@@ -344,11 +346,22 @@ function insertNewValue(parsedUserValue, ctx, key, type) {
                 ctx.reply("Error saving value: " + error);
             }
         }
-        // TODO: replace with editing the existing message (ID in currentlyAskedQuestionMessageId, however couldn't get it to work)
-        // if (ctx) {
-        //   // we don't use this for location sending as we have many values for that
-        //   ctx.reply("Success ✅", Extra.inReplyTo(currentlyAskedQuestionMessageId));
-        // }
+        if (ctx) {
+            // we don't use this for location sending as we have many values for that, so that's when `ctx` is nil
+            // Show that we saved the value
+            // Currently the Telegram API doens't support updating of messages that have a custom keyboard
+            // for no good reason, as mentioned here https://github.com/TelegramBots/telegram.bot/issues/176
+            //
+            // Bad Request: Message can't be edited
+            //
+            // Please note, that it is currently only possible to edit messages without reply_markup or with inline keyboards
+            // ctx.telegram.editMessageText(
+            //   ctx.update.message.chat.id,
+            //   currentlyAskedQuestionMessageId,
+            //   null,
+            //   "✅ " + lastQuestionAskedDupe + " ✅"
+            // );
+        }
     });
     if (key == "mood") {
         // we only serve the current mood via an API
@@ -510,7 +523,7 @@ function initScheduler() {
 function initMoodAPI() {
     // needed for the API endpoint used by https://whereisfelix.today
     // Fetch the last entry from the before the container was spawned
-    // From then on the cashe is refreshed when the user enters the value
+    // From then on the cache is refreshed when the user enters the value
     var currentMood = rawDataSheet.getRows({
         offset: 0,
         limit: 1,
