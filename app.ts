@@ -707,10 +707,13 @@ function initMoodAPI() {
         console.error(error);
       }
       let lastMoodRow = rows[0];
-      lastMoodData = {
-        time: moment(Number(lastMoodRow.timestamp)).format(),
-        value: Number(lastMoodRow.value)
-      };
+      // `lastMoodRow` is null if we haven't tracked a mood yet
+      if (lastMoodRow != null) {
+        lastMoodData = {
+          time: moment(Number(lastMoodRow.timestamp)).format(),
+          value: Number(lastMoodRow.value)
+        };
+      }
     }
   );
 
