@@ -415,7 +415,10 @@ function parseUserInput(ctx) {
     }
     if (currentlyAskedQuestionObject.type == "range") {
         // ensure the input is 0-6
-        // TODO: continue here
+        if (parsedUserValue < 0 || parsedUserValue > 6) {
+            ctx.reply("Please enter a value from 0 to 6", Extra.inReplyTo(ctx.update.message.message_id));
+        }
+        return;
     }
     console.log("Got a new value: " +
         parsedUserValue +
