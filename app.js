@@ -235,16 +235,16 @@ function initBot() {
             var result = body["results"][0];
             // we have some custom handling of the data here, as we get
             // so much useful data, that we want to insert more rows here
-            insertNewValue(lat, null, "locationLat", "number");
-            insertNewValue(lng, null, "locationLng", "number");
-            insertNewValue(result["components"]["country"], null, "locationCountry", "text");
-            insertNewValue(result["components"]["country_code"], null, "locationCountryCode", "text");
-            insertNewValue(result["formatted"], null, "locationAddress", "text");
-            insertNewValue(result["components"]["continent"], null, "locationContinent", "text");
-            insertNewValue(result["annotations"]["currency"]["name"], null, "locationCurrency", "text");
-            insertNewValue(result["annotations"]["timezone"]["short_name"], null, "timezone", "text");
+            insertNewValue(lat, ctx, "locationLat", "number");
+            insertNewValue(lng, ctx, "locationLng", "number");
+            insertNewValue(result["components"]["country"], ctx, "locationCountry", "text");
+            insertNewValue(result["components"]["country_code"], ctx, "locationCountryCode", "text");
+            insertNewValue(result["formatted"], ctx, "locationAddress", "text");
+            insertNewValue(result["components"]["continent"], ctx, "locationContinent", "text");
+            insertNewValue(result["annotations"]["currency"]["name"], ctx, "locationCurrency", "text");
+            insertNewValue(result["annotations"]["timezone"]["short_name"], ctx, "timezone", "text");
             var city = result["components"]["city"] || result["components"]["state"]; // vienna is not a city according to their API
-            insertNewValue(city, null, "locationCity", "text");
+            insertNewValue(city, ctx, "locationCity", "text");
         });
         var today = moment();
         if (moment().hours() < 7) {
@@ -269,9 +269,9 @@ function initBot() {
             }
             var result = body["forecast"]["forecastday"][0];
             var resultDay = result["day"];
-            insertNewValue(resultDay["avgtemp_c"], null, "weatherCelsius", "number");
-            insertNewValue(resultDay["totalprecip_mm"], null, "weatherRain", "number");
-            insertNewValue(resultDay["avghumidity"], null, "weatherHumidity", "number");
+            insertNewValue(resultDay["avgtemp_c"], ctx, "weatherCelsius", "number");
+            insertNewValue(resultDay["totalprecip_mm"], ctx, "weatherRain", "number");
+            insertNewValue(resultDay["avghumidity"], ctx, "weatherHumidity", "number");
             var dayDurationHours = moment("2000-01-01 " + result["astro"]["sunset"]).diff(moment("2000-01-01 " + result["astro"]["sunrise"]), "minutes") / 60.0;
             insertNewValue(dayDurationHours, ctx, // hacky, we just pass this, so that we only sent a confirmation text once
             "weatherHoursOfSunlight", "number");
@@ -412,6 +412,10 @@ function parseUserInput(ctx) {
     }
     else {
         parsedUserValue = userValue; // raw value is fine
+    }
+    if (currentlyAskedQuestionObject.type == "range") {
+        // ensure the input is 0-6
+        // TODO: continue here
     }
     console.log("Got a new value: " +
         parsedUserValue +

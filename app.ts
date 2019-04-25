@@ -284,42 +284,42 @@ function initBot() {
 
       // we have some custom handling of the data here, as we get
       // so much useful data, that we want to insert more rows here
-      insertNewValue(lat, null, "locationLat", "number");
-      insertNewValue(lng, null, "locationLng", "number");
+      insertNewValue(lat, ctx, "locationLat", "number");
+      insertNewValue(lng, ctx, "locationLng", "number");
       insertNewValue(
         result["components"]["country"],
-        null,
+        ctx,
         "locationCountry",
         "text"
       );
       insertNewValue(
         result["components"]["country_code"],
-        null,
+        ctx,
         "locationCountryCode",
         "text"
       );
-      insertNewValue(result["formatted"], null, "locationAddress", "text");
+      insertNewValue(result["formatted"], ctx, "locationAddress", "text");
       insertNewValue(
         result["components"]["continent"],
-        null,
+        ctx,
         "locationContinent",
         "text"
       );
       insertNewValue(
         result["annotations"]["currency"]["name"],
-        null,
+        ctx,
         "locationCurrency",
         "text"
       );
       insertNewValue(
         result["annotations"]["timezone"]["short_name"],
-        null,
+        ctx,
         "timezone",
         "text"
       );
 
       let city = result["components"]["city"] || result["components"]["state"]; // vienna is not a city according to their API
-      insertNewValue(city, null, "locationCity", "text");
+      insertNewValue(city, ctx, "locationCity", "text");
     });
 
     let today = moment();
@@ -350,16 +350,11 @@ function initBot() {
 
       let result = body["forecast"]["forecastday"][0];
       let resultDay = result["day"];
-      insertNewValue(resultDay["avgtemp_c"], null, "weatherCelsius", "number");
-      insertNewValue(
-        resultDay["totalprecip_mm"],
-        null,
-        "weatherRain",
-        "number"
-      );
+      insertNewValue(resultDay["avgtemp_c"], ctx, "weatherCelsius", "number");
+      insertNewValue(resultDay["totalprecip_mm"], ctx, "weatherRain", "number");
       insertNewValue(
         resultDay["avghumidity"],
-        null,
+        ctx,
         "weatherHumidity",
         "number"
       );
@@ -546,6 +541,11 @@ function parseUserInput(ctx) {
     }
   } else {
     parsedUserValue = userValue; // raw value is fine
+  }
+
+  if (currentlyAskedQuestionObject.type == "range") {
+    // ensure the input is 0-6
+    // TODO: continue here
   }
 
   console.log(
