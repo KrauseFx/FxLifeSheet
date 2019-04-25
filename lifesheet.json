@@ -575,12 +575,12 @@
       },
       {
         "key": "measurementTapeRightThigh",
-        "question": "Measure tape around right thigh, widest part of the leg",
+        "question": "Measure tape around right thigh, widest part of the leg, engage pressing down against the floor",
         "type": "number"
       },
       {
         "key": "measurementTapeLeftThigh",
-        "question": "Measure tape around left thigh, widest part of the leg",
+        "question": "Measure tape around left thigh, widest part of the leg, engage pressing down against the floor",
         "type": "number"
       },
       {
