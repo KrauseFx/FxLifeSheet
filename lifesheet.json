@@ -250,6 +250,19 @@
         }
       },
       {
+        "key": "caffeineLastDrink",
+        "question": "When was your last caffein drink?",
+        "type": "range",
+        "buttons": {
+          "5": "Before 3pm",
+          "4": "Before 5pm",
+          "3": "Before 7pm",
+          "2": "Before 9pm",
+          "1": "Before 11pm",
+          "0": "Later"
+        }
+      },
+      {
         "key": "sexDrive",
         "question": "What's your current sex drive?",
         "type": "range",
@@ -417,6 +430,11 @@
         "key": "meditated",
         "question": "How many minutes did you meditate today?",
         "type": "number"
+      },
+      {
+        "key": "mindWandering",
+        "question": "Did you feel like you had enough time for your mind to wander around?",
+        "type": "boolean"
       },
       {
         "key": "watchedTV",
