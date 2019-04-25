@@ -242,6 +242,8 @@ export OPEN_CAGE_API_KEY=""
 export WEATHER_API_KEY=""
 ```
 
+The `GOOGLE_SHEETS_PRIVATE_KEY` has to start with `-----BEGIN PRIVATE KEY-----\\n...`, with the `...` being the first characters of the private key. All the new lines have to be escaped to be `\\n`, and the ending has to be `=\\n-----END PRIVATE KEY-----\\n`
+
 ### Spreadsheet
 
 Long term, I'll provide a template. For now, the following options need to be met:
