@@ -373,6 +373,7 @@ function insertNewValue(parsedUserValue, ctx, key, type) {
 }
 function parseUserInput(ctx) {
     if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
+        console.error("Invalid user " + ctx.update.message.from.username);
         return;
     }
     if (currentlyAskedQuestionMessageId == null) {
@@ -417,8 +418,8 @@ function parseUserInput(ctx) {
         // ensure the input is 0-6
         if (parsedUserValue < 0 || parsedUserValue > 6) {
             ctx.reply("Please enter a value from 0 to 6", Extra.inReplyTo(ctx.update.message.message_id));
+            return;
         }
-        return;
     }
     console.log("Got a new value: " +
         parsedUserValue +
