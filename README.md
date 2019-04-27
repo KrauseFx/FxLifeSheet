@@ -205,6 +205,8 @@ e.g. if a `/sleeping` task is defined to be `/daily`, it would remind the user 2
 ```
 skip - Skip a question that was asked
 report - Generate one page report
+track - Track a specific value only
+
 mood - Track your mood
 awake - First thing in the morning
 asleep - Right before going to sleep

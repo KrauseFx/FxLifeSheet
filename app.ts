@@ -239,6 +239,11 @@ function initBot() {
   });
 
   bot.hears("/skip", ctx => {
+    if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
+      console.error("Invalid user " + ctx.update.message.from.username);
+      return;
+    }
+
     console.log("user is skipping this question");
     ctx
       .reply(
@@ -247,6 +252,45 @@ function initBot() {
       .then(({ message_id }) => {
         triggerNextQuestionFromQueue(ctx);
       });
+  });
+
+  bot.hears(/\/track (\w+)/, ctx => {
+    if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
+      console.error("Invalid user " + ctx.update.message.from.username);
+      return;
+    }
+
+    let toTrack = ctx.match[1];
+    console.log(
+      "User wants to track a specific value, without the whole survey: " +
+        toTrack
+    );
+
+    let questionToAsk: QuestionToAsk = null;
+
+    Object.keys(userConfig).forEach(function(key) {
+      var survey = userConfig[key];
+      for (let i = 0; i < survey.questions.length; i++) {
+        let currentQuestion = survey.questions[i];
+        if (currentQuestion.key == toTrack) {
+          questionToAsk = currentQuestion;
+          return;
+        }
+      }
+    });
+
+    if (questionToAsk) {
+      currentlyAskedQuestionQueue = currentlyAskedQuestionQueue.concat(
+        questionToAsk
+      );
+      triggerNextQuestionFromQueue(ctx);
+    } else {
+      ctx.reply(
+        "Sorry, I couldn't find the key `" +
+          toTrack +
+          "`, please make sure it's not mispelled"
+      );
+    }
   });
 
   bot.on("location", ctx => {
@@ -405,7 +449,7 @@ function initBot() {
 
       currentlyAskedQuestionQueue = currentlyAskedQuestionQueue.concat(
         matchingCommandObject.questions.slice(0)
-      ); // slice is a poor human's .clone basicall
+      ); // slice is a poor human's .clone basically
 
       if (currentlyAskedQuestionObject == null) {
         triggerNextQuestionFromQueue(ctx);

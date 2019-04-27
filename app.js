@@ -197,6 +197,10 @@ function initBot() {
         });
     });
     bot.hears("/skip", function (ctx) {
+        if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
+            console.error("Invalid user " + ctx.update.message.from.username);
+            return;
+        }
         console.log("user is skipping this question");
         ctx
             .reply("Okay, skipping question. If you see yourself skipping a question too often, maybe it's time to rephrase or remove it")
@@ -204,6 +208,35 @@ function initBot() {
             var message_id = _a.message_id;
             triggerNextQuestionFromQueue(ctx);
         });
+    });
+    bot.hears(/\/track (\w+)/, function (ctx) {
+        if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
+            console.error("Invalid user " + ctx.update.message.from.username);
+            return;
+        }
+        var toTrack = ctx.match[1];
+        console.log("User wants to track a specific value, without the whole survey: " +
+            toTrack);
+        var questionToAsk = null;
+        Object.keys(userConfig).forEach(function (key) {
+            var survey = userConfig[key];
+            for (var i = 0; i < survey.questions.length; i++) {
+                var currentQuestion = survey.questions[i];
+                if (currentQuestion.key == toTrack) {
+                    questionToAsk = currentQuestion;
+                    return;
+                }
+            }
+        });
+        if (questionToAsk) {
+            currentlyAskedQuestionQueue = currentlyAskedQuestionQueue.concat(questionToAsk);
+            triggerNextQuestionFromQueue(ctx);
+        }
+        else {
+            ctx.reply("Sorry, I couldn't find the key `" +
+                toTrack +
+                "`, please make sure it's not mispelled");
+        }
     });
     bot.on("location", function (ctx) {
         if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
@@ -297,7 +330,7 @@ function initBot() {
                 // Happens when the user triggers another survey, without having completed the first one yet
                 ctx.reply("^ Okay, but please answer my previous question also, thanks ^", Extra.inReplyTo(currentlyAskedQuestionMessageId));
             }
-            currentlyAskedQuestionQueue = currentlyAskedQuestionQueue.concat(matchingCommandObject.questions.slice(0)); // slice is a poor human's .clone basicall
+            currentlyAskedQuestionQueue = currentlyAskedQuestionQueue.concat(matchingCommandObject.questions.slice(0)); // slice is a poor human's .clone basically
             if (currentlyAskedQuestionObject == null) {
                 triggerNextQuestionFromQueue(ctx);
             }
