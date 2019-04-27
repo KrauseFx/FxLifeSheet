@@ -286,6 +286,16 @@
         "type": "boolean"
       },
       {
+        "key": "headache",
+        "question": "Did you have headache today?",
+        "type": "boolean"
+      },
+      {
+        "key": "coldSymptons",
+        "question": "Did you have any cold symptons? (running nose, feeling dizzy, light ear pain)",
+        "type": "boolean"
+      },
+      {
         "key": "healthy",
         "question": "How healthy do you feel?",
         "type": "range",
