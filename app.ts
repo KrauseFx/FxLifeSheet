@@ -464,6 +464,50 @@ function initBot() {
   });
 
   bot.start(ctx => ctx.reply("Welcome to FxLifeSheet"));
+  bot.on(["voice", "video_note"], ctx => {
+    if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
+      return;
+    }
+    let message = ctx.message || ctx.update.channel_post;
+    let voice =
+      message.voice || message.document || message.audio || message.video_note;
+    let file_id = voice.file_id;
+    let transcribingMessageId = null;
+
+    console.log("Received voice with file ID '" + file_id + "'");
+    ctx
+      .reply(
+        "🦄 Received message, transcribing now...",
+        Extra.inReplyTo(ctx.message.message_id)
+      )
+      .then(({ message_id }) => {
+        transcribingMessageId = message_id;
+      });
+
+    let transcribeURL = "https://bubbles-transcribe.herokuapp.com/transcribe";
+    transcribeURL += "?file_id=" + file_id;
+    transcribeURL += "&language=en-US";
+    transcribeURL += "&telegram_token=" + process.env.TELEGRAM_BOT_TOKEN;
+
+    needle.get(transcribeURL, function(error, response, body) {
+      if (error) {
+        console.error(error);
+        ctx.reply("Error: " + error, Extra.inReplyTo(ctx.message.message_id));
+      }
+      let text = JSON.parse(body)["text"];
+
+      ctx.telegram.editMessageText(
+        ctx.update.message.chat.id,
+        transcribingMessageId,
+        null,
+        text
+      );
+
+      if (text != null && text.length > 5) {
+        parseUserInput(ctx, text);
+      }
+    });
+  });
 
   bot.help(ctx =>
     ctx.reply(
@@ -533,7 +577,7 @@ function insertNewValue(parsedUserValue, ctx, key, type) {
   }
 }
 
-function parseUserInput(ctx) {
+function parseUserInput(ctx, text = null) {
   if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
     console.error("Invalid user " + ctx.update.message.from.username);
     return;
@@ -551,7 +595,13 @@ function parseUserInput(ctx) {
   }
 
   // user replied with a value
-  let userValue = ctx.match[1];
+  let userValue;
+  if (text != null) {
+    userValue = text;
+  } else {
+    userValue = ctx.match[1];
+  }
+
   let parsedUserValue = null;
 
   if (currentlyAskedQuestionObject.type != "text") {

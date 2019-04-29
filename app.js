@@ -345,6 +345,38 @@ function initBot() {
         }
     });
     bot.start(function (ctx) { return ctx.reply("Welcome to FxLifeSheet"); });
+    bot.on(["voice", "video_note"], function (ctx) {
+        if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
+            return;
+        }
+        var message = ctx.message || ctx.update.channel_post;
+        var voice = message.voice || message.document || message.audio || message.video_note;
+        var file_id = voice.file_id;
+        var transcribingMessageId = null;
+        console.log("Received voice with file ID '" + file_id + "'");
+        ctx
+            .reply("🦄 Received message, transcribing now...", Extra.inReplyTo(ctx.message.message_id))
+            .then(function (_a) {
+            var message_id = _a.message_id;
+            transcribingMessageId = message_id;
+        });
+        var transcribeURL = "https://bubbles-transcribe.herokuapp.com/transcribe";
+        transcribeURL += "?file_id=" + file_id;
+        transcribeURL += "&language=en-US";
+        transcribeURL += "&telegram_token=" + process.env.TELEGRAM_BOT_TOKEN;
+        console.log(transcribeURL);
+        needle.get(transcribeURL, function (error, response, body) {
+            if (error) {
+                console.error(error);
+                ctx.reply("Error: " + error, Extra.inReplyTo(ctx.message.message_id));
+            }
+            var text = JSON.parse(body)["text"];
+            ctx.telegram.editMessageText(ctx.update.message.chat.id, transcribingMessageId, null, text);
+            if (text != null && text.length > 5) {
+                parseUserInput(ctx, text);
+            }
+        });
+    });
     bot.help(function (ctx) {
         return ctx.reply("No in-bot help right now, for now please visit https://github.com/KrauseFx/FxLifeSheet");
     });
@@ -404,7 +436,8 @@ function insertNewValue(parsedUserValue, ctx, key, type) {
         };
     }
 }
-function parseUserInput(ctx) {
+function parseUserInput(ctx, text) {
+    if (text === void 0) { text = null; }
     if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
         console.error("Invalid user " + ctx.update.message.from.username);
         return;
@@ -419,7 +452,13 @@ function parseUserInput(ctx) {
         return;
     }
     // user replied with a value
-    var userValue = ctx.match[1];
+    var userValue;
+    if (text != null) {
+        userValue = text;
+    }
+    else {
+        userValue = ctx.match[1];
+    }
     var parsedUserValue = null;
     if (currentlyAskedQuestionObject.type != "text") {
         // First, see if it starts with emoji number, for which we have to do custom
