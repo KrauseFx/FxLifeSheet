@@ -364,7 +364,6 @@ function initBot() {
         transcribeURL += "?file_id=" + file_id;
         transcribeURL += "&language=en-US";
         transcribeURL += "&telegram_token=" + process.env.TELEGRAM_BOT_TOKEN;
-        console.log(transcribeURL);
         needle.get(transcribeURL, function (error, response, body) {
             if (error) {
                 console.error(error);
