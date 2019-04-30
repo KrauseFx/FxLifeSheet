@@ -1,8 +1,13 @@
 {
   "scripts": {
-    "prettier": "prettier app.ts --write",
-    "dev": "source .keys && prettier app.ts --write && tsc app.ts && node --inspect app.js",
-    "prod": "prettier app.ts --write && tsc app.ts && NODE_ENV=production node app.js"
+    "prettier": "prettier worker.ts web.ts reminder.ts classes/*.ts --write",
+    "typescript": "tsc web.ts worker.ts reminder.ts classes/google_sheets.ts classes/telegram.ts classes/config.ts",
+
+    "dev": "source .keys && npm run prettier && npm run typescript && heroku local",
+
+    "web": "npm run prettier && npm run typescript && NODE_ENV=production node web.js",
+    "worker": "npm run prettier && npm run typescript && NODE_ENV=production node worker.js",
+    "reminder": "npm run prettier && npm run typescript && NODE_ENV=production node reminder.js"
   },
   "dependencies": {
     "google-spreadsheet": "^2.0.7",

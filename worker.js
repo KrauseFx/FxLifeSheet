@@ -1,81 +1,24 @@
+"use strict";
+exports.__esModule = true;
 // Third party dependencies
 var moment = require("moment");
 var needle = require("needle");
-var http = require("http");
-// Telegram setup
-var Telegraf = require("telegraf");
-var Router = Telegraf.Router, Markup = Telegraf.Markup, Extra = Telegraf.Extra;
-var bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
-// Sheets setup
-var GoogleSpreadsheet = require("google-spreadsheet");
-var async = require("async");
-// spreadsheet key is the long id in the sheets URL
-console.log("Loading " + process.env.GOOGLE_SHEETS_DOC_ID);
-var doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEETS_DOC_ID);
-var rawDataSheet;
-var lastRunSheet;
+var _a = require("telegraf"), Router = _a.Router, Markup = _a.Markup, Extra = _a.Extra;
+// Internal dependencies
+var config = require("./classes/config.js");
+var google_sheets = require("./classes/google_sheets.js");
+var telegram = require("./classes/telegram.js");
+var bot = telegram.bot;
 // State
 var currentlyAskedQuestionObject = null;
 var currentlyAskedQuestionMessageId = null; // The Telegram message ID reference
 var currentlyAskedQuestionQueue = []; // keep track of all the questions about to be asked
-var cachedCtx = null; // TODO: this obviously hsa to be removed and replaced with something better
-var lastCommandReminder = {}; // to not spam the user on each interval
-var lastMoodData = null; // used for the moods API
-var userConfig = require("./lifesheet.json");
-console.log("Successfully loaded user config");
-console.log("Starting Google Sheets Login, this might take a few seconds...");
-async.series([
-    function setAuth(step) {
-        var creds = {
-            client_email: process.env.GOOGLE_SHEETS_CLIENT_EMAIL,
-            private_key: process.env.GOOGLE_SHEETS_PRIVATE_KEY.replace(/\\n/g, "\n")
-        };
-        doc.useServiceAccountAuth(creds, step);
-    },
-    function getInfoAndWorksheets(step) {
-        doc.getInfo(function (error, info) {
-            if (error) {
-                console.error(error);
-            }
-            console.log("Loaded doc: " + info.title + " by " + info.author.email);
-            for (var i = 0; i < info.worksheets.length; i++) {
-                // we iterate over those and check the name, as we don't want to use indexes to access a sheet directly
-                // to allow the user to order those sheets to however they want
-                var currentSheet = info.worksheets[i];
-                if (currentSheet.title.toLowerCase() == "rawdata") {
-                    rawDataSheet = currentSheet;
-                }
-                else if (currentSheet.title.toLowerCase() == "lastrun") {
-                    lastRunSheet = currentSheet;
-                }
-                else {
-                    console.log("Ignoring user's sheet named " + currentSheet.title);
-                }
-            }
-            if (rawDataSheet == null || lastRunSheet == null) {
-                console.error("Something is wrong with the Sheet, please make sure to create 2 sheets: RawData and LastRun, according to the project's README and try again");
-                return;
-            }
-            console.log("Found the relevant sheets, already " +
-                rawDataSheet.rowCount +
-                " existing data entries");
-            step();
-        });
-    }
-], function (err) {
-    if (err) {
-        console.log("Error: " + err);
-    }
-    else {
-        console.log("Google login successful");
-        console.log("Setting up Telegram bot...");
-        initBot();
-        console.log("Setting up background scheduler...");
-        initScheduler();
-        console.log("Setting up web API");
-        initMoodAPI();
-        console.log("Boot up complete");
-    }
+var rawDataSheet = null;
+var lastRunSheet = null;
+google_sheets.setupGoogleSheets(function (rawDataSheetRef, lastRunSheetRef) {
+    rawDataSheet = rawDataSheetRef;
+    lastRunSheet = lastRunSheetRef;
+    initBot();
 });
 function getButtonText(number) {
     var emojiNumber = {
@@ -168,8 +111,153 @@ function triggerNextQuestionFromQueue(ctx) {
         currentlyAskedQuestionMessageId = message_id;
     });
 }
-// App logic
+function insertNewValue(parsedUserValue, ctx, key, type) {
+    console.log("Inserting value '" + parsedUserValue + "' for key " + key);
+    var dateToAdd = moment(ctx.update.message.date * 1000);
+    var row = {
+        Timestamp: dateToAdd.valueOf(),
+        YearMonth: dateToAdd.format("YYYYMM"),
+        YearWeek: dateToAdd.format("YYYYWW"),
+        Year: dateToAdd.year(),
+        Quarter: dateToAdd.quarter(),
+        Month: dateToAdd.format("MM"),
+        Day: dateToAdd.date(),
+        Hour: dateToAdd.hours(),
+        Minute: dateToAdd.minutes(),
+        Week: dateToAdd.week(),
+        Key: key,
+        Question: currentlyAskedQuestionObject.question,
+        Type: type,
+        Value: parsedUserValue
+    };
+    rawDataSheet.addRow(row, function (error, row) {
+        if (error) {
+            console.error(error);
+            if (ctx) {
+                ctx.reply("Error saving value: " + error);
+            }
+        }
+        if (ctx) {
+            // we don't use this for location sending as we have many values for that, so that's when `ctx` is nil
+            // Show that we saved the value
+            // Currently the Telegram API doens't support updating of messages that have a custom keyboard
+            // for no good reason, as mentioned here https://github.com/TelegramBots/telegram.bot/issues/176
+            //
+            // Bad Request: Message can't be edited
+            //
+            // Please note, that it is currently only possible to edit messages without reply_markup or with inline keyboards
+            // ctx.telegram.editMessageText(
+            //   ctx.update.message.chat.id,
+            //   currentlyAskedQuestionMessageId,
+            //   null,
+            //   "✅ " + lastQuestionAskedDupe + " ✅"
+            // );
+        }
+    });
+}
+function parseUserInput(ctx, text) {
+    if (text === void 0) { text = null; }
+    if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
+        console.error("Invalid user " + ctx.update.message.from.username);
+        return;
+    }
+    if (currentlyAskedQuestionMessageId == null) {
+        ctx
+            .reply("Sorry, I forgot the question I asked, this usually means it took too long for you to respond, please trigger the question again by running the `/` command")
+            .then(function (_a) {
+            var message_id = _a.message_id;
+            sendAvailableCommands(ctx);
+        });
+        return;
+    }
+    // user replied with a value
+    var userValue;
+    if (text != null) {
+        userValue = text;
+    }
+    else {
+        userValue = ctx.match[1];
+    }
+    var parsedUserValue = null;
+    if (currentlyAskedQuestionObject.type != "text") {
+        // First, see if it starts with emoji number, for which we have to do custom
+        // parsing instead
+        if (currentlyAskedQuestionObject.type == "range" ||
+            currentlyAskedQuestionObject.type == "boolean") {
+            var tryToParseNumber = parseInt(userValue[0]);
+            if (!isNaN(tryToParseNumber)) {
+                parsedUserValue = tryToParseNumber;
+            }
+            else {
+                ctx.reply("Sorry, looks like your input is invalid, please enter a valid number from the selection", Extra.inReplyTo(ctx.update.message.message_id));
+            }
+        }
+        if (parsedUserValue == null) {
+            // parse the int/float, support both ints and floats
+            userValue = userValue.match(/^(\d+(\.\d+)?)$/);
+            if (userValue == null) {
+                ctx.reply("Sorry, looks like you entered an invalid number, please try again", Extra.inReplyTo(ctx.update.message.message_id));
+                return;
+            }
+            parsedUserValue = userValue[1];
+        }
+    }
+    else {
+        parsedUserValue = userValue; // raw value is fine
+    }
+    if (currentlyAskedQuestionObject.type == "range") {
+        // ensure the input is 0-6
+        if (parsedUserValue < 0 || parsedUserValue > 6) {
+            ctx.reply("Please enter a value from 0 to 6", Extra.inReplyTo(ctx.update.message.message_id));
+            return;
+        }
+    }
+    console.log("Got a new value: " +
+        parsedUserValue +
+        " for question " +
+        currentlyAskedQuestionObject.key);
+    if (currentlyAskedQuestionObject.replies &&
+        currentlyAskedQuestionObject.replies[parsedUserValue]) {
+        // Check if there is a custom reply, and if, use that
+        ctx.reply(currentlyAskedQuestionObject.replies[parsedUserValue], Extra.inReplyTo(ctx.update.message.message_id));
+    }
+    insertNewValue(parsedUserValue, ctx, currentlyAskedQuestionObject.key, currentlyAskedQuestionObject.type);
+    triggerNextQuestionFromQueue(ctx);
+}
+function sendAvailableCommands(ctx) {
+    ctx.reply("Available commands:").then(function (_a) {
+        var message_id = _a.message_id;
+        ctx.reply("\n\n/skip\n/report\n\n/" + Object.keys(config.userConfig).join("\n/"));
+    });
+}
+function saveLastRun(command) {
+    lastRunSheet.getRows({
+        offset: 1,
+        limit: 100
+    }, function (error, rows) {
+        var updatedExistingRow = false;
+        for (var i = 0; i < rows.length; i++) {
+            var currentRow = rows[i];
+            var currentCommand = currentRow.command;
+            if (command == currentCommand) {
+                updatedExistingRow = true;
+                currentRow.lastrun = moment().valueOf(); // unix timestamp
+                currentRow.save();
+            }
+        }
+        if (!updatedExistingRow) {
+            var row = {
+                Command: command,
+                LastRun: moment().valueOf() // unix timestamp
+            };
+            lastRunSheet.addRow(row, function (error, row) {
+                console.log("Stored timestamp of last run for " + command);
+            });
+        }
+    });
+}
 function initBot() {
+    console.log("Launching up Telegram bot...");
     // parse numeric/text inputs
     // `^([^\/].*)$` matches everything that doens't start with /
     // This will enable us to get any user inputs, including longer texts
@@ -218,8 +306,8 @@ function initBot() {
         console.log("User wants to track a specific value, without the whole survey: " +
             toTrack);
         var questionToAsk = null;
-        Object.keys(userConfig).forEach(function (key) {
-            var survey = userConfig[key];
+        Object.keys(config.userConfig).forEach(function (key) {
+            var survey = config.userConfig[key];
             for (var i = 0; i < survey.questions.length; i++) {
                 var currentQuestion = survey.questions[i];
                 if (currentQuestion.key == toTrack) {
@@ -317,10 +405,9 @@ function initBot() {
         if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
             return;
         }
-        cachedCtx = ctx;
         // user entered a command to start the survey
         var command = ctx.match[1];
-        var matchingCommandObject = userConfig[command];
+        var matchingCommandObject = config.userConfig[command];
         if (matchingCommandObject && matchingCommandObject.questions) {
             console.log("User wants to run:");
             console.log(matchingCommandObject);
@@ -383,250 +470,4 @@ function initBot() {
     bot.hears("hi", function (ctx) { return ctx.reply("Hey there"); });
     // has to be last
     bot.launch();
-}
-function insertNewValue(parsedUserValue, ctx, key, type) {
-    console.log("Inserting value '" + parsedUserValue + "' for key " + key);
-    var dateToAdd = moment(ctx.update.message.date * 1000);
-    var row = {
-        Timestamp: dateToAdd.valueOf(),
-        YearMonth: dateToAdd.format("YYYYMM"),
-        YearWeek: dateToAdd.format("YYYYWW"),
-        Year: dateToAdd.year(),
-        Quarter: dateToAdd.quarter(),
-        Month: dateToAdd.format("MM"),
-        Day: dateToAdd.date(),
-        Hour: dateToAdd.hours(),
-        Minute: dateToAdd.minutes(),
-        Week: dateToAdd.week(),
-        Key: key,
-        Question: currentlyAskedQuestionObject.question,
-        Type: type,
-        Value: parsedUserValue
-    };
-    rawDataSheet.addRow(row, function (error, row) {
-        if (error) {
-            console.error(error);
-            if (ctx) {
-                ctx.reply("Error saving value: " + error);
-            }
-        }
-        if (ctx) {
-            // we don't use this for location sending as we have many values for that, so that's when `ctx` is nil
-            // Show that we saved the value
-            // Currently the Telegram API doens't support updating of messages that have a custom keyboard
-            // for no good reason, as mentioned here https://github.com/TelegramBots/telegram.bot/issues/176
-            //
-            // Bad Request: Message can't be edited
-            //
-            // Please note, that it is currently only possible to edit messages without reply_markup or with inline keyboards
-            // ctx.telegram.editMessageText(
-            //   ctx.update.message.chat.id,
-            //   currentlyAskedQuestionMessageId,
-            //   null,
-            //   "✅ " + lastQuestionAskedDupe + " ✅"
-            // );
-        }
-    });
-    if (key == "mood") {
-        // we only serve the current mood via an API
-        lastMoodData = {
-            time: dateToAdd,
-            value: Number(parsedUserValue)
-        };
-    }
-}
-function parseUserInput(ctx, text) {
-    if (text === void 0) { text = null; }
-    if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
-        console.error("Invalid user " + ctx.update.message.from.username);
-        return;
-    }
-    if (currentlyAskedQuestionMessageId == null) {
-        ctx
-            .reply("Sorry, I forgot the question I asked, this usually means it took too long for you to respond, please trigger the question again by running the `/` command")
-            .then(function (_a) {
-            var message_id = _a.message_id;
-            sendAvailableCommands(ctx);
-        });
-        return;
-    }
-    // user replied with a value
-    var userValue;
-    if (text != null) {
-        userValue = text;
-    }
-    else {
-        userValue = ctx.match[1];
-    }
-    var parsedUserValue = null;
-    if (currentlyAskedQuestionObject.type != "text") {
-        // First, see if it starts with emoji number, for which we have to do custom
-        // parsing instead
-        if (currentlyAskedQuestionObject.type == "range" ||
-            currentlyAskedQuestionObject.type == "boolean") {
-            var tryToParseNumber = parseInt(userValue[0]);
-            if (!isNaN(tryToParseNumber)) {
-                parsedUserValue = tryToParseNumber;
-            }
-            else {
-                ctx.reply("Sorry, looks like your input is invalid, please enter a valid number from the selection", Extra.inReplyTo(ctx.update.message.message_id));
-            }
-        }
-        if (parsedUserValue == null) {
-            // parse the int/float, support both ints and floats
-            userValue = userValue.match(/^(\d+(\.\d+)?)$/);
-            if (userValue == null) {
-                ctx.reply("Sorry, looks like you entered an invalid number, please try again", Extra.inReplyTo(ctx.update.message.message_id));
-                return;
-            }
-            parsedUserValue = userValue[1];
-        }
-    }
-    else {
-        parsedUserValue = userValue; // raw value is fine
-    }
-    if (currentlyAskedQuestionObject.type == "range") {
-        // ensure the input is 0-6
-        if (parsedUserValue < 0 || parsedUserValue > 6) {
-            ctx.reply("Please enter a value from 0 to 6", Extra.inReplyTo(ctx.update.message.message_id));
-            return;
-        }
-    }
-    console.log("Got a new value: " +
-        parsedUserValue +
-        " for question " +
-        currentlyAskedQuestionObject.key);
-    if (currentlyAskedQuestionObject.replies &&
-        currentlyAskedQuestionObject.replies[parsedUserValue]) {
-        // Check if there is a custom reply, and if, use that
-        ctx.reply(currentlyAskedQuestionObject.replies[parsedUserValue], Extra.inReplyTo(ctx.update.message.message_id));
-    }
-    insertNewValue(parsedUserValue, ctx, currentlyAskedQuestionObject.key, currentlyAskedQuestionObject.type);
-    triggerNextQuestionFromQueue(ctx);
-}
-function sendAvailableCommands(ctx) {
-    ctx.reply("Available commands:").then(function (_a) {
-        var message_id = _a.message_id;
-        ctx.reply("\n\n/skip\n/report\n\n/" + Object.keys(userConfig).join("\n/"));
-    });
-}
-function saveLastRun(command) {
-    lastRunSheet.getRows({
-        offset: 1,
-        limit: 100
-    }, function (error, rows) {
-        var updatedExistingRow = false;
-        for (var i = 0; i < rows.length; i++) {
-            var currentRow = rows[i];
-            var currentCommand = currentRow.command;
-            if (command == currentCommand) {
-                updatedExistingRow = true;
-                currentRow.lastrun = moment().valueOf(); // unix timestamp
-                currentRow.save();
-            }
-        }
-        if (!updatedExistingRow) {
-            var row = {
-                Command: command,
-                LastRun: moment().valueOf() // unix timestamp
-            };
-            lastRunSheet.addRow(row, function (error, row) {
-                console.log("Stored timestamp of last run for " + command);
-            });
-        }
-    });
-}
-function initScheduler() {
-    // Cron job to check if we need to run a given question again
-    setInterval(function () {
-        lastRunSheet.getRows({
-            offset: 1,
-            limit: 100
-        }, function (error, rows) {
-            for (var i = 0; i < rows.length; i++) {
-                var currentRow = rows[i];
-                var command = currentRow.command;
-                var lastRun = moment(Number(currentRow.lastrun));
-                if (userConfig[command] == null) {
-                    console.error("Error, command not found, means it's not on the last run sheet, probably due to renaming a command: " +
-                        command);
-                    break;
-                }
-                var scheduleType = userConfig[command].schedule;
-                var timeDifferenceHours = moment().diff(moment(lastRun), "hours"); //hours
-                var shouldRemindUser = false;
-                if (scheduleType == "fourTimesADay") {
-                    if (timeDifferenceHours >= 24 / 4) {
-                        shouldRemindUser = true;
-                    }
-                }
-                else if (scheduleType == "daily") {
-                    if (timeDifferenceHours >= 24 * 1.1) {
-                        shouldRemindUser = true;
-                    }
-                }
-                else if (scheduleType == "weekly") {
-                    if (timeDifferenceHours >= 24 * 7 * 1.05) {
-                        shouldRemindUser = true;
-                    }
-                }
-                else if (scheduleType == "monthly") {
-                    if (timeDifferenceHours >= 24 * 30 * 1.05) {
-                        shouldRemindUser = true;
-                    }
-                }
-                else if (scheduleType == "manual") {
-                    // Never remind the user
-                }
-                else {
-                    console.error("Unknown schedule type " + scheduleType);
-                }
-                var lastReminderDiffInHours = 100; // not reminded yet by default
-                if (lastCommandReminder[command]) {
-                    lastReminderDiffInHours = moment().diff(moment(Number(lastCommandReminder[command])), "hours");
-                }
-                if (shouldRemindUser &&
-                    cachedCtx != null &&
-                    lastReminderDiffInHours > 1) {
-                    cachedCtx.reply("Please run /" +
-                        command +
-                        " again, it's been " +
-                        timeDifferenceHours +
-                        " hours since you last filled it out");
-                    lastCommandReminder[command] = moment().valueOf(); // unix timestamp
-                }
-            }
-        });
-    }, 30000);
-}
-function initMoodAPI() {
-    // needed for the API endpoint used by https://whereisfelix.today
-    // Fetch the last entry from the before the container was spawned
-    // From then on the cache is refreshed when the user enters the value
-    var currentMood = rawDataSheet.getRows({
-        offset: 0,
-        limit: 1,
-        orderby: "timestamp",
-        reverse: true,
-        query: "key=mood"
-    }, function (error, rows) {
-        if (error) {
-            console.error(error);
-        }
-        var lastMoodRow = rows[0];
-        // `lastMoodRow` is null if we haven't tracked a mood yet
-        if (lastMoodRow != null) {
-            lastMoodData = {
-                time: moment(Number(lastMoodRow.timestamp)).format(),
-                value: Number(lastMoodRow.value)
-            };
-        }
-    });
-    http
-        .createServer(function (req, res) {
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.write(JSON.stringify(lastMoodData));
-        return res.end();
-    })
-        .listen(process.env.PORT);
 }
