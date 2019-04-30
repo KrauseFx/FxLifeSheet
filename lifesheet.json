@@ -16,9 +16,9 @@
           "0": "nervous"
         },
         "replies": {
-          "5": "💫 Awesome to hear, maybe take 2 minutes to reflect on why you're feeling great, and maybe add a note (once that feature is built I guess)",
-          "1": "Feeling down sometimes is okay. Maybe take 2 minutes to reflect on why you're not feeling better. Sending hugs 🤗🤗🤗",
-          "0": "Feeling down sometimes is okay. Maybe take 2 minutes to reflect on why you're not feeling better. Sending hugs 🤗🤗🤗"
+          "5": "💫 Awesome to hear, maybe take 2 minutes to reflect on why you're feeling great, and maybe add a note by running /track moodNotes",
+          "1": "Feeling down sometimes is okay. Maybe take 2 minutes to reflect on why you're not feeling better. Sending hugs 🤗🤗🤗 write them down using /track moodNotes",
+          "0": "Feeling down sometimes is okay. Maybe take 2 minutes to reflect on why you're not feeling better. Sending hugs 🤗🤗🤗 write them down using /track moodNotes"
         }
       }
     ]
