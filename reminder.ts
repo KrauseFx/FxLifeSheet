@@ -56,6 +56,16 @@ function runReminders(rawDataSheet, lastRunSheet) {
           console.error("Unknown schedule type " + scheduleType);
         }
 
+        let didJustSendMessage = false;
+
+        if (currentRow.lastmessage) {
+          let lastMessageSent = moment(Number(currentRow.lastmessage));
+
+          if (moment().diff(lastMessageSent, "hours") < 8) {
+            didJustSendMessage = true;
+          }
+        }
+
         console.log(
           command +
             ": " +
@@ -63,10 +73,12 @@ function runReminders(rawDataSheet, lastRunSheet) {
             " should remind? " +
             shouldRemindUser +
             " time diff in h " +
-            timeDifferenceHours
+            timeDifferenceHours +
+            " didJustSendMessage " +
+            didJustSendMessage
         );
 
-        if (shouldRemindUser) {
+        if (shouldRemindUser && !didJustSendMessage) {
           console.log("Reminding user to run questions again...");
           let textToSend =
             "Please run /" +
@@ -82,6 +94,8 @@ function runReminders(rawDataSheet, lastRunSheet) {
             process.env.TELEGRAM_CHAT_ID,
             textToSend
           );
+          currentRow.lastmessage = moment().valueOf(); // unix timestamp
+          currentRow.save();
         }
       }
       console.log("Reminder check done");

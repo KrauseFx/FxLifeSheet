@@ -283,6 +283,7 @@ Long term, I'll provide a template. For now, the following options need to be me
 - Create another sheet called `LastRun` and create 2 columns
   - Command
   - LastRun
+  - LastMessage
 
 <img src="screenshots/Sheet2.png" />
 

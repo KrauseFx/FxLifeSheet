@@ -51,14 +51,24 @@ function runReminders(rawDataSheet, lastRunSheet) {
             else {
                 console.error("Unknown schedule type " + scheduleType);
             }
+            var didJustSendMessage = false;
+            if (currentRow.lastmessage) {
+                var lastMessageSent = moment(Number(currentRow.lastmessage));
+                if (moment().diff(lastMessageSent, "hours") < 8) {
+                    didJustSendMessage = true;
+                }
+                console.log("diff: " + moment().diff(lastMessageSent, "seconds"));
+            }
             console.log(command +
                 ": " +
                 lastRun.format() +
                 " should remind? " +
                 shouldRemindUser +
                 " time diff in h " +
-                timeDifferenceHours);
-            if (shouldRemindUser) {
+                timeDifferenceHours +
+                " didJustSendMessage " +
+                didJustSendMessage);
+            if (shouldRemindUser && !didJustSendMessage) {
                 console.log("Reminding user to run questions again...");
                 var textToSend = "Please run /" +
                     command +
@@ -69,6 +79,8 @@ function runReminders(rawDataSheet, lastRunSheet) {
                     console.error("Please set the `TELEGRAM_CHAT_ID` ENV variable");
                 }
                 telegram.bot.telegram.sendMessage(process.env.TELEGRAM_CHAT_ID, textToSend);
+                currentRow.lastmessage = moment().valueOf(); // unix timestamp
+                currentRow.save();
             }
         }
         console.log("Reminder check done");
