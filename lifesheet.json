@@ -146,12 +146,12 @@
       },
       {
         "key": "amazingThingsThatHappenedToday",
-        "question": "3 amazing things that happened today... [item 2]",
+        "question": "3 amazing things that happened today... [item 2] /skip",
         "type": "text"
       },
       {
         "key": "amazingThingsThatHappenedToday",
-        "question": "3 amazing things that happened today... [item 3]",
+        "question": "3 amazing things that happened today... [item 3] /skip",
         "type": "text"
       },
       {
