@@ -1,3 +1,5 @@
+var needle = require("needle");
+
 // Interfaces
 interface Command {
   description: String;
@@ -13,8 +15,18 @@ interface QuestionToAsk {
   replies: { [key: string]: String };
 }
 
-let userConfig: { [key: string]: Command } = require("../lifesheet.json");
-console.log("Successfully loaded user config");
+let url = process.env.LIFESHEET_JSON_URL;
+if (url) {
+  console.log("Loading remote JSON config...");
+  needle.get(url, function(error, response, body) {
+    let userConfig: { [key: string]: Command } = body;
+    console.log("Successfully loaded remote user config");
+    module.exports.userConfig = userConfig;
+  });
+} else {
+  let userConfig: { [key: string]: Command } = require("../lifesheet.json");
+  console.log("Successfully loaded user config");
+  module.exports.userConfig = userConfig;
+}
 
-module.exports.userConfig = userConfig;
 export { Command, QuestionToAsk };
