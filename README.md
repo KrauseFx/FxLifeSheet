@@ -84,12 +84,11 @@ There are 2 ways to input data: by the user telling the bot to ask for all the v
 
 Available values for `schedule`:
 
-- `fourTimesADay`
+- `eightTimesADay`
 - `daily`
 - `weekly`
 - `manual`
 
-*Note*: `fourTimesADay` actually means 3 times a day, as the user will sleep while one of the questions is asked, depending on the time zone.
 
 ### User initiates data inputs 
 

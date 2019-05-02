@@ -1,7 +1,7 @@
 {
   "mood": {
     "description": "Track my current mood during the day",
-    "schedule": "fourTimesADay",
+    "schedule": "eightTimesADay",
     "questions": [
       {
         "key": "mood",
@@ -531,41 +531,8 @@
     "schedule": "weekly",
     "questions": [
       {
-        "question": "🕺 If you could describe the last week in one sentence, what stood out?",
-        "type": "text",
-        "key": "lastWeekSummaryText"
-      },
-      {
         "question": "💪 Let's talk fitness first",
         "type": "header"
-      },
-      {
-        "key": "trainingAdherence",
-        "question": "How was last week's training sessions?",
-        "type": "range",
-        "buttons": {
-          "5": "Increased volume in all exercises",
-          "4": "Increased some volumes",
-          "3": "Workouts felt great",
-          "2": "Workouts were good",
-          "1": "Not enough energy for good workouts",
-          "0": "Worked out less than 3 times last week"
-        }
-      },
-      {
-        "key": "macrosCarbs",
-        "question": "How many daily grams of carbs was your MFP goal?",
-        "type": "number"
-      },
-      {
-        "key": "macrosProtein",
-        "question": "How many daily grams of protein was your MFP goal?",
-        "type": "number"
-      },
-      {
-        "key": "macrosFat",
-        "question": "How many daily grams of fat was your MFP goal?",
-        "type": "number"
       },
       {
         "question": "⌲ Now onto the body measurements, please make sure to enter the number in cm!",
@@ -636,6 +603,38 @@
         "type": "number"
       },
       {
+        "question": "💪 Enough measurements, let's talk fitness metadata",
+        "type": "header"
+      },
+      {
+        "key": "trainingAdherence",
+        "question": "How was last week's training sessions?",
+        "type": "range",
+        "buttons": {
+          "5": "Increased volume in all exercises",
+          "4": "Increased some volumes",
+          "3": "Workouts felt great",
+          "2": "Workouts were good",
+          "1": "Not enough energy for good workouts",
+          "0": "Worked out less than 3 times last week"
+        }
+      },
+      {
+        "key": "macrosCarbs",
+        "question": "How many daily grams of carbs was your MFP goal?",
+        "type": "number"
+      },
+      {
+        "key": "macrosProtein",
+        "question": "How many daily grams of protein was your MFP goal?",
+        "type": "number"
+      },
+      {
+        "key": "macrosFat",
+        "question": "How many daily grams of fat was your MFP goal?",
+        "type": "number"
+      },
+      {
         "key": "macroNotes",
         "question": "Notes about your macros, anything that stood out?",
         "type": "text"
@@ -648,6 +647,11 @@
       {
         "question": "🧠 Let's talk productivity",
         "type": "header"
+      },
+      {
+        "question": "🕺 If you could describe the last week in one sentence, what stood out?",
+        "type": "text",
+        "key": "lastWeekSummaryText"
       },
       {
         "key": "weekLifeProgress",

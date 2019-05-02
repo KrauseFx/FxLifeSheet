@@ -34,8 +34,8 @@ function runReminders(rawDataSheet, lastRunSheet) {
         let timeDifferenceHours = moment().diff(moment(lastRun), "hours"); // hours
         var shouldRemindUser = false;
 
-        if (scheduleType == "fourTimesADay") {
-          if (timeDifferenceHours >= 24 / 4) {
+        if (scheduleType == "eightTimesADay") {
+          if (timeDifferenceHours >= 24 / 8) {
             shouldRemindUser = true;
           }
         } else if (scheduleType == "daily") {
