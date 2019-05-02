@@ -339,11 +339,11 @@
       },
       {
         "key": "timeByMyself",
-        "question": "Did you feel like you had enough time by yourself to do what you care about?",
+        "question": "Do you feel like you'd have needed more time by yourself?",
         "type": "range",
         "buttons": {
-          "5": "Enough time",
-          "4": "Just enough time",
+          "5": "No",
+          "4": "I've had just enough time",
           "3": "Good amount of time, could be more",
           "2": "Busy day, I need more time",
           "1": "Barely time for myself",
@@ -373,10 +373,10 @@
       },
       {
         "key": "socializing",
-        "question": "Did you feel like you socalized enough?",
+        "question": "Do you feel like you need to socialize more?",
         "type": "range",
         "buttons": {
-          "5": "Felt statisfied with the amount of socializing",
+          "5": "No",
           "4": "Almost perfect amount",
           "3": "Socializing was okay",
           "2": "Feel like I should socialize more",
@@ -386,10 +386,10 @@
       },
       {
         "key": "goingOut",
-        "question": "Do you feel like you went out enough, to restaurants, bars, dancing?",
+        "question": "Do you feel like you want to go out more, to restaurants, bars, dancing?",
         "type": "range",
         "buttons": {
-          "5": "Felt statisfied with the amount of going out",
+          "5": "Don't feel like I need more",
           "4": "Felt pretty good about it",
           "3": "Did just enough",
           "2": "I want to go out more",
@@ -428,6 +428,19 @@
         }
       },
       {
+        "key": "problemSolving",
+        "question": "Did you work on any technical challenges and problem solving?",
+        "type": "range",
+        "buttons": {
+          "5": "Exciting challenges",
+          "4": "Interesting challenges",
+          "3": "Did some coding",
+          "2": "No actual challenges",
+          "1": "Just a little bit",
+          "0": "Nothing"
+        }
+      },
+      {
         "key": "minutesRead",
         "question": "How many minutes of Audible did you listen to today?",
         "type": "number"
@@ -460,19 +473,6 @@
         "key": "numberOfPersonalMeetings",
         "question": "How many personal meetings did you have today? This includes all 1:1 meet-ups, coffees and lunches with friends",
         "type": "number"
-      },
-      {
-        "key": "problemSolving",
-        "question": "Did you work on any technical challenges and problem solving?",
-        "type": "range",
-        "buttons": {
-          "5": "Exciting challenges",
-          "4": "Interesting challenges",
-          "3": "Did some coding",
-          "2": "No actual challenges",
-          "1": "Just a little bit",
-          "0": "Nothing"
-        }
       },
       {
         "key": "goalsNextDay",
