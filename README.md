@@ -209,6 +209,7 @@ mood - Track your mood
 awake - First thing in the morning
 asleep - Right before going to sleep
 week - Once per week metrics
+skip_all - Remove all queued questions
 ```
 
 ## Development

@@ -362,6 +362,14 @@ function initBot() {
       });
   });
 
+  bot.hears("/skip_all", ctx => {
+    if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
+      return;
+    }
+    currentlyAskedQuestionQueue = [];
+    ctx.reply("Okay, removing all questions that are currently in the queue");
+  });
+
   bot.hears(/\/track (\w+)/, ctx => {
     if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
       console.error("Invalid user " + ctx.update.message.from.username);
