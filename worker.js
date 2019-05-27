@@ -288,7 +288,7 @@ function parseUserInput(ctx, text) {
     insertNewValue(parsedUserValue, ctx, currentlyAskedQuestionObject.key, currentlyAskedQuestionObject.type);
     setTimeout(function () {
         triggerNextQuestionFromQueue(ctx);
-    }, 100); // timeout just to make sure the order is right
+    }, 50); // timeout just to make sure the order is right
 }
 function sendAvailableCommands(ctx) {
     ctx.reply("Available commands:").then(function (_a) {
