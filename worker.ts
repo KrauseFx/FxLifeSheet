@@ -51,6 +51,81 @@ function getButtonText(number) {
   return emojiNumber + " " + currentlyAskedQuestionObject.buttons[number];
 }
 
+function printGraph(key, ctx, additionalValue) {
+  // additionalValue is the value that isn't part of the sheet yet
+  // as it was *just* entered by the user
+  let loadingMessageID = null;
+  ctx.reply("Loading history...").then(({ message_id }) => {
+    loadingMessageID = message_id;
+  });
+  rawDataSheet.getRows(
+    {
+      offset: 0,
+      limit: 100,
+      orderby: "timestamp",
+      reverse: true,
+      query: "key=" + key
+    },
+    function(error, rows) {
+      if (error) {
+        console.error(error);
+        ctx.reply(error);
+        return;
+      }
+
+      let allValues = [];
+      let allTimes = [];
+      let rawText = [];
+      let minimum = 10000;
+      let maximum = 0;
+      for (let i = 0; i < rows.length; i++) {
+        let time = moment(Number(rows[i].timestamp));
+        let value = Number(rows[i].value);
+        allValues.unshift(value);
+        allTimes.unshift(time.format("MM-DD"));
+
+        rawText.unshift(time.format("YYYY-MM-DD") + ": " + value.toFixed(2));
+
+        if (value < minimum) {
+          minimum = value;
+        }
+        if (value > maximum) {
+          maximum = value;
+        }
+      }
+
+      allValues.push(additionalValue);
+      allTimes.push(moment());
+
+      // Print the raw values
+      ctx.telegram.editMessageText(
+        ctx.update.message.chat.id,
+        loadingMessageID,
+        null,
+        rawText.join("\n") + "\nMinimum: " + minimum + "\nMaximum: " + maximum
+      );
+
+      minimum -= 2;
+      maximum += 2;
+
+      // Generate the graph
+      let url =
+        "https://chart.googleapis.com/chart?cht=lc&chd=t:" +
+        allValues.join(",") +
+        "&chs=800x350&chl=" +
+        allTimes.join("%7C") +
+        "&chf=bg,s,e0e0e0&chco=000000,0000FF&chma=30,30,30,30&chds=" +
+        minimum +
+        "," +
+        maximum;
+      console.log(url);
+      ctx.replyWithPhoto({
+        url: url
+      });
+    }
+  );
+}
+
 function triggerNextQuestionFromQueue(ctx) {
   let keyboard = Extra.markup(m => m.removeKeyboard()); // default keyboard
   let questionAppendix = "";
@@ -245,6 +320,15 @@ function parseUserInput(ctx, text = null) {
     }
   }
 
+  if (
+    currentlyAskedQuestionObject.type == "number" ||
+    currentlyAskedQuestionObject.type == "range" ||
+    currentlyAskedQuestionObject.type == "boolean"
+  ) {
+    // To show potential streaks and the history
+    printGraph(currentlyAskedQuestionObject.key, ctx, parsedUserValue);
+  }
+
   console.log(
     "Got a new value: " +
       parsedUserValue +
@@ -270,7 +354,9 @@ function parseUserInput(ctx, text = null) {
     currentlyAskedQuestionObject.type
   );
 
-  triggerNextQuestionFromQueue(ctx);
+  setTimeout(function() {
+    triggerNextQuestionFromQueue(ctx);
+  }, 50); // timeout just to make sure the order is right
 }
 
 function sendAvailableCommands(ctx) {
@@ -409,6 +495,17 @@ function initBot() {
     }
   });
 
+  bot.hears(/\/graph (\w+)/, ctx => {
+    if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
+      return;
+    }
+
+    let key = ctx.match[1];
+    console.log("User wants to graph a specific value " + key);
+
+    printGraph(key, ctx, null);
+  });
+
   bot.on("location", ctx => {
     if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
       return;
@@ -434,7 +531,6 @@ function initBot() {
       lng +
       "&key=" +
       process.env.OPEN_CAGE_API_KEY;
-    console.log(url);
 
     needle.get(url, function(error, response, body) {
       if (error) {
@@ -499,8 +595,6 @@ function initBot() {
       lng +
       "&dt=" +
       today.format("YYYY-MM-DD");
-
-    console.log(weatherURL);
 
     // we use the `/history` API so we get the average/max/min temps of the day instead of the current one (late at night)
     needle.get(weatherURL, function(error, response, body) {

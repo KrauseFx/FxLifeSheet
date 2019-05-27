@@ -31,6 +31,7 @@ function initMoodAPI(rawDataSheet, lastRunSheet) {
 
 function loadCurrentMood() {
   console.log("Refreshing latest moood entry...");
+  // TODO: That `currentMood` assignment seems useless
   currentMood = rawDataSheetRef.getRows(
     {
       offset: 0,
@@ -42,6 +43,7 @@ function loadCurrentMood() {
     function(error, rows) {
       if (error) {
         console.error(error);
+        return;
       }
       let lastMoodRow = rows[0];
       // `lastMoodRow` is null if we haven't tracked a mood yet

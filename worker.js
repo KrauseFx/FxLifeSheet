@@ -42,6 +42,65 @@ function getButtonText(number) {
     }
     return emojiNumber + " " + currentlyAskedQuestionObject.buttons[number];
 }
+function printGraph(key, ctx, additionalValue) {
+    // additionalValue is the value that isn't part of the sheet yet
+    // as it was *just* entered by the user
+    var loadingMessageID = null;
+    ctx.reply("Loading history...").then(function (_a) {
+        var message_id = _a.message_id;
+        loadingMessageID = message_id;
+    });
+    rawDataSheet.getRows({
+        offset: 0,
+        limit: 100,
+        orderby: "timestamp",
+        reverse: true,
+        query: "key=" + key
+    }, function (error, rows) {
+        if (error) {
+            console.error(error);
+            ctx.reply(error);
+            return;
+        }
+        var allValues = [];
+        var allTimes = [];
+        var rawText = [];
+        var minimum = 10000;
+        var maximum = 0;
+        for (var i = 0; i < rows.length; i++) {
+            var time = moment(Number(rows[i].timestamp));
+            var value = Number(rows[i].value);
+            allValues.unshift(value);
+            allTimes.unshift(time.format("MM-DD"));
+            rawText.unshift(time.format("YYYY-MM-DD") + ": " + value.toFixed(2));
+            if (value < minimum) {
+                minimum = value;
+            }
+            if (value > maximum) {
+                maximum = value;
+            }
+        }
+        allValues.push(additionalValue);
+        allTimes.push(moment());
+        // Print the raw values
+        ctx.telegram.editMessageText(ctx.update.message.chat.id, loadingMessageID, null, rawText.join("\n") + "\nMinimum: " + minimum + "\nMaximum: " + maximum);
+        minimum -= 2;
+        maximum += 2;
+        // Generate the graph
+        var url = "https://chart.googleapis.com/chart?cht=lc&chd=t:" +
+            allValues.join(",") +
+            "&chs=800x350&chl=" +
+            allTimes.join("%7C") +
+            "&chf=bg,s,e0e0e0&chco=000000,0000FF&chma=30,30,30,30&chds=" +
+            minimum +
+            "," +
+            maximum;
+        console.log(url);
+        ctx.replyWithPhoto({
+            url: url
+        });
+    });
+}
 function triggerNextQuestionFromQueue(ctx) {
     var keyboard = Extra.markup(function (m) { return m.removeKeyboard(); }); // default keyboard
     var questionAppendix = "";
@@ -211,6 +270,12 @@ function parseUserInput(ctx, text) {
             return;
         }
     }
+    if (currentlyAskedQuestionObject.type == "number" ||
+        currentlyAskedQuestionObject.type == "range" ||
+        currentlyAskedQuestionObject.type == "boolean") {
+        // To show potential streaks and the history
+        printGraph(currentlyAskedQuestionObject.key, ctx, parsedUserValue);
+    }
     console.log("Got a new value: " +
         parsedUserValue +
         " for question " +
@@ -221,7 +286,9 @@ function parseUserInput(ctx, text) {
         ctx.reply(currentlyAskedQuestionObject.replies[parsedUserValue], Extra.inReplyTo(ctx.update.message.message_id));
     }
     insertNewValue(parsedUserValue, ctx, currentlyAskedQuestionObject.key, currentlyAskedQuestionObject.type);
-    triggerNextQuestionFromQueue(ctx);
+    setTimeout(function () {
+        triggerNextQuestionFromQueue(ctx);
+    }, 100); // timeout just to make sure the order is right
 }
 function sendAvailableCommands(ctx) {
     ctx.reply("Available commands:").then(function (_a) {
@@ -332,6 +399,14 @@ function initBot() {
                 "`, please make sure it's not mispelled");
         }
     });
+    bot.hears(/\/graph (\w+)/, function (ctx) {
+        if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
+            return;
+        }
+        var key = ctx.match[1];
+        console.log("User wants to graph a specific value " + key);
+        printGraph(key, ctx, null);
+    });
     bot.on("location", function (ctx) {
         if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
             return;
@@ -354,7 +429,6 @@ function initBot() {
             lng +
             "&key=" +
             process.env.OPEN_CAGE_API_KEY;
-        console.log(url);
         needle.get(url, function (error, response, body) {
             if (error) {
                 console.error(error);
@@ -388,7 +462,6 @@ function initBot() {
             lng +
             "&dt=" +
             today.format("YYYY-MM-DD");
-        console.log(weatherURL);
         // we use the `/history` API so we get the average/max/min temps of the day instead of the current one (late at night)
         needle.get(weatherURL, function (error, response, body) {
             if (error) {
