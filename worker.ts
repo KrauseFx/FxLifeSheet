@@ -579,7 +579,7 @@ function initBot() {
     });
 
     let today = moment();
-    if (moment().hours() < 7) {
+    if (moment().hours() < 10) {
       // this is being run after midnight,
       // as I have the tendency to stay up until later
       // we will fetch the weather from yesterday
