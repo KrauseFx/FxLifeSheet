@@ -198,9 +198,20 @@ function shuffleArray(array) {
         _a = [array[j], array[i]], array[i] = _a[0], array[j] = _a[1];
     }
 }
-function insertNewValue(parsedUserValue, ctx, key, type) {
+function insertNewValue(parsedUserValue, ctx, key, type, fakeDate) {
+    if (fakeDate === void 0) { fakeDate = null; }
     console.log("Inserting value '" + parsedUserValue + "' for key " + key);
-    var dateToAdd = moment(ctx.update.message.date * 1000);
+    var dateToAdd;
+    if (fakeDate) {
+        dateToAdd = fakeDate;
+    }
+    else {
+        dateToAdd = moment(ctx.update.message.date * 1000);
+    }
+    var questionText = null;
+    if (currentlyAskedQuestionObject) {
+        questionText = currentlyAskedQuestionObject.question;
+    }
     var row = {
         Timestamp: dateToAdd.valueOf(),
         YearMonth: dateToAdd.format("YYYYMM"),
@@ -213,7 +224,7 @@ function insertNewValue(parsedUserValue, ctx, key, type) {
         Minute: dateToAdd.minutes(),
         Week: dateToAdd.week(),
         Key: key,
-        Question: currentlyAskedQuestionObject.question,
+        Question: questionText,
         Type: type,
         Value: parsedUserValue
     };
@@ -353,6 +364,66 @@ function saveLastRun(command) {
 }
 function initBot() {
     console.log("Launching up Telegram bot...");
+    bot.on(["document"], function (ctx) {
+        // This is used to import other historic data
+        var fileId = ctx.update.message.document.file_id;
+        console.log("Received a file of ID " + fileId);
+        // Format:
+        //
+        // Date;withingsFatMass;withingsLeanBodyMass;withingsMuscleMass
+        // 28.05.2019;   6.9   ;   74.6  ,   71.1
+        // 27.05.2019;   7.5   ;   74.1  ,   70.6
+        // ....
+        ctx.telegram.getFileLink(fileId).then(function (link) {
+            console.log(link);
+            needle.get(link, function (error, response, body) {
+                if (error) {
+                    console.error(error);
+                    return;
+                }
+                body = body.toString(); // needed for some reason
+                console.log(body);
+                var sep = ";";
+                var dateFormat = "DD.MM.YYYY";
+                var lines = body.split("\n");
+                var header = lines[0].split(sep);
+                var counter = 0;
+                var longestWaitingTime = 0;
+                var _loop_1 = function (i) {
+                    var line = lines[i].split(sep);
+                    if (line.length > 1) {
+                        var date_1 = moment(line[0].trim(), dateFormat);
+                        var _loop_2 = function (j) {
+                            var value = line[j].trim();
+                            var key = header[j].trim();
+                            console.log(key + " for " + date_1.format() + " = " + value);
+                            // Hacky, as Google Docs API client only allows
+                            // single row inserts, and it would run out of calls otherwise
+                            var artificialWait = i * 10000 + j * 600;
+                            setTimeout(function () {
+                                insertNewValue(value, null, key, "number", date_1);
+                            }, artificialWait);
+                            counter++;
+                            if (artificialWait > longestWaitingTime) {
+                                longestWaitingTime = artificialWait;
+                            }
+                        };
+                        for (var j = 1; j < line.length; j++) {
+                            _loop_2(j);
+                        }
+                    }
+                };
+                for (var i = 1; i < lines.length; i++) {
+                    _loop_1(i);
+                }
+                ctx.reply("Succesfully triggered import process for " +
+                    counter +
+                    " items... this might take a while. There is no confirmation message. The import process will take AT LEAST " +
+                    longestWaitingTime / 1000.0 / 60.0 +
+                    " minutes");
+            });
+        });
+    });
     // parse numeric/text inputs
     // `^([^\/].*)$` matches everything that doens't start with /
     // This will enable us to get any user inputs, including longer texts
@@ -461,6 +532,7 @@ function initBot() {
         needle.get(url, function (error, response, body) {
             if (error) {
                 console.error(error);
+                return;
             }
             var result = body["results"][0];
             // we have some custom handling of the data here, as we get
@@ -495,6 +567,7 @@ function initBot() {
         needle.get(weatherURL, function (error, response, body) {
             if (error) {
                 console.error(error);
+                return;
             }
             var result = body["forecast"]["forecastday"][0];
             var resultDay = result["day"];
@@ -546,9 +619,9 @@ function initBot() {
         }
         var message = ctx.message || ctx.update.channel_post;
         var voice = message.voice || message.document || message.audio || message.video_note;
-        var file_id = voice.file_id;
+        var fileId = voice.file_id;
         var transcribingMessageId = null;
-        console.log("Received voice with file ID '" + file_id + "'");
+        console.log("Received voice with file ID '" + fileId + "'");
         ctx
             .reply("🦄 Received message, transcribing now...", Extra.inReplyTo(ctx.message.message_id))
             .then(function (_a) {
@@ -556,7 +629,7 @@ function initBot() {
             transcribingMessageId = message_id;
         });
         var transcribeURL = "https://bubbles-transcribe.herokuapp.com/transcribe";
-        transcribeURL += "?file_id=" + file_id;
+        transcribeURL += "?file_id=" + fileId;
         transcribeURL += "&language=en-US";
         transcribeURL += "&telegram_token=" + process.env.TELEGRAM_BOT_TOKEN;
         needle.get(transcribeURL, function (error, response, body) {

@@ -243,10 +243,20 @@ function shuffleArray(array) {
   }
 }
 
-function insertNewValue(parsedUserValue, ctx, key, type) {
+function insertNewValue(parsedUserValue, ctx, key, type, fakeDate = null) {
   console.log("Inserting value '" + parsedUserValue + "' for key " + key);
 
-  let dateToAdd = moment(ctx.update.message.date * 1000);
+  let dateToAdd;
+  if (fakeDate) {
+    dateToAdd = fakeDate;
+  } else {
+    dateToAdd = moment(ctx.update.message.date * 1000);
+  }
+  let questionText = null;
+  if (currentlyAskedQuestionObject) {
+    questionText = currentlyAskedQuestionObject.question;
+  }
+
   let row = {
     Timestamp: dateToAdd.valueOf(),
     YearMonth: dateToAdd.format("YYYYMM"),
@@ -259,7 +269,7 @@ function insertNewValue(parsedUserValue, ctx, key, type) {
     Minute: dateToAdd.minutes(),
     Week: dateToAdd.week(),
     Key: key,
-    Question: currentlyAskedQuestionObject.question,
+    Question: questionText,
     Type: type,
     Value: parsedUserValue
   };
@@ -445,6 +455,70 @@ function saveLastRun(command) {
 function initBot() {
   console.log("Launching up Telegram bot...");
 
+  bot.on(["document"], ctx => {
+    // This is used to import other historic data
+    let fileId = ctx.update.message.document.file_id;
+    console.log("Received a file of ID " + fileId);
+
+    // Format:
+    //
+    // Date;withingsFatMass;withingsLeanBodyMass;withingsMuscleMass
+    // 28.05.2019;   6.9   ;   74.6  ,   71.1
+    // 27.05.2019;   7.5   ;   74.1  ,   70.6
+    // ....
+
+    ctx.telegram.getFileLink(fileId).then(link => {
+      console.log(link);
+      needle.get(link, function(error, response, body) {
+        if (error) {
+          console.error(error);
+          return;
+        }
+
+        body = body.toString(); // needed for some reason
+        console.log(body);
+        let sep = ";";
+        let dateFormat = "DD.MM.YYYY";
+
+        let lines = body.split("\n");
+
+        let header = lines[0].split(sep);
+        let counter = 0;
+        let longestWaitingTime = 0;
+        for (let i = 1; i < lines.length; i++) {
+          let line = lines[i].split(sep);
+          if (line.length > 1) {
+            let date = moment(line[0].trim(), dateFormat);
+            for (let j = 1; j < line.length; j++) {
+              let value = line[j].trim();
+              let key = header[j].trim();
+              console.log(key + " for " + date.format() + " = " + value);
+
+              // Hacky, as Google Docs API client only allows
+              // single row inserts, and it would run out of calls otherwise
+              let artificialWait = i * 10000 + j * 1200;
+              setTimeout(function() {
+                insertNewValue(value, null, key, "number", date);
+              }, artificialWait);
+              counter++;
+              if (artificialWait > longestWaitingTime) {
+                longestWaitingTime = artificialWait;
+              }
+            }
+          }
+        }
+
+        ctx.reply(
+          "Succesfully triggered import process for " +
+            counter +
+            " items... this might take a while. There is no confirmation message. The import process will take AT LEAST " +
+            longestWaitingTime / 1000.0 / 60.0 +
+            " minutes"
+        );
+      });
+    });
+  });
+
   // parse numeric/text inputs
   // `^([^\/].*)$` matches everything that doens't start with /
   // This will enable us to get any user inputs, including longer texts
@@ -578,6 +652,7 @@ function initBot() {
     needle.get(url, function(error, response, body) {
       if (error) {
         console.error(error);
+        return;
       }
       let result = body["results"][0];
 
@@ -643,6 +718,7 @@ function initBot() {
     needle.get(weatherURL, function(error, response, body) {
       if (error) {
         console.error(error);
+        return;
       }
 
       let result = body["forecast"]["forecastday"][0];
@@ -723,10 +799,10 @@ function initBot() {
     let message = ctx.message || ctx.update.channel_post;
     let voice =
       message.voice || message.document || message.audio || message.video_note;
-    let file_id = voice.file_id;
+    let fileId = voice.file_id;
     let transcribingMessageId = null;
 
-    console.log("Received voice with file ID '" + file_id + "'");
+    console.log("Received voice with file ID '" + fileId + "'");
     ctx
       .reply(
         "🦄 Received message, transcribing now...",
@@ -737,7 +813,7 @@ function initBot() {
       });
 
     let transcribeURL = "https://bubbles-transcribe.herokuapp.com/transcribe";
-    transcribeURL += "?file_id=" + file_id;
+    transcribeURL += "?file_id=" + fileId;
     transcribeURL += "&language=en-US";
     transcribeURL += "&telegram_token=" + process.env.TELEGRAM_BOT_TOKEN;
 
