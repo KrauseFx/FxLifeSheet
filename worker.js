@@ -42,14 +42,16 @@ function getButtonText(number) {
     }
     return emojiNumber + " " + currentlyAskedQuestionObject.buttons[number];
 }
-function printGraph(key, ctx, numberOfRecentValuesToPrint, additionalValue) {
+function printGraph(key, ctx, numberOfRecentValuesToPrint, additionalValue, skipImage) {
     // additionalValue is the value that isn't part of the sheet yet
     // as it was *just* entered by the user
     var loadingMessageID = null;
-    ctx.reply("Loading history...").then(function (_a) {
-        var message_id = _a.message_id;
-        loadingMessageID = message_id;
-    });
+    if (numberOfRecentValuesToPrint > 0) {
+        ctx.reply("Loading history...").then(function (_a) {
+            var message_id = _a.message_id;
+            loadingMessageID = message_id;
+        });
+    }
     rawDataSheet.getRows({
         offset: 0,
         limit: 100,
@@ -72,7 +74,7 @@ function printGraph(key, ctx, numberOfRecentValuesToPrint, additionalValue) {
             var value = Number(rows[i].value);
             allValues.unshift(value);
             allTimes.unshift(time.format("MM-DD"));
-            if (i < numberOfRecentValuesToPrint) {
+            if (i < numberOfRecentValuesToPrint - 1) {
                 rawText.unshift(time.format("YYYY-MM-DD") + ": " + value.toFixed(2));
             }
             if (value < minimum) {
@@ -85,24 +87,31 @@ function printGraph(key, ctx, numberOfRecentValuesToPrint, additionalValue) {
         if (additionalValue) {
             allValues.push(additionalValue);
             allTimes.push(moment());
+            rawText.push(moment().format("YYYY-MM-DD") +
+                ": " +
+                Number(additionalValue).toFixed(2));
         }
         // Print the raw values
-        ctx.telegram.editMessageText(ctx.update.message.chat.id, loadingMessageID, null, rawText.join("\n") + "\nMinimum: " + minimum + "\nMaximum: " + maximum);
-        minimum -= 2;
-        maximum += 2;
+        if (numberOfRecentValuesToPrint > 0 && loadingMessageID) {
+            ctx.telegram.editMessageText(ctx.update.message.chat.id, loadingMessageID, null, rawText.join("\n") + "\nMinimum: " + minimum + "\nMaximum: " + maximum);
+        }
         // Generate the graph
-        var url = "https://chart.googleapis.com/chart?cht=lc&chd=t:" +
-            allValues.join(",") +
-            "&chs=800x350&chl=" +
-            allTimes.join("%7C") +
-            "&chf=bg,s,e0e0e0&chco=000000,0000FF&chma=30,30,30,30&chds=" +
-            minimum +
-            "," +
-            maximum;
-        console.log(url);
-        ctx.replyWithPhoto({
-            url: url
-        });
+        if (!skipImage) {
+            minimum -= 2;
+            maximum += 2;
+            var url = "https://chart.googleapis.com/chart?cht=lc&chd=t:" +
+                allValues.join(",") +
+                "&chs=800x350&chl=" +
+                allTimes.join("%7C") +
+                "&chf=bg,s,e0e0e0&chco=000000,0000FF&chma=30,30,30,30&chds=" +
+                minimum +
+                "," +
+                maximum;
+            console.log(url);
+            ctx.replyWithPhoto({
+                url: url
+            });
+        }
     });
 }
 function triggerNextQuestionFromQueue(ctx) {
@@ -172,6 +181,12 @@ function triggerNextQuestionFromQueue(ctx) {
         var message_id = _a.message_id;
         currentlyAskedQuestionMessageId = message_id;
     });
+    if (currentlyAskedQuestionObject.type == "number" ||
+        currentlyAskedQuestionObject.type == "range" ||
+        currentlyAskedQuestionObject.type == "boolean") {
+        // To show the graph before, as it takes a while to load
+        printGraph(currentlyAskedQuestionObject.key, ctx, 0, null, false);
+    }
 }
 function insertNewValue(parsedUserValue, ctx, key, type) {
     console.log("Inserting value '" + parsedUserValue + "' for key " + key);
@@ -278,7 +293,7 @@ function parseUserInput(ctx, text) {
         currentlyAskedQuestionObject.type == "range" ||
         currentlyAskedQuestionObject.type == "boolean") {
         // To show potential streaks and the history
-        printGraph(currentlyAskedQuestionObject.key, ctx, 3, parsedUserValue);
+        printGraph(currentlyAskedQuestionObject.key, ctx, 5, parsedUserValue, true);
     }
     console.log("Got a new value: " +
         parsedUserValue +
@@ -409,7 +424,7 @@ function initBot() {
         }
         var key = ctx.match[1];
         console.log("User wants to graph a specific value " + key);
-        printGraph(key, ctx, 5, null);
+        printGraph(key, ctx, 100, null, false);
     });
     bot.on("location", function (ctx) {
         if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
