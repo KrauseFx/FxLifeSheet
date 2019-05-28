@@ -55,8 +55,8 @@ function printGraph(key, ctx, numberOfRecentValuesToPrint, additionalValue) {
   // additionalValue is the value that isn't part of the sheet yet
   // as it was *just* entered by the user
   let loadingMessageID = null;
-  ctx.reply("Loading history...").then(({ messageId }) => {
-    loadingMessageID = messageId;
+  ctx.reply("Loading history...").then(({ message_id }) => {
+    loadingMessageID = message_id;
   });
   rawDataSheet.getRows(
     {
@@ -122,7 +122,6 @@ function printGraph(key, ctx, numberOfRecentValuesToPrint, additionalValue) {
         minimum +
         "," +
         maximum;
-
       console.log(url);
       ctx.replyWithPhoto({
         url: url
@@ -152,7 +151,7 @@ function triggerNextQuestionFromQueue(ctx) {
     // This is information only, just print and go to the next one
     ctx
       .reply(currentlyAskedQuestionObject.question, keyboard)
-      .then(({ messageId }) => {
+      .then(({ message_id }) => {
         triggerNextQuestionFromQueue(ctx);
       });
     return;
@@ -200,8 +199,8 @@ function triggerNextQuestionFromQueue(ctx) {
   let question =
     currentlyAskedQuestionObject.question + " (" + questionAppendix + ")";
 
-  ctx.reply(question, keyboard).then(({ messageId }) => {
-    currentlyAskedQuestionMessageId = messageId;
+  ctx.reply(question, keyboard).then(({ message_id }) => {
+    currentlyAskedQuestionMessageId = message_id;
   });
 }
 
@@ -264,7 +263,7 @@ function parseUserInput(ctx, text = null) {
       .reply(
         "Sorry, I forgot the question I asked, this usually means it took too long for you to respond, please trigger the question again by running the `/` command"
       )
-      .then(({ messageId }) => {
+      .then(({ message_id }) => {
         sendAvailableCommands(ctx);
       });
     return;
@@ -365,7 +364,7 @@ function parseUserInput(ctx, text = null) {
 }
 
 function sendAvailableCommands(ctx) {
-  ctx.reply("Available commands:").then(({ messageId }) => {
+  ctx.reply("Available commands:").then(({ message_id }) => {
     ctx.reply(
       "\n\n/skip\n/report\n\n/" + Object.keys(config.userConfig).join("\n/")
     );
@@ -432,7 +431,7 @@ function initBot() {
         url:
           "https://datastudio.google.com/reporting/1a-1rVk-4ZFOg0WTNNGRvJDXMTNXpl5Uy/page/MpTm/thumbnail?sz=s3000"
       })
-      .then(({ messageId }) => {
+      .then(({ message_id }) => {
         ctx.reply("Full report: https://datastudio.google.com/s/uwV1-Pv9dk4");
       });
   });
@@ -448,7 +447,7 @@ function initBot() {
       .reply(
         "Okay, skipping question. If you see yourself skipping a question too often, maybe it's time to rephrase or remove it"
       )
-      .then(({ messageId }) => {
+      .then(({ message_id }) => {
         triggerNextQuestionFromQueue(ctx);
       });
   });
@@ -520,7 +519,7 @@ function initBot() {
         .reply(
           "Sorry, I forgot the question I asked, this usually means it took too long for you to respond, please trigger the question again by running the `/` command"
         )
-        .then(({ messageId }) => {
+        .then(({ message_id }) => {
           sendAvailableCommands(ctx);
         });
       return;
@@ -671,7 +670,7 @@ function initBot() {
     } else {
       ctx
         .reply("Sorry, I don't know how to run `/" + command)
-        .then(({ messageId }) => {
+        .then(({ message_id }) => {
           sendAvailableCommands(ctx);
         });
     }
@@ -694,8 +693,8 @@ function initBot() {
         "🦄 Received message, transcribing now...",
         Extra.inReplyTo(ctx.message.message_id)
       )
-      .then(({ messageId }) => {
-        transcribingMessageId = messageId;
+      .then(({ message_id }) => {
+        transcribingMessageId = message_id;
       });
 
     let transcribeURL = "https://bubbles-transcribe.herokuapp.com/transcribe";
