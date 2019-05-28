@@ -80,8 +80,10 @@ function printGraph(key, ctx, additionalValue) {
                 maximum = value;
             }
         }
-        allValues.push(additionalValue);
-        allTimes.push(moment());
+        if (additionalValue) {
+            allValues.push(additionalValue);
+            allTimes.push(moment());
+        }
         // Print the raw values
         ctx.telegram.editMessageText(ctx.update.message.chat.id, loadingMessageID, null, rawText.join("\n") + "\nMinimum: " + minimum + "\nMaximum: " + maximum);
         minimum -= 2;

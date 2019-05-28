@@ -94,8 +94,10 @@ function printGraph(key, ctx, additionalValue) {
         }
       }
 
-      allValues.push(additionalValue);
-      allTimes.push(moment());
+      if (additionalValue) {
+        allValues.push(additionalValue);
+        allTimes.push(moment());
+      }
 
       // Print the raw values
       ctx.telegram.editMessageText(
