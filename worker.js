@@ -141,14 +141,16 @@ function triggerNextQuestionFromQueue(ctx) {
     // - No way to use `force_reply` together with a custom keyboard (https://github.com/KrauseFx/FxLifeSheet/issues/5)
     // - No way to update existing messages together with a custom keyboard https://core.telegram.org/bots/api#updating-messages
     if (currentlyAskedQuestionObject.type == "range") {
-        keyboard = Markup.keyboard([
+        var allButtons = [
             [getButtonText("5")],
             [getButtonText("4")],
             [getButtonText("3")],
             [getButtonText("2")],
             [getButtonText("1")],
             [getButtonText("0")]
-        ])
+        ];
+        shuffleArray(allButtons);
+        keyboard = Markup.keyboard(allButtons)
             .oneTime()
             .extra();
     }
@@ -186,6 +188,14 @@ function triggerNextQuestionFromQueue(ctx) {
         currentlyAskedQuestionObject.type == "boolean") {
         // To show the graph before, as it takes a while to load
         printGraph(currentlyAskedQuestionObject.key, ctx, 0, null, false);
+    }
+}
+// Taken from https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
+function shuffleArray(array) {
+    var _a;
+    for (var i = array.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        _a = [array[j], array[i]], array[i] = _a[0], array[j] = _a[1];
     }
 }
 function insertNewValue(parsedUserValue, ctx, key, type) {
