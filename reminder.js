@@ -31,7 +31,8 @@ function runReminders(rawDataSheet, lastRunSheet) {
                 }
             }
             else if (scheduleType == "daily") {
-                if (timeDifferenceHours >= 24 * 1.1) {
+                if (timeDifferenceHours >= 24 * 0.95) {
+                    // 0.95 to send that alert earlier to make it easier to tap
                     shouldRemindUser = true;
                 }
             }
