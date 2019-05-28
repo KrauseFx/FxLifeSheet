@@ -42,7 +42,7 @@ function getButtonText(number) {
     }
     return emojiNumber + " " + currentlyAskedQuestionObject.buttons[number];
 }
-function printGraph(key, ctx, additionalValue) {
+function printGraph(key, ctx, numberOfRecentValuesToPrint, additionalValue) {
     // additionalValue is the value that isn't part of the sheet yet
     // as it was *just* entered by the user
     var loadingMessageID = null;
@@ -72,7 +72,9 @@ function printGraph(key, ctx, additionalValue) {
             var value = Number(rows[i].value);
             allValues.unshift(value);
             allTimes.unshift(time.format("MM-DD"));
-            rawText.unshift(time.format("YYYY-MM-DD") + ": " + value.toFixed(2));
+            if (i < numberOfRecentValuesToPrint) {
+                rawText.unshift(time.format("YYYY-MM-DD") + ": " + value.toFixed(2));
+            }
             if (value < minimum) {
                 minimum = value;
             }
@@ -276,7 +278,7 @@ function parseUserInput(ctx, text) {
         currentlyAskedQuestionObject.type == "range" ||
         currentlyAskedQuestionObject.type == "boolean") {
         // To show potential streaks and the history
-        printGraph(currentlyAskedQuestionObject.key, ctx, parsedUserValue);
+        printGraph(currentlyAskedQuestionObject.key, ctx, 3, parsedUserValue);
     }
     console.log("Got a new value: " +
         parsedUserValue +
@@ -407,7 +409,7 @@ function initBot() {
         }
         var key = ctx.match[1];
         console.log("User wants to graph a specific value " + key);
-        printGraph(key, ctx, null);
+        printGraph(key, ctx, 5, null);
     });
     bot.on("location", function (ctx) {
         if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {

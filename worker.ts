@@ -507,7 +507,7 @@ function initBot() {
     let key = ctx.match[1];
     console.log("User wants to graph a specific value " + key);
 
-    printGraph(key, ctx, 5, null);
+    printGraph(key, ctx, 100, null);
   });
 
   bot.on("location", ctx => {
