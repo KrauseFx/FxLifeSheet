@@ -103,6 +103,8 @@ function printGraph(key, ctx, numberOfRecentValuesToPrint, additionalValue, skip
                 allValues.join(",") +
                 "&chs=800x350&chl=" +
                 allTimes.join("%7C") +
+                "&chtt=" +
+                key +
                 "&chf=bg,s,e0e0e0&chco=000000,0000FF&chma=30,30,30,30&chds=" +
                 minimum +
                 "," +
@@ -399,7 +401,7 @@ function initBot() {
                             console.log(key + " for " + date_1.format() + " = " + value);
                             // Hacky, as Google Docs API client only allows
                             // single row inserts, and it would run out of calls otherwise
-                            var artificialWait = i * 10000 + j * 600;
+                            var artificialWait = i * 10000 + j * 1200;
                             setTimeout(function () {
                                 insertNewValue(value, null, key, "number", date_1);
                             }, artificialWait);

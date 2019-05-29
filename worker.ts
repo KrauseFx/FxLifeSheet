@@ -137,6 +137,8 @@ function printGraph(
           allValues.join(",") +
           "&chs=800x350&chl=" +
           allTimes.join("%7C") +
+          "&chtt=" +
+          key +
           "&chf=bg,s,e0e0e0&chco=000000,0000FF&chma=30,30,30,30&chds=" +
           minimum +
           "," +
