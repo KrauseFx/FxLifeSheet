@@ -2,3 +2,8 @@
 credentials.json
 .DS_STORE
 node_modules
+/moves/daily
+/swarm/checkins.json
+/swarm/life_events.csv
+/swarm/airports.csv
+/historic_weight.csv
