@@ -2,9 +2,9 @@
 credentials.json
 .DS_STORE
 node_modules
-/moves/daily
-/swarm/checkins.json
-/swarm/life_events.csv
-/swarm/airports.csv
-/historic_weight.csv
-/moves/steps.csv
+importers/moves/daily
+importers/swarm/checkins.json
+importers/swarm/life_events.csv
+importers/swarm/airports.csv
+importers/historic_weight.csv
+importers/moves/steps.csv
