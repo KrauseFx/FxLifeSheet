@@ -7,3 +7,4 @@ node_modules
 /swarm/life_events.csv
 /swarm/airports.csv
 /historic_weight.csv
+/moves/steps.csv
