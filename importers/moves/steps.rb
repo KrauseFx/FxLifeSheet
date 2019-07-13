@@ -4,6 +4,7 @@ require 'date'
 csv = "Date;dailySteps"
 all_files = Dir["daily/activities/*"]
 
+# Get all steps
 puts "parsing #{all_files.count} days of data"
 all_files.each do |file|
   day = JSON.parse(File.read(file))
@@ -26,3 +27,4 @@ puts csv
 File.write("steps.csv", csv)
 
 puts "Finished #{all_files.count} days"
+
