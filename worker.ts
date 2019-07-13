@@ -558,13 +558,10 @@ function initBot() {
     }
 
     console.log("user is skipping this question");
-    ctx
-      .reply(
-        "Okay, skipping question. If you see yourself skipping a question too often, maybe it's time to rephrase or remove it"
-      )
-      .then(({ message_id }) => {
-        triggerNextQuestionFromQueue(ctx);
-      });
+    ctx.reply(
+      "Okay, skipping question. If you see yourself skipping a question too often, maybe it's time to rephrase or remove it"
+    );
+    triggerNextQuestionFromQueue(ctx);
   });
 
   bot.hears("/skip_all", ctx => {

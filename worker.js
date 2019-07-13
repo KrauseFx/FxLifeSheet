@@ -458,12 +458,8 @@ function initBot() {
             return;
         }
         console.log("user is skipping this question");
-        ctx
-            .reply("Okay, skipping question. If you see yourself skipping a question too often, maybe it's time to rephrase or remove it")
-            .then(function (_a) {
-            var message_id = _a.message_id;
-            triggerNextQuestionFromQueue(ctx);
-        });
+        ctx.reply("Okay, skipping question. If you see yourself skipping a question too often, maybe it's time to rephrase or remove it");
+        triggerNextQuestionFromQueue(ctx);
     });
     bot.hears("/skip_all", function (ctx) {
         if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
