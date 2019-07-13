@@ -4,7 +4,7 @@ No long term strategy yet, but
 
 Manually remove the header, export as daily, and use sublime to get rid of the overhead
 
-Make sure to use the right (start) date, not the end-date. So the data should look like this
+Make sure to use the left (start) date, not the end-date. So the data should look like this. Also get rid of the time
 
 ```
 02-Jan-2017;96.0
@@ -19,16 +19,20 @@ Make sure to use the right (start) date, not the end-date. So the data should lo
 11-Jan-2017;8593.0
 ```
 
-Code to run in `irb`
+Code to run in `pry` or `irb`
 
 ```
 steps = File.read("/Users/felixkrause/Downloads/Health\ Data.csv")
 
-csv = "Date;dailySteps\n"
+csv = "Date;[HEADER]\n"
 
-csv += steps.split("\n").collect { |l| Date.strptime(l.split(";")[0], "%d-%b-%Y").strftime("%d.%m.%Y") + ";" + l.split(";").last.to_i.to_s }.join("\n")
+data = steps.split("\n").collect do |l| 
+  next if l.split(",").last.to_i == 0
+  Date.strptime(l.split(",")[0], "%d-%b-%Y").strftime("%d.%m.%Y") + ";" + l.split(",").last.to_i.to_s
+end.compact
+csv += data.join("\n")
 
-File.write("steps-exported.csv", csv)
+File.write("weight-exported.csv", csv)
 ```
 
 Export Apple Health data using the QS Acecss app
