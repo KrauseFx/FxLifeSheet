@@ -17,13 +17,17 @@ function initMoodAPI(rawDataSheet, lastRunSheet) {
 
   // Periodically refresh the value
   let interval = 5 * 60 * 1000;
-  let keys = ["mood", "sleepDuration", "weight", "dailySteps", "gym"];
+  let keys = ["mood", "sleepDuration", "weight", "dailySteps", "gym", "macrosCarbs", "macrosProtein", "macrosFat", "weeklyComputerTime", "weeklyPhoneTime"];
   for (let i = 0; i < keys.length; i++) {
     let key = keys[i];
     setInterval(function() {
       loadCurrentData(key);
-    }, interval);
-    loadCurrentData(key);
+    }, interval + i * 500);
+
+    // to avoid rate limits
+    setInterval(function() {
+      loadCurrentData(key);
+    }, i * 250)
   }
 
   http
