@@ -16,7 +16,7 @@ function initMoodAPI(rawDataSheet, lastRunSheet) {
   console.log("Launching up API web server...");
 
   // Periodically refresh the value
-  let interval = 5 * 60 * 1000;
+  let interval = 10 * 60 * 1000;
   let keys = [
     "mood",
     "sleepDuration",
@@ -33,12 +33,12 @@ function initMoodAPI(rawDataSheet, lastRunSheet) {
     let key = keys[i];
     setInterval(function() {
       loadCurrentData(key);
-    }, interval + i * 500);
+    }, interval + i * 2500);
 
     // to avoid rate limits
     setInterval(function() {
       loadCurrentData(key);
-    }, i * 250);
+    }, i * 2000);
 
     lastFetchedData[key] = {
       time: null,
