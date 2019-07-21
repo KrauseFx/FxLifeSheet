@@ -6,44 +6,52 @@ var moment = require("moment");
 // Internal dependencies
 var google_sheets = require("./classes/google_sheets.js");
 // State
-var lastMoodData = null; // used for the moods API
-var currentMood = null;
+var lastFetchedData = {};
 var rawDataSheetRef = null;
 google_sheets.setupGoogleSheets(initMoodAPI);
 function initMoodAPI(rawDataSheet, lastRunSheet) {
     rawDataSheetRef = rawDataSheet;
     console.log("Launching up API web server...");
     // Periodically refresh the value
-    setInterval(loadCurrentMood, 5 * 60 * 1000);
-    loadCurrentMood();
+    var interval = 5 * 60 * 1000;
+    var keys = ["mood", "sleepDuration", "weight", "dailySteps", "gym"];
+    var _loop_1 = function (i) {
+        var key = keys[i];
+        setInterval(function () {
+            loadCurrentData(key);
+        }, interval);
+        loadCurrentData(key);
+    };
+    for (var i = 0; i < keys.length; i++) {
+        _loop_1(i);
+    }
     http
         .createServer(function (req, res) {
         res.writeHead(200, { "Content-Type": "application/json" });
-        res.write(JSON.stringify(lastMoodData));
+        res.write(JSON.stringify(lastFetchedData));
         return res.end();
     })
         .listen(process.env.PORT);
 }
-function loadCurrentMood() {
+function loadCurrentData(key) {
     console.log("Refreshing latest moood entry...");
-    // TODO: That `currentMood` assignment seems useless
-    currentMood = rawDataSheetRef.getRows({
+    rawDataSheetRef.getRows({
         offset: 0,
         limit: 1,
         orderby: "timestamp",
         reverse: true,
-        query: "key=mood"
+        query: "key=" + key
     }, function (error, rows) {
         if (error) {
             console.error(error);
             return;
         }
-        var lastMoodRow = rows[0];
+        var lastRow = rows[0];
         // `lastMoodRow` is null if we haven't tracked a mood yet
-        if (lastMoodRow != null) {
-            lastMoodData = {
-                time: moment(Number(lastMoodRow.timestamp)).format(),
-                value: Number(lastMoodRow.value)
+        if (lastRow != null) {
+            lastFetchedData[key] = {
+                time: moment(Number(lastRow.timestamp)).format(),
+                value: Number(lastRow.value)
             };
         }
     });
