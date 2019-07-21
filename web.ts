@@ -9,9 +9,9 @@ let google_sheets = require("./classes/google_sheets.js");
 var lastFetchedData = {};
 let rawDataSheetRef = null;
 
-google_sheets.setupGoogleSheets(initMoodAPI);
+google_sheets.setupGoogleSheets(initAPI);
 
-function initMoodAPI(rawDataSheet, lastRunSheet) {
+function initAPI(rawDataSheet, lastRunSheet) {
   rawDataSheetRef = rawDataSheet;
   console.log("Launching up API web server...");
 
@@ -36,7 +36,7 @@ function initMoodAPI(rawDataSheet, lastRunSheet) {
     }, interval + i * 2500);
 
     // to avoid rate limits
-    setInterval(function() {
+    setTimeout(function() {
       loadCurrentData(key);
     }, i * 2000);
 
