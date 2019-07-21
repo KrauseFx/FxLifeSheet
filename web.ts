@@ -27,7 +27,8 @@ function initAPI(rawDataSheet, lastRunSheet) {
     "macrosProtein",
     "macrosFat",
     "weeklyComputerTime",
-    "weeklyPhoneTime"
+    "weeklyPhoneTime",
+    "dexaFatPercent"
   ];
   for (let i = 0; i < keys.length; i++) {
     let key = keys[i];
