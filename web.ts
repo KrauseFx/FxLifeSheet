@@ -17,7 +17,18 @@ function initMoodAPI(rawDataSheet, lastRunSheet) {
 
   // Periodically refresh the value
   let interval = 5 * 60 * 1000;
-  let keys = ["mood", "sleepDuration", "weight", "dailySteps", "gym", "macrosCarbs", "macrosProtein", "macrosFat", "weeklyComputerTime", "weeklyPhoneTime"];
+  let keys = [
+    "mood",
+    "sleepDuration",
+    "weight",
+    "dailySteps",
+    "gym",
+    "macrosCarbs",
+    "macrosProtein",
+    "macrosFat",
+    "weeklyComputerTime",
+    "weeklyPhoneTime"
+  ];
   for (let i = 0; i < keys.length; i++) {
     let key = keys[i];
     setInterval(function() {
@@ -27,7 +38,12 @@ function initMoodAPI(rawDataSheet, lastRunSheet) {
     // to avoid rate limits
     setInterval(function() {
       loadCurrentData(key);
-    }, i * 250)
+    }, i * 250);
+
+    lastFetchedData[key] = {
+      time: null,
+      value: null
+    };
   }
 
   http
