@@ -18,13 +18,13 @@ function initAPI(rawDataSheet, lastRunSheet) {
         "mood",
         "sleepDuration",
         "weight",
-        "dailySteps",
         "gym",
         "macrosCarbs",
         "macrosProtein",
         "macrosFat",
         "weeklyComputerTime",
-        "weeklyPhoneTime"
+        "weeklyPhoneTime",
+        "dexaFatPercent"
     ];
     var _loop_1 = function (i) {
         var key = keys[i];

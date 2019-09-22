@@ -235,6 +235,8 @@ function insertNewValue(parsedUserValue, ctx, key, type, fakeDate) {
             console.error(error);
             if (ctx) {
                 ctx.reply("Error saving value: " + error);
+                ctx.reply("Value: " + parsedUserValue);
+                ctx.reply("Key: " + key);
             }
         }
         if (ctx) {

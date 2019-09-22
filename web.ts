@@ -21,7 +21,6 @@ function initAPI(rawDataSheet, lastRunSheet) {
     "mood",
     "sleepDuration",
     "weight",
-    "dailySteps",
     "gym",
     "macrosCarbs",
     "macrosProtein",
