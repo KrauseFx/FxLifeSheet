@@ -236,17 +236,13 @@ export TELEGRAM_BOT_TOKEN=""
 export TELEGRAM_USER_ID=""
 export TELEGRAM_CHAT_ID=""
 
-export GOOGLE_SHEETS_DOC_ID=""
-export GOOGLE_SHEETS_CLIENT_EMAIL=""
-export GOOGLE_SHEETS_PRIVATE_KEY=""
+export DATABASE_URL=""
 
 export LIFESHEET_JSON_URL=""
 
 export OPEN_CAGE_API_KEY=""
 export WEATHER_API_KEY=""
 ```
-
-The `GOOGLE_SHEETS_PRIVATE_KEY` has to start with `-----BEGIN PRIVATE KEY-----\\n...`, with the `...` being the first characters of the private key. All the new lines have to be escaped to be `\\n`, and the ending has to be `=\\n-----END PRIVATE KEY-----\\n`
 
 ### Scheduler
 
@@ -256,38 +252,9 @@ Use the Heroku scheduler, and set it to run every hour to remind you to run cert
 npm run reminder
 ```
 
-### Spreadsheet
+### Postgres
 
-Long term, I'll provide a template. For now, the following options need to be met:
-
-- A new Google Sheet
-- Give the Google Cloud Service acocunt edit access
-- Create the following columns in sheet one (first row):
-  - Timestamp
-  - YearMonth
-  - YearWeek
-  - Year
-  - Quarter
-  - Month
-  - Week
-  - Day
-  - Hour
-  - Minute
-  - Key
-  - Question
-  - Type
-  - Value
-- Select column B and C, and change the format to be `Plain Text` (this is needed for Google Data Studio)
-- Rename the sheet one to `RawData`
-
-<img src="screenshots/Sheet1.png" />
-
-- Create another sheet called `LastRun` and create 2 columns
-  - Command
-  - LastRun
-  - LastMessage
-
-<img src="screenshots/Sheet2.png" />
+Create a new Postgres database, and run the SQL queries defined in [importers/google-sheets-db/create_tables.sql](importers/google-sheets-db/create_tables.sql)
 
 ### Google Data Studio
 
