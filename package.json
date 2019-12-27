@@ -9,9 +9,9 @@
     "reminder": "npm run prettier && npm run typescript && node reminder.js"
   },
   "dependencies": {
-    "google-spreadsheet": "^2.0.7",
     "moment": "^2.24.0",
     "needle": "^2.2.4",
+    "pg": "^7.16.0",
     "prettier": "^1.16.4",
     "telegraf": "^3.28.0",
     "typescript": "^3.4.1"
