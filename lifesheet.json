@@ -72,7 +72,7 @@
         "buttons": {
           "5": "Excellent, feeling refreshed",
           "4": "Great, feeling good",
-          "3": "Good, slighty above average",
+          "3": "Good, slightly above average",
           "2": "Solid, slightly tired",
           "1": "Tired, restless sleep",
           "0": "Miserable"

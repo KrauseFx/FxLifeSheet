@@ -513,7 +513,7 @@ function initBot() {
         }
 
         ctx.reply(
-          "Succesfully triggered import process for " +
+          "Successfully triggered import process for " +
             counter +
             " items... this might take a while. There is no confirmation message. The import process will take AT LEAST " +
             longestWaitingTime / 1000.0 / 60.0 +
@@ -608,7 +608,7 @@ function initBot() {
       ctx.reply(
         "Sorry, I couldn't find the key `" +
           toTrack +
-          "`, please make sure it's not mispelled"
+          "`, please make sure it's not misspelled"
       );
     }
   });
