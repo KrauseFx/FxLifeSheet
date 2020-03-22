@@ -680,55 +680,68 @@ function initBot() {
     });
 
     let today = moment();
-    if (moment().hours() < 10) {
-      // this is being run after midnight,
-      // as I have the tendency to stay up until later
-      // we will fetch the weather from yesterday
-      today = moment().subtract("1", "day");
-    }
+    // TODO: how do we want to handle this
+    // if (moment().hours() < 10) {
+    //   // this is being run after midnight,
+    //   // as I have the tendency to stay up until later
+    //   // we will fetch the weather from yesterday
+    //   today = moment().subtract("1", "day");
+    // }
+    let fromDate = moment().subtract("1", "day");
 
     let weatherURL =
-      "https://api.apixu.com/v1/history.json?key=" +
-      process.env.WEATHER_API_KEY +
-      "&q=" +
-      lat +
-      ";" +
-      lng +
-      "&dt=" +
-      today.format("YYYY-MM-DD");
+      "http://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/weatherdata/history";
+    let query = {
+      location: lat + "," + lng,
+      aggregateHours: "24",
+      unitGroup: "metric",
+      shortColumnNames: "false",
+      key: process.env.WEATHER_API_KEY,
+      contentType: "json",
+      startDateTime: fromDate.format("YYYY-MM-DD") + "T00:00:00",
+      endDateTime: today.format("YYYY-MM-DD") + "T00:00:00"
+    };
+    console.log(query);
 
-    // we use the `/history` API so we get the average/max/min temps of the day instead of the current one (late at night)
-    needle.get(weatherURL, function(error, response, body) {
+    needle.request("get", weatherURL, query, function(error, response, body) {
       if (error) {
         console.error(error);
         return;
       }
+      console.log(body);
 
-      let result = body["forecast"]["forecastday"][0];
-      let resultDay = result["day"];
-      insertNewValue(resultDay["avgtemp_c"], ctx, "weatherCelsius", "number");
-      insertNewValue(resultDay["totalprecip_mm"], ctx, "weatherRain", "number");
-      insertNewValue(
-        resultDay["avghumidity"],
-        ctx,
-        "weatherHumidity",
-        "number"
-      );
+      let result = values(body["locations"])[0]["values"]
+      console.log(result);
 
-      let dayDurationHours =
-        moment("2000-01-01 " + result["astro"]["sunset"]).diff(
-          moment("2000-01-01 " + result["astro"]["sunrise"]),
-          "minutes"
-        ) / 60.0;
+      if (result.length != 2) {
+        console.error(
+          "Something is wrong here... should only have today and the day before"
+        );
+      }
 
-      insertNewValue(
-        dayDurationHours,
-        ctx, // hacky, we just pass this, so that we only sent a confirmation text once
-        "weatherHoursOfSunlight",
-        "number"
-      );
+      let currentDay = result[1]
+      let y = result[0]
 
-      // hacky, as at this point, the other http request might not be complete yet
+      // https://www.visualcrossing.com/weather-data-documentation
+
+      // Today
+      insertNewValue(currentDay["temp"], ctx, "weatherCelsius", "number");
+      insertNewValue(currentDay["maxt"], ctx, "weatherCelsiusMax", "number");
+      insertNewValue(currentDay["mint"], ctx, "weatherCelsiusMin", "number");
+      insertNewValue(currentDay["precip"], ctx, "weatherRain", "number");
+      insertNewValue(currentDay["precipcover"], ctx, "weatherRainPercentageOfDay", "number");
+      insertNewValue(currentDay["humidity"], ctx, "weatherHumidity", "number");
+      insertNewValue(currentDay["snowdepth"], ctx, "weatherSnow", "number");
+
+      // Yesterday
+      insertNewValue(y["temp"], ctx, "weatherYesterdayCelsius", "number");
+      insertNewValue(y["maxt"], ctx, "weatherYesterdayCelsiusMax", "number");
+      insertNewValue(y["mint"], ctx, "weatherYesterdayCelsiusMin", "number");
+      insertNewValue(y["precip"], ctx, "weatherYesterdayRain", "number");
+      insertNewValue(y["precipcover"], ctx, "weatherYesterdayRainPercentageOfDay", "number");
+      insertNewValue(y["humidity"], ctx, "weatherYesterdayHumidity", "number");
+      insertNewValue(y["snowdepth"], ctx, "weatherYesterdaySnow", "number");
+
       triggerNextQuestionFromQueue(ctx);
     });
   });
@@ -744,8 +757,7 @@ function initBot() {
     let matchingCommandObject = config.userConfig[command];
 
     if (matchingCommandObject && matchingCommandObject.questions) {
-      console.log("User wants to run:");
-      console.log(matchingCommandObject);
+      console.log("User wants to run: " + command);
       saveLastRun(command);
       if (
         currentlyAskedQuestionQueue.length > 0 &&

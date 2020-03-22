@@ -503,55 +503,101 @@ function initBot() {
             lng +
             "&key=" +
             process.env.OPEN_CAGE_API_KEY;
-        needle.get(url, function (error, response, body) {
-            if (error) {
-                console.error(error);
-                return;
-            }
-            var result = body["results"][0];
-            // we have some custom handling of the data here, as we get
-            // so much useful data, that we want to insert more rows here
-            insertNewValue(lat, ctx, "locationLat", "number");
-            insertNewValue(lng, ctx, "locationLng", "number");
-            insertNewValue(result["components"]["country"], ctx, "locationCountry", "text");
-            insertNewValue(result["components"]["country_code"], ctx, "locationCountryCode", "text");
-            insertNewValue(result["formatted"], ctx, "locationAddress", "text");
-            insertNewValue(result["components"]["continent"], ctx, "locationContinent", "text");
-            insertNewValue(result["annotations"]["currency"]["name"], ctx, "locationCurrency", "text");
-            insertNewValue(result["annotations"]["timezone"]["short_name"], ctx, "timezone", "text");
-            var city = result["components"]["city"] || result["components"]["state"]; // vienna is not a city according to their API
-            insertNewValue(city, ctx, "locationCity", "text");
-        });
+        // needle.get(url, function(error, response, body) {
+        //   if (error) {
+        //     console.error(error);
+        //     return;
+        //   }
+        //   let result = body["results"][0];
+        //   // we have some custom handling of the data here, as we get
+        //   // so much useful data, that we want to insert more rows here
+        //   insertNewValue(lat, ctx, "locationLat", "number");
+        //   insertNewValue(lng, ctx, "locationLng", "number");
+        //   insertNewValue(
+        //     result["components"]["country"],
+        //     ctx,
+        //     "locationCountry",
+        //     "text"
+        //   );
+        //   insertNewValue(
+        //     result["components"]["country_code"],
+        //     ctx,
+        //     "locationCountryCode",
+        //     "text"
+        //   );
+        //   insertNewValue(result["formatted"], ctx, "locationAddress", "text");
+        //   insertNewValue(
+        //     result["components"]["continent"],
+        //     ctx,
+        //     "locationContinent",
+        //     "text"
+        //   );
+        //   insertNewValue(
+        //     result["annotations"]["currency"]["name"],
+        //     ctx,
+        //     "locationCurrency",
+        //     "text"
+        //   );
+        //   insertNewValue(
+        //     result["annotations"]["timezone"]["short_name"],
+        //     ctx,
+        //     "timezone",
+        //     "text"
+        //   );
+        //   let city = result["components"]["city"] || result["components"]["state"]; // vienna is not a city according to their API
+        //   insertNewValue(city, ctx, "locationCity", "text");
+        // });
         var today = moment();
-        if (moment().hours() < 10) {
-            // this is being run after midnight,
-            // as I have the tendency to stay up until later
-            // we will fetch the weather from yesterday
-            today = moment().subtract("1", "day");
-        }
-        var weatherURL = "https://api.apixu.com/v1/history.json?key=" +
-            process.env.WEATHER_API_KEY +
-            "&q=" +
-            lat +
-            ";" +
-            lng +
-            "&dt=" +
-            today.format("YYYY-MM-DD");
-        // we use the `/history` API so we get the average/max/min temps of the day instead of the current one (late at night)
-        needle.get(weatherURL, function (error, response, body) {
+        // TODO: how do we want to handle this
+        // if (moment().hours() < 10) {
+        //   // this is being run after midnight,
+        //   // as I have the tendency to stay up until later
+        //   // we will fetch the weather from yesterday
+        //   today = moment().subtract("1", "day");
+        // }
+        var fromDate = moment().subtract("1", "day");
+        var weatherURL = "http://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/weatherdata/history";
+        var query = {
+            location: lat + "," + lng,
+            aggregateHours: "24",
+            unitGroup: "metric",
+            shortColumnNames: "false",
+            key: process.env.WEATHER_API_KEY,
+            contentType: "json",
+            startDateTime: fromDate.format("YYYY-MM-DD") + "T00:00:00",
+            endDateTime: today.format("YYYY-MM-DD") + "T00:00:00"
+        };
+        console.log(query);
+        needle.request("get", weatherURL, query, function (error, response, body) {
             if (error) {
                 console.error(error);
                 return;
             }
-            var result = body["forecast"]["forecastday"][0];
-            var resultDay = result["day"];
-            insertNewValue(resultDay["avgtemp_c"], ctx, "weatherCelsius", "number");
-            insertNewValue(resultDay["totalprecip_mm"], ctx, "weatherRain", "number");
-            insertNewValue(resultDay["avghumidity"], ctx, "weatherHumidity", "number");
-            var dayDurationHours = moment("2000-01-01 " + result["astro"]["sunset"]).diff(moment("2000-01-01 " + result["astro"]["sunrise"]), "minutes") / 60.0;
-            insertNewValue(dayDurationHours, ctx, // hacky, we just pass this, so that we only sent a confirmation text once
-            "weatherHoursOfSunlight", "number");
-            // hacky, as at this point, the other http request might not be complete yet
+            console.log(body);
+            var result = Object.values(body["locations"])[0]["values"];
+            console.log(result);
+            if (result.length != 2) {
+                console.error("Something is wrong here... should only have today and the day before");
+            }
+            var currentDay = result[1];
+            var yesterday = result[0];
+            // https://www.visualcrossing.com/weather-data-documentation
+            // Today
+            insertNewValue(currentDay["temp"], ctx, "weatherCelsius", "number");
+            insertNewValue(currentDay["maxt"], ctx, "weatherCelsiusMax", "number");
+            insertNewValue(currentDay["mint"], ctx, "weatherCelsiusMin", "number");
+            insertNewValue(currentDay["precip"], ctx, "weatherRain", "number");
+            insertNewValue(currentDay["precipcover"], ctx, "weatherRainPercentageOfDay", "number");
+            insertNewValue(currentDay["humidity"], ctx, "weatherHumidity", "number");
+            insertNewValue(currentDay["snow"], ctx, "weatherSnow", "number");
+            // Yesterday
+            insertNewValue(yesterday["temp"], ctx, "weatherYesterdayCelsius", "number");
+            insertNewValue(yesterday["maxt"], ctx, "weatherYesterdayCelsiusMax", "number");
+            insertNewValue(yesterday["mint"], ctx, "weatherYesterdayCelsiusMin", "number");
+            insertNewValue(yesterday["precip"], ctx, "weatherYesterdayRain", "number");
+            insertNewValue(yesterday["precipcover"], ctx, "weatherYesterdayRainPercentageOfDay", "number");
+            insertNewValue(yesterday["humidity"], ctx, "weatherYesterdayHumidity", "number");
+            insertNewValue(yesterday["snow"], ctx, "weatherYesterdaySnow", "number");
             triggerNextQuestionFromQueue(ctx);
         });
     });
@@ -564,8 +610,7 @@ function initBot() {
         var command = ctx.match[1];
         var matchingCommandObject = config.userConfig[command];
         if (matchingCommandObject && matchingCommandObject.questions) {
-            console.log("User wants to run:");
-            console.log(matchingCommandObject);
+            console.log("User wants to run: " + command);
             saveLastRun(command);
             if (currentlyAskedQuestionQueue.length > 0 &&
                 currentlyAskedQuestionMessageId) {
