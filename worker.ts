@@ -560,6 +560,7 @@ function initBot() {
       return;
     }
     currentlyAskedQuestionQueue = [];
+    triggerNextQuestionFromQueue(ctx);
     ctx.reply("Okay, removing all questions that are currently in the queue");
   });
 
