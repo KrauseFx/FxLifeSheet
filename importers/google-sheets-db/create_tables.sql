@@ -40,3 +40,5 @@ CREATE TABLE last_run (
 -- Indices -------------------------------------------------------
 
 CREATE UNIQUE INDEX last_run_pkey ON last_run(id int4_ops);
+CREATE UNIQUE INDEX last_run_command_key ON last_run(command text_ops);
+
