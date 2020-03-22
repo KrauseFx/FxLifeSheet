@@ -448,7 +448,6 @@ function initBot() {
   console.log("Launching up Telegram bot...");
 
   bot.on(["document"], ctx => {
-    // TODO: finish this
     // This is used to import other historic data
     let fileId = ctx.update.message.document.file_id;
     console.log("Received a file of ID " + fileId);
@@ -477,7 +476,6 @@ function initBot() {
 
         let header = lines[0].split(sep);
         let counter = 0;
-        let longestWaitingTime = 0;
         for (let i = 1; i < lines.length; i++) {
           let line = lines[i].split(sep);
           if (line.length > 1) {
@@ -487,27 +485,21 @@ function initBot() {
               let key = header[j].trim();
               console.log(key + " for " + date.format() + " = " + value);
 
-              // Hacky, as Google Docs API client only allows
-              // single row inserts, and it would run out of calls otherwise
-              let artificialWait = i * 10000 + j * 1200;
-              setTimeout(function() {
-                insertNewValue(value, null, key, "number", date);
-              }, artificialWait);
+              insertNewValue(value, null, key, "number", date);
               counter++;
-              if (artificialWait > longestWaitingTime) {
-                longestWaitingTime = artificialWait;
+
+              if (counter % 100 == 0) {
+                ctx.reply("Importing entry number " + counter);
               }
             }
+          } else {
+            ctx.reply(
+              "The CSV file must use ; as a separator, must have at least 2 columns, with the first column being the date formatted DD.MM.YYYY, and all other columns using the key as the first row"
+            );
           }
         }
 
-        ctx.reply(
-          "Succesfully triggered import process for " +
-            counter +
-            " items... this might take a while. There is no confirmation message. The import process will take AT LEAST " +
-            longestWaitingTime / 1000.0 / 60.0 +
-            " minutes"
-        );
+        ctx.reply("✅ Succesfully imported " + counter + " rows");
       });
     });
   });
