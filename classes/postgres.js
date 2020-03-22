@@ -8,13 +8,8 @@ var client = new Client({
 });
 client.connect();
 console.log(client);
-console.log("---------------Trying connection-----------------");
+console.log("Successfully connected to Postgres");
 client.query("SELECT NOW()", function (err, res) {
     console.log(err, res);
-    // client.end();
 });
-// module.exports.postgres = function() {
-//   return client;
-// };
-// export {};
 module.exports.client = client;
