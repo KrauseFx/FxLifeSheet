@@ -46,80 +46,69 @@ function printGraph(key, ctx, numberOfRecentValuesToPrint, additionalValue, skip
             loadingMessageID = message_id;
         });
     }
-    // rawDataSheet.getRows(
-    //   {
-    //     offset: 0,
-    //     limit: 100,
-    //     orderby: "timestamp",
-    //     reverse: true,
-    //     query: "key=" + key
-    //   },
-    //   function(error, rows) {
-    //     if (error) {
-    //       console.error(error);
-    //       ctx.reply(error);
-    //       return;
-    //     }
-    //     let allValues = [];
-    //     let allTimes = [];
-    //     let rawText = [];
-    //     let minimum = 10000;
-    //     let maximum = 0;
-    //     for (let i = 0; i < rows.length; i++) {
-    //       let time = moment(Number(rows[i].timestamp));
-    //       let value = Number(rows[i].value);
-    //       allValues.unshift(value);
-    //       allTimes.unshift(time.format("MM-DD"));
-    //       if (i < numberOfRecentValuesToPrint - 1) {
-    //         rawText.unshift(time.format("YYYY-MM-DD") + ": " + value.toFixed(2));
-    //       }
-    //       if (value < minimum) {
-    //         minimum = value;
-    //       }
-    //       if (value > maximum) {
-    //         maximum = value;
-    //       }
-    //     }
-    //     if (additionalValue) {
-    //       allValues.push(additionalValue);
-    //       allTimes.push(moment());
-    //       rawText.push(
-    //         moment().format("YYYY-MM-DD") +
-    //           ": " +
-    //           Number(additionalValue).toFixed(2)
-    //       );
-    //     }
-    //     // Print the raw values
-    //     if (numberOfRecentValuesToPrint > 0 && loadingMessageID) {
-    //       ctx.telegram.editMessageText(
-    //         ctx.update.message.chat.id,
-    //         loadingMessageID,
-    //         null,
-    //         rawText.join("\n") + "\nMinimum: " + minimum + "\nMaximum: " + maximum
-    //       );
-    //     }
-    //     // Generate the graph
-    //     if (!skipImage) {
-    //       minimum -= 2;
-    //       maximum += 2;
-    //       let url =
-    //         "https://chart.googleapis.com/chart?cht=lc&chd=t:" +
-    //         allValues.join(",") +
-    //         "&chs=800x350&chl=" +
-    //         allTimes.join("%7C") +
-    //         "&chtt=" +
-    //         key +
-    //         "&chf=bg,s,e0e0e0&chco=000000,0000FF&chma=30,30,30,30&chds=" +
-    //         minimum +
-    //         "," +
-    //         maximum;
-    //       console.log(url);
-    //       ctx.replyWithPhoto({
-    //         url: url
-    //       });
-    //     }
-    //   }
-    // );
+    postgres.client.query({
+        text: "SELECT * FROM raw_data WHERE key = $1 ORDER BY timestamp LIMIT 300",
+        values: [key]
+    }, function (err, res) {
+        console.log(res);
+        if (err) {
+            console.error(err);
+            ctx.reply(err);
+            return;
+        }
+        var rows = res.rows;
+        console.log("Rows: " + rows.length);
+        var allValues = [];
+        var allTimes = [];
+        var rawText = [];
+        var minimum = 10000;
+        var maximum = 0;
+        for (var i = 0; i < rows.length; i++) {
+            var time = moment(Number(rows[i].timestamp));
+            var value = Number(rows[i].value);
+            allValues.unshift(value);
+            allTimes.unshift(time.format("MM-DD"));
+            if (i < numberOfRecentValuesToPrint - 1) {
+                rawText.unshift(time.format("YYYY-MM-DD") + ": " + value.toFixed(2));
+            }
+            if (value < minimum) {
+                minimum = value;
+            }
+            if (value > maximum) {
+                maximum = value;
+            }
+        }
+        if (additionalValue) {
+            allValues.push(additionalValue);
+            allTimes.push(moment());
+            rawText.push(moment().format("YYYY-MM-DD") +
+                ": " +
+                Number(additionalValue).toFixed(2));
+        }
+        // Print the raw values
+        if (numberOfRecentValuesToPrint > 0 && loadingMessageID) {
+            ctx.telegram.editMessageText(ctx.update.message.chat.id, loadingMessageID, null, rawText.join("\n") + "\nMinimum: " + minimum + "\nMaximum: " + maximum);
+        }
+        // Generate the graph
+        if (!skipImage) {
+            minimum -= 2;
+            maximum += 2;
+            var url = "https://chart.googleapis.com/chart?cht=lc&chd=t:" +
+                allValues.join(",") +
+                "&chs=800x350&chl=" +
+                allTimes.join("%7C") +
+                "&chtt=" +
+                key +
+                "&chf=bg,s,e0e0e0&chco=000000,0000FF&chma=30,30,30,30&chds=" +
+                minimum +
+                "," +
+                maximum;
+            console.log(url);
+            ctx.replyWithPhoto({
+                url: url
+            });
+        }
+    });
 }
 function triggerNextQuestionFromQueue(ctx) {
     var keyboard = Extra.markup(function (m) { return m.removeKeyboard(); }); // default keyboard
@@ -243,22 +232,12 @@ function insertNewValue(parsedUserValue, ctx, key, type, fakeDate) {
     }, function (err, res) {
         console.log(res);
         if (err) {
+            ctx.reply("Error saving value: " + err);
             console.log(err.stack);
         }
         else {
-            console.log(res.rows[0]);
         }
     });
-    // rawDataSheet.addRow(row, function(error, row) {
-    //   if (error) {
-    //     console.error(error);
-    //     if (ctx) {
-    //       ctx.reply("Error saving value: " + error);
-    //       ctx.reply("Value: " + parsedUserValue);
-    //       ctx.reply("Key: " + key);
-    //     }
-    //   }
-    // });
     if (ctx) {
         // we don't use this for location sending as we have many values for that, so that's when `ctx` is nil
         // Show that we saved the value
@@ -360,37 +339,23 @@ function sendAvailableCommands(ctx) {
     });
 }
 function saveLastRun(command) {
-    // lastRunSheet.getRows(
-    //   {
-    //     offset: 1,
-    //     limit: 100
-    //   },
-    //   function(error, rows) {
-    //     var updatedExistingRow = false;
-    //     for (let i = 0; i < rows.length; i++) {
-    //       let currentRow = rows[i];
-    //       let currentCommand = currentRow.command;
-    //       if (command == currentCommand) {
-    //         updatedExistingRow = true;
-    //         currentRow.lastrun = moment().valueOf(); // unix timestamp
-    //         currentRow.save();
-    //       }
-    //     }
-    //     if (!updatedExistingRow) {
-    //       let row = {
-    //         Command: command,
-    //         LastRun: moment().valueOf() // unix timestamp
-    //       };
-    //       // lastRunSheet.addRow(row, function(error, row) {
-    //       //   console.log("Stored timestamp of last run for " + command);
-    //       // });
-    //     }
-    //   }
-    // );
+    postgres.client.query({
+        text: "insert into last_run (command, last_run) VALUES ($1, $2) on conflict (command) do update set last_run = $2",
+        values: [command, moment().valueOf()]
+    }, function (err, res) {
+        console.log(res);
+        if (err) {
+            console.log(err.stack);
+        }
+        else {
+            console.log("Stored timestamp of last run for " + command);
+        }
+    });
 }
 function initBot() {
     console.log("Launching up Telegram bot...");
     bot.on(["document"], function (ctx) {
+        // TODO: finish this
         // This is used to import other historic data
         var fileId = ctx.update.message.document.file_id;
         console.log("Received a file of ID " + fileId);
@@ -490,6 +455,7 @@ function initBot() {
             return;
         }
         currentlyAskedQuestionQueue = [];
+        triggerNextQuestionFromQueue(ctx);
         ctx.reply("Okay, removing all questions that are currently in the queue");
     });
     bot.hears(/\/track (\w+)/, function (ctx) {
