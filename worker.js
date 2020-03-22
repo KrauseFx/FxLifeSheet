@@ -6,20 +6,14 @@ var needle = require("needle");
 var _a = require("telegraf"), Router = _a.Router, Markup = _a.Markup, Extra = _a.Extra;
 // Internal dependencies
 var config = require("./classes/config.js");
-var google_sheets = require("./classes/google_sheets.js");
+var postgres = require("./classes/postgres.js");
 var telegram = require("./classes/telegram.js");
 var bot = telegram.bot;
 // State
 var currentlyAskedQuestionObject = null;
 var currentlyAskedQuestionMessageId = null; // The Telegram message ID reference
 var currentlyAskedQuestionQueue = []; // keep track of all the questions about to be asked
-var rawDataSheet = null;
-var lastRunSheet = null;
-google_sheets.setupGoogleSheets(function (rawDataSheetRef, lastRunSheetRef) {
-    rawDataSheet = rawDataSheetRef;
-    lastRunSheet = lastRunSheetRef;
-    initBot();
-});
+initBot();
 function getButtonText(number) {
     var emojiNumber = {
         "0": "0️⃣",
@@ -52,69 +46,80 @@ function printGraph(key, ctx, numberOfRecentValuesToPrint, additionalValue, skip
             loadingMessageID = message_id;
         });
     }
-    rawDataSheet.getRows({
-        offset: 0,
-        limit: 100,
-        orderby: "timestamp",
-        reverse: true,
-        query: "key=" + key
-    }, function (error, rows) {
-        if (error) {
-            console.error(error);
-            ctx.reply(error);
-            return;
-        }
-        var allValues = [];
-        var allTimes = [];
-        var rawText = [];
-        var minimum = 10000;
-        var maximum = 0;
-        for (var i = 0; i < rows.length; i++) {
-            var time = moment(Number(rows[i].timestamp));
-            var value = Number(rows[i].value);
-            allValues.unshift(value);
-            allTimes.unshift(time.format("MM-DD"));
-            if (i < numberOfRecentValuesToPrint - 1) {
-                rawText.unshift(time.format("YYYY-MM-DD") + ": " + value.toFixed(2));
-            }
-            if (value < minimum) {
-                minimum = value;
-            }
-            if (value > maximum) {
-                maximum = value;
-            }
-        }
-        if (additionalValue) {
-            allValues.push(additionalValue);
-            allTimes.push(moment());
-            rawText.push(moment().format("YYYY-MM-DD") +
-                ": " +
-                Number(additionalValue).toFixed(2));
-        }
-        // Print the raw values
-        if (numberOfRecentValuesToPrint > 0 && loadingMessageID) {
-            ctx.telegram.editMessageText(ctx.update.message.chat.id, loadingMessageID, null, rawText.join("\n") + "\nMinimum: " + minimum + "\nMaximum: " + maximum);
-        }
-        // Generate the graph
-        if (!skipImage) {
-            minimum -= 2;
-            maximum += 2;
-            var url = "https://chart.googleapis.com/chart?cht=lc&chd=t:" +
-                allValues.join(",") +
-                "&chs=800x350&chl=" +
-                allTimes.join("%7C") +
-                "&chtt=" +
-                key +
-                "&chf=bg,s,e0e0e0&chco=000000,0000FF&chma=30,30,30,30&chds=" +
-                minimum +
-                "," +
-                maximum;
-            console.log(url);
-            ctx.replyWithPhoto({
-                url: url
-            });
-        }
-    });
+    // rawDataSheet.getRows(
+    //   {
+    //     offset: 0,
+    //     limit: 100,
+    //     orderby: "timestamp",
+    //     reverse: true,
+    //     query: "key=" + key
+    //   },
+    //   function(error, rows) {
+    //     if (error) {
+    //       console.error(error);
+    //       ctx.reply(error);
+    //       return;
+    //     }
+    //     let allValues = [];
+    //     let allTimes = [];
+    //     let rawText = [];
+    //     let minimum = 10000;
+    //     let maximum = 0;
+    //     for (let i = 0; i < rows.length; i++) {
+    //       let time = moment(Number(rows[i].timestamp));
+    //       let value = Number(rows[i].value);
+    //       allValues.unshift(value);
+    //       allTimes.unshift(time.format("MM-DD"));
+    //       if (i < numberOfRecentValuesToPrint - 1) {
+    //         rawText.unshift(time.format("YYYY-MM-DD") + ": " + value.toFixed(2));
+    //       }
+    //       if (value < minimum) {
+    //         minimum = value;
+    //       }
+    //       if (value > maximum) {
+    //         maximum = value;
+    //       }
+    //     }
+    //     if (additionalValue) {
+    //       allValues.push(additionalValue);
+    //       allTimes.push(moment());
+    //       rawText.push(
+    //         moment().format("YYYY-MM-DD") +
+    //           ": " +
+    //           Number(additionalValue).toFixed(2)
+    //       );
+    //     }
+    //     // Print the raw values
+    //     if (numberOfRecentValuesToPrint > 0 && loadingMessageID) {
+    //       ctx.telegram.editMessageText(
+    //         ctx.update.message.chat.id,
+    //         loadingMessageID,
+    //         null,
+    //         rawText.join("\n") + "\nMinimum: " + minimum + "\nMaximum: " + maximum
+    //       );
+    //     }
+    //     // Generate the graph
+    //     if (!skipImage) {
+    //       minimum -= 2;
+    //       maximum += 2;
+    //       let url =
+    //         "https://chart.googleapis.com/chart?cht=lc&chd=t:" +
+    //         allValues.join(",") +
+    //         "&chs=800x350&chl=" +
+    //         allTimes.join("%7C") +
+    //         "&chtt=" +
+    //         key +
+    //         "&chf=bg,s,e0e0e0&chco=000000,0000FF&chma=30,30,30,30&chds=" +
+    //         minimum +
+    //         "," +
+    //         maximum;
+    //       console.log(url);
+    //       ctx.replyWithPhoto({
+    //         url: url
+    //       });
+    //     }
+    //   }
+    // );
 }
 function triggerNextQuestionFromQueue(ctx) {
     var keyboard = Extra.markup(function (m) { return m.removeKeyboard(); }); // default keyboard
@@ -230,32 +235,46 @@ function insertNewValue(parsedUserValue, ctx, key, type, fakeDate) {
         Type: type,
         Value: parsedUserValue
     };
-    rawDataSheet.addRow(row, function (error, row) {
-        if (error) {
-            console.error(error);
-            if (ctx) {
-                ctx.reply("Error saving value: " + error);
-                ctx.reply("Value: " + parsedUserValue);
-                ctx.reply("Key: " + key);
-            }
+    postgres.client.query({
+        text: "INSERT INTO raw_data (" +
+            Object.keys(row).join(",") +
+            ") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)",
+        values: Object.values(row)
+    }, function (err, res) {
+        console.log(res);
+        if (err) {
+            console.log(err.stack);
         }
-        if (ctx) {
-            // we don't use this for location sending as we have many values for that, so that's when `ctx` is nil
-            // Show that we saved the value
-            // Currently the Telegram API doens't support updating of messages that have a custom keyboard
-            // for no good reason, as mentioned here https://github.com/TelegramBots/telegram.bot/issues/176
-            //
-            // Bad Request: Message can't be edited
-            //
-            // Please note, that it is currently only possible to edit messages without reply_markup or with inline keyboards
-            // ctx.telegram.editMessageText(
-            //   ctx.update.message.chat.id,
-            //   currentlyAskedQuestionMessageId,
-            //   null,
-            //   "✅ " + lastQuestionAskedDupe + " ✅"
-            // );
+        else {
+            console.log(res.rows[0]);
         }
     });
+    // rawDataSheet.addRow(row, function(error, row) {
+    //   if (error) {
+    //     console.error(error);
+    //     if (ctx) {
+    //       ctx.reply("Error saving value: " + error);
+    //       ctx.reply("Value: " + parsedUserValue);
+    //       ctx.reply("Key: " + key);
+    //     }
+    //   }
+    // });
+    if (ctx) {
+        // we don't use this for location sending as we have many values for that, so that's when `ctx` is nil
+        // Show that we saved the value
+        // Currently the Telegram API doens't support updating of messages that have a custom keyboard
+        // for no good reason, as mentioned here https://github.com/TelegramBots/telegram.bot/issues/176
+        //
+        // Bad Request: Message can't be edited
+        //
+        // Please note, that it is currently only possible to edit messages without reply_markup or with inline keyboards
+        // ctx.telegram.editMessageText(
+        //   ctx.update.message.chat.id,
+        //   currentlyAskedQuestionMessageId,
+        //   null,
+        //   "✅ " + lastQuestionAskedDupe + " ✅"
+        // );
+    }
 }
 function parseUserInput(ctx, text) {
     if (text === void 0) { text = null; }
@@ -341,30 +360,33 @@ function sendAvailableCommands(ctx) {
     });
 }
 function saveLastRun(command) {
-    lastRunSheet.getRows({
-        offset: 1,
-        limit: 100
-    }, function (error, rows) {
-        var updatedExistingRow = false;
-        for (var i = 0; i < rows.length; i++) {
-            var currentRow = rows[i];
-            var currentCommand = currentRow.command;
-            if (command == currentCommand) {
-                updatedExistingRow = true;
-                currentRow.lastrun = moment().valueOf(); // unix timestamp
-                currentRow.save();
-            }
-        }
-        if (!updatedExistingRow) {
-            var row = {
-                Command: command,
-                LastRun: moment().valueOf() // unix timestamp
-            };
-            lastRunSheet.addRow(row, function (error, row) {
-                console.log("Stored timestamp of last run for " + command);
-            });
-        }
-    });
+    // lastRunSheet.getRows(
+    //   {
+    //     offset: 1,
+    //     limit: 100
+    //   },
+    //   function(error, rows) {
+    //     var updatedExistingRow = false;
+    //     for (let i = 0; i < rows.length; i++) {
+    //       let currentRow = rows[i];
+    //       let currentCommand = currentRow.command;
+    //       if (command == currentCommand) {
+    //         updatedExistingRow = true;
+    //         currentRow.lastrun = moment().valueOf(); // unix timestamp
+    //         currentRow.save();
+    //       }
+    //     }
+    //     if (!updatedExistingRow) {
+    //       let row = {
+    //         Command: command,
+    //         LastRun: moment().valueOf() // unix timestamp
+    //       };
+    //       // lastRunSheet.addRow(row, function(error, row) {
+    //       //   console.log("Stored timestamp of last run for " + command);
+    //       // });
+    //     }
+    //   }
+    // );
 }
 function initBot() {
     console.log("Launching up Telegram bot...");
