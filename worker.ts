@@ -51,16 +51,6 @@ function printGraph(
   additionalValue,
   skipImage
 ) {
-  // additionalValue is the value that isn't part of the sheet yet
-  // as it was *just* entered by the user
-  let loadingMessageID = null;
-
-  if (numberOfRecentValuesToPrint > 0) {
-    ctx.reply("Loading history...").then(({ message_id }) => {
-      loadingMessageID = message_id;
-    });
-  }
-
   postgres.client.query(
     {
       text:
@@ -113,11 +103,8 @@ function printGraph(
       }
 
       // Print the raw values
-      if (numberOfRecentValuesToPrint > 0 && loadingMessageID) {
-        ctx.telegram.editMessageText(
-          ctx.update.message.chat.id,
-          loadingMessageID,
-          null,
+      if (numberOfRecentValuesToPrint > 0) {
+        ctx.reply(
           rawText.join("\n") + "\nMinimum: " + minimum + "\nMaximum: " + maximum
         );
       }

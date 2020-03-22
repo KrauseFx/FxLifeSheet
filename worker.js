@@ -37,15 +37,6 @@ function getButtonText(number) {
     return emojiNumber + " " + currentlyAskedQuestionObject.buttons[number];
 }
 function printGraph(key, ctx, numberOfRecentValuesToPrint, additionalValue, skipImage) {
-    // additionalValue is the value that isn't part of the sheet yet
-    // as it was *just* entered by the user
-    var loadingMessageID = null;
-    if (numberOfRecentValuesToPrint > 0) {
-        ctx.reply("Loading history...").then(function (_a) {
-            var message_id = _a.message_id;
-            loadingMessageID = message_id;
-        });
-    }
     postgres.client.query({
         text: "SELECT * FROM raw_data WHERE key = $1 ORDER BY timestamp DESC LIMIT 300",
         values: [key]
@@ -86,8 +77,8 @@ function printGraph(key, ctx, numberOfRecentValuesToPrint, additionalValue, skip
                 Number(additionalValue).toFixed(2));
         }
         // Print the raw values
-        if (numberOfRecentValuesToPrint > 0 && loadingMessageID) {
-            ctx.telegram.editMessageText(ctx.update.message.chat.id, loadingMessageID, null, rawText.join("\n") + "\nMinimum: " + minimum + "\nMaximum: " + maximum);
+        if (numberOfRecentValuesToPrint > 0) {
+            ctx.reply(rawText.join("\n") + "\nMinimum: " + minimum + "\nMaximum: " + maximum);
         }
         // Generate the graph
         if (!skipImage) {
