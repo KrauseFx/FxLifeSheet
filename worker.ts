@@ -679,15 +679,18 @@ function initBot() {
       insertNewValue(city, ctx, "locationCity", "text");
     });
 
-    let today = moment();
-    // TODO: how do we want to handle this
-    // if (moment().hours() < 10) {
-    //   // this is being run after midnight,
-    //   // as I have the tendency to stay up until later
-    //   // we will fetch the weather from yesterday
-    //   today = moment().subtract("1", "day");
-    // }
-    let fromDate = moment().subtract("1", "day");
+    let today;
+    let fromDate;
+    if (moment().hours() < 18) {
+      // this is being run after midnight,
+      // as I have the tendency to stay up until later
+      // we will fetch the weather from yesterday
+      today = moment().subtract("1", "day");
+      fromDate = moment().subtract("2", "day");
+    } else {
+      today = moment();
+      fromDate = moment().subtract("1", "day");
+    }
 
     let weatherURL =
       "http://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/weatherdata/history";
@@ -710,7 +713,7 @@ function initBot() {
       }
       console.log(body);
 
-      let result = values(body["locations"])[0]["values"]
+      let result = Object.values(body["locations"])[0]["values"];
       console.log(result);
 
       if (result.length != 2) {
@@ -719,8 +722,8 @@ function initBot() {
         );
       }
 
-      let currentDay = result[1]
-      let y = result[0]
+      let currentDay = result[1];
+      let y = result[0];
 
       // https://www.visualcrossing.com/weather-data-documentation
 
@@ -729,7 +732,12 @@ function initBot() {
       insertNewValue(currentDay["maxt"], ctx, "weatherCelsiusMax", "number");
       insertNewValue(currentDay["mint"], ctx, "weatherCelsiusMin", "number");
       insertNewValue(currentDay["precip"], ctx, "weatherRain", "number");
-      insertNewValue(currentDay["precipcover"], ctx, "weatherRainPercentageOfDay", "number");
+      insertNewValue(
+        currentDay["precipcover"],
+        ctx,
+        "weatherRainPercentageOfDay",
+        "number"
+      );
       insertNewValue(currentDay["humidity"], ctx, "weatherHumidity", "number");
       insertNewValue(currentDay["snowdepth"], ctx, "weatherSnow", "number");
 
@@ -738,7 +746,12 @@ function initBot() {
       insertNewValue(y["maxt"], ctx, "weatherYesterdayCelsiusMax", "number");
       insertNewValue(y["mint"], ctx, "weatherYesterdayCelsiusMin", "number");
       insertNewValue(y["precip"], ctx, "weatherYesterdayRain", "number");
-      insertNewValue(y["precipcover"], ctx, "weatherYesterdayRainPercentageOfDay", "number");
+      insertNewValue(
+        y["precipcover"],
+        ctx,
+        "weatherYesterdayRainPercentageOfDay",
+        "number"
+      );
       insertNewValue(y["humidity"], ctx, "weatherYesterdayHumidity", "number");
       insertNewValue(y["snowdepth"], ctx, "weatherYesterdaySnow", "number");
 

@@ -503,59 +503,38 @@ function initBot() {
             lng +
             "&key=" +
             process.env.OPEN_CAGE_API_KEY;
-        // needle.get(url, function(error, response, body) {
-        //   if (error) {
-        //     console.error(error);
-        //     return;
-        //   }
-        //   let result = body["results"][0];
-        //   // we have some custom handling of the data here, as we get
-        //   // so much useful data, that we want to insert more rows here
-        //   insertNewValue(lat, ctx, "locationLat", "number");
-        //   insertNewValue(lng, ctx, "locationLng", "number");
-        //   insertNewValue(
-        //     result["components"]["country"],
-        //     ctx,
-        //     "locationCountry",
-        //     "text"
-        //   );
-        //   insertNewValue(
-        //     result["components"]["country_code"],
-        //     ctx,
-        //     "locationCountryCode",
-        //     "text"
-        //   );
-        //   insertNewValue(result["formatted"], ctx, "locationAddress", "text");
-        //   insertNewValue(
-        //     result["components"]["continent"],
-        //     ctx,
-        //     "locationContinent",
-        //     "text"
-        //   );
-        //   insertNewValue(
-        //     result["annotations"]["currency"]["name"],
-        //     ctx,
-        //     "locationCurrency",
-        //     "text"
-        //   );
-        //   insertNewValue(
-        //     result["annotations"]["timezone"]["short_name"],
-        //     ctx,
-        //     "timezone",
-        //     "text"
-        //   );
-        //   let city = result["components"]["city"] || result["components"]["state"]; // vienna is not a city according to their API
-        //   insertNewValue(city, ctx, "locationCity", "text");
-        // });
-        var today = moment();
-        // TODO: how do we want to handle this
-        // if (moment().hours() < 10) {
-        //   // this is being run after midnight,
-        //   // as I have the tendency to stay up until later
-        //   // we will fetch the weather from yesterday
-        //   today = moment().subtract("1", "day");
-        // }
-        var fromDate = moment().subtract("1", "day");
+        needle.get(url, function (error, response, body) {
+            if (error) {
+                console.error(error);
+                return;
+            }
+            var result = body["results"][0];
+            // we have some custom handling of the data here, as we get
+            // so much useful data, that we want to insert more rows here
+            insertNewValue(lat, ctx, "locationLat", "number");
+            insertNewValue(lng, ctx, "locationLng", "number");
+            insertNewValue(result["components"]["country"], ctx, "locationCountry", "text");
+            insertNewValue(result["components"]["country_code"], ctx, "locationCountryCode", "text");
+            insertNewValue(result["formatted"], ctx, "locationAddress", "text");
+            insertNewValue(result["components"]["continent"], ctx, "locationContinent", "text");
+            insertNewValue(result["annotations"]["currency"]["name"], ctx, "locationCurrency", "text");
+            insertNewValue(result["annotations"]["timezone"]["short_name"], ctx, "timezone", "text");
+            var city = result["components"]["city"] || result["components"]["state"]; // vienna is not a city according to their API
+            insertNewValue(city, ctx, "locationCity", "text");
+        });
+        var today;
+        var fromDate;
+        if (moment().hours() < 18) {
+            // this is being run after midnight,
+            // as I have the tendency to stay up until later
+            // we will fetch the weather from yesterday
+            today = moment().subtract("1", "day");
+            fromDate = moment().subtract("2", "day");
+        }
+        else {
+            today = moment();
+            fromDate = moment().subtract("1", "day");
+        }
         var weatherURL = "http://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/weatherdata/history";
         var query = {
             location: lat + "," + lng,
@@ -580,7 +559,7 @@ function initBot() {
                 console.error("Something is wrong here... should only have today and the day before");
             }
             var currentDay = result[1];
-            var yesterday = result[0];
+            var y = result[0];
             // https://www.visualcrossing.com/weather-data-documentation
             // Today
             insertNewValue(currentDay["temp"], ctx, "weatherCelsius", "number");
@@ -589,15 +568,15 @@ function initBot() {
             insertNewValue(currentDay["precip"], ctx, "weatherRain", "number");
             insertNewValue(currentDay["precipcover"], ctx, "weatherRainPercentageOfDay", "number");
             insertNewValue(currentDay["humidity"], ctx, "weatherHumidity", "number");
-            insertNewValue(currentDay["snow"], ctx, "weatherSnow", "number");
+            insertNewValue(currentDay["snowdepth"], ctx, "weatherSnow", "number");
             // Yesterday
-            insertNewValue(yesterday["temp"], ctx, "weatherYesterdayCelsius", "number");
-            insertNewValue(yesterday["maxt"], ctx, "weatherYesterdayCelsiusMax", "number");
-            insertNewValue(yesterday["mint"], ctx, "weatherYesterdayCelsiusMin", "number");
-            insertNewValue(yesterday["precip"], ctx, "weatherYesterdayRain", "number");
-            insertNewValue(yesterday["precipcover"], ctx, "weatherYesterdayRainPercentageOfDay", "number");
-            insertNewValue(yesterday["humidity"], ctx, "weatherYesterdayHumidity", "number");
-            insertNewValue(yesterday["snow"], ctx, "weatherYesterdaySnow", "number");
+            insertNewValue(y["temp"], ctx, "weatherYesterdayCelsius", "number");
+            insertNewValue(y["maxt"], ctx, "weatherYesterdayCelsiusMax", "number");
+            insertNewValue(y["mint"], ctx, "weatherYesterdayCelsiusMin", "number");
+            insertNewValue(y["precip"], ctx, "weatherYesterdayRain", "number");
+            insertNewValue(y["precipcover"], ctx, "weatherYesterdayRainPercentageOfDay", "number");
+            insertNewValue(y["humidity"], ctx, "weatherYesterdayHumidity", "number");
+            insertNewValue(y["snowdepth"], ctx, "weatherYesterdaySnow", "number");
             triggerNextQuestionFromQueue(ctx);
         });
     });
