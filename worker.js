@@ -47,7 +47,7 @@ function printGraph(key, ctx, numberOfRecentValuesToPrint, additionalValue, skip
         });
     }
     postgres.client.query({
-        text: "SELECT * FROM raw_data WHERE key = $1 ORDER BY timestamp LIMIT 300",
+        text: "SELECT * FROM raw_data WHERE key = $1 ORDER BY timestamp DESC LIMIT 300",
         values: [key]
     }, function (err, res) {
         console.log(res);

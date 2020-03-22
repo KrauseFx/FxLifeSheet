@@ -17,7 +17,6 @@ and then import using
 
 ```sql
 COPY raw_data (
-  
   Timestamp,
   YearMonth,
   YearWeek,
@@ -35,4 +34,10 @@ COPY raw_data (
 )
 
 FROM '/Users/felixkrause/Developer/fxlifesheet/importers/google-sheets-db/LifeFxSheetRawData.tsv' DELIMITER E'\t' CSV HEADER;
+```
+
+And since Heroku doesn't support importing DBs without some weird custom things, you gotta import all of this locally, and then run
+
+```
+pg_dump -Fc --no-acl --no-owner -h localhost -U felixkrause fxlifesheet > mydb.dump
 ```
