@@ -47,7 +47,6 @@ var keys = [
     "macrosProtein",
     "macrosFat",
     "weeklyComputerTime",
-    "weeklyPhoneTime",
     "dexaFatPercent",
     "meditated"
 ];

@@ -55,7 +55,6 @@ let keys = [
   "macrosProtein",
   "macrosFat",
   "weeklyComputerTime",
-  "weeklyPhoneTime",
   "dexaFatPercent",
   "meditated"
 ];
