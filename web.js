@@ -24,7 +24,8 @@ function initAPI(rawDataSheet, lastRunSheet) {
         "macrosFat",
         "weeklyComputerTime",
         "weeklyPhoneTime",
-        "dexaFatPercent"
+        "dexaFatPercent",
+        "meditated"
     ];
     var _loop_1 = function (i) {
         var key = keys[i];
