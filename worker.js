@@ -371,7 +371,7 @@ function initBot() {
                 var counter = 0;
                 for (var i = 1; i < lines.length; i++) {
                     var line = lines[i].split(sep);
-                    if (line.length > 1) {
+                    if (line.length > 2) {
                         var date = moment(line[0].trim(), dateFormat);
                         for (var j = 1; j < line.length; j++) {
                             var value = line[j].trim();
