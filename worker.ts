@@ -5,7 +5,7 @@ const { Router, Markup, Extra } = require("telegraf");
 
 // Internal dependencies
 let config = require("./classes/config.js");
-let google_sheets = require("./classes/google_sheets.js");
+let postgres = require("./classes/postgres.js");
 let telegram = require("./classes/telegram.js");
 
 import { Command, QuestionToAsk } from "./classes/config.js";
@@ -16,15 +16,8 @@ let bot = telegram.bot;
 var currentlyAskedQuestionObject: QuestionToAsk = null;
 var currentlyAskedQuestionMessageId: String = null; // The Telegram message ID reference
 let currentlyAskedQuestionQueue: Array<QuestionToAsk> = []; // keep track of all the questions about to be asked
-let rawDataSheet = null;
-let lastRunSheet = null;
 
-google_sheets.setupGoogleSheets(function(rawDataSheetRef, lastRunSheetRef) {
-  rawDataSheet = rawDataSheetRef;
-  lastRunSheet = lastRunSheetRef;
-
-  initBot();
-});
+initBot();
 
 function getButtonText(number) {
   let emojiNumber = {
@@ -58,30 +51,22 @@ function printGraph(
   additionalValue,
   skipImage
 ) {
-  // additionalValue is the value that isn't part of the sheet yet
-  // as it was *just* entered by the user
-  let loadingMessageID = null;
-
-  if (numberOfRecentValuesToPrint > 0) {
-    ctx.reply("Loading history...").then(({ message_id }) => {
-      loadingMessageID = message_id;
-    });
-  }
-
-  rawDataSheet.getRows(
+  postgres.client.query(
     {
-      offset: 0,
-      limit: 100,
-      orderby: "timestamp",
-      reverse: true,
-      query: "key=" + key
+      text:
+        "SELECT * FROM raw_data WHERE key = $1 ORDER BY timestamp DESC LIMIT 300",
+      values: [key]
     },
-    function(error, rows) {
-      if (error) {
-        console.error(error);
-        ctx.reply(error);
+    (err, res) => {
+      console.log(res);
+      if (err) {
+        console.error(err);
+        ctx.reply(err);
         return;
       }
+
+      let rows = res.rows;
+      console.log("Rows: " + rows.length);
 
       let allValues = [];
       let allTimes = [];
@@ -118,11 +103,8 @@ function printGraph(
       }
 
       // Print the raw values
-      if (numberOfRecentValuesToPrint > 0 && loadingMessageID) {
-        ctx.telegram.editMessageText(
-          ctx.update.message.chat.id,
-          loadingMessageID,
-          null,
+      if (numberOfRecentValuesToPrint > 0) {
+        ctx.reply(
           rawText.join("\n") + "\nMinimum: " + minimum + "\nMaximum: " + maximum
         );
       }
@@ -276,33 +258,40 @@ function insertNewValue(parsedUserValue, ctx, key, type, fakeDate = null) {
     Value: parsedUserValue
   };
 
-  rawDataSheet.addRow(row, function(error, row) {
-    if (error) {
-      console.error(error);
-      if (ctx) {
-        ctx.reply("Error saving value: " + error);
-        ctx.reply("Value: " + parsedUserValue);
-        ctx.reply("Key: " + key);
+  postgres.client.query(
+    {
+      text:
+        "INSERT INTO raw_data (" +
+        Object.keys(row).join(",") +
+        ") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)",
+      values: Object.values(row)
+    },
+    (err, res) => {
+      console.log(res);
+      if (err) {
+        ctx.reply("Error saving value: " + err);
+        console.log(err.stack);
+      } else {
       }
     }
+  );
 
-    if (ctx) {
-      // we don't use this for location sending as we have many values for that, so that's when `ctx` is nil
-      // Show that we saved the value
-      // Currently the Telegram API doens't support updating of messages that have a custom keyboard
-      // for no good reason, as mentioned here https://github.com/TelegramBots/telegram.bot/issues/176
-      //
-      // Bad Request: Message can't be edited
-      //
-      // Please note, that it is currently only possible to edit messages without reply_markup or with inline keyboards
-      // ctx.telegram.editMessageText(
-      //   ctx.update.message.chat.id,
-      //   currentlyAskedQuestionMessageId,
-      //   null,
-      //   "✅ " + lastQuestionAskedDupe + " ✅"
-      // );
-    }
-  });
+  if (ctx) {
+    // we don't use this for location sending as we have many values for that, so that's when `ctx` is nil
+    // Show that we saved the value
+    // Currently the Telegram API doens't support updating of messages that have a custom keyboard
+    // for no good reason, as mentioned here https://github.com/TelegramBots/telegram.bot/issues/176
+    //
+    // Bad Request: Message can't be edited
+    //
+    // Please note, that it is currently only possible to edit messages without reply_markup or with inline keyboards
+    // ctx.telegram.editMessageText(
+    //   ctx.update.message.chat.id,
+    //   currentlyAskedQuestionMessageId,
+    //   null,
+    //   "✅ " + lastQuestionAskedDupe + " ✅"
+    // );
+  }
 }
 
 function parseUserInput(ctx, text = null) {
@@ -425,32 +414,18 @@ function sendAvailableCommands(ctx) {
 }
 
 function saveLastRun(command) {
-  lastRunSheet.getRows(
+  postgres.client.query(
     {
-      offset: 1,
-      limit: 100
+      text:
+        "insert into last_run (command, last_run) VALUES ($1, $2) on conflict (command) do update set last_run = $2",
+      values: [command, moment().valueOf()]
     },
-    function(error, rows) {
-      var updatedExistingRow = false;
-      for (let i = 0; i < rows.length; i++) {
-        let currentRow = rows[i];
-        let currentCommand = currentRow.command;
-        if (command == currentCommand) {
-          updatedExistingRow = true;
-
-          currentRow.lastrun = moment().valueOf(); // unix timestamp
-          currentRow.save();
-        }
-      }
-
-      if (!updatedExistingRow) {
-        let row = {
-          Command: command,
-          LastRun: moment().valueOf() // unix timestamp
-        };
-        lastRunSheet.addRow(row, function(error, row) {
-          console.log("Stored timestamp of last run for " + command);
-        });
+    (err, res) => {
+      console.log(res);
+      if (err) {
+        console.log(err.stack);
+      } else {
+        console.log("Stored timestamp of last run for " + command);
       }
     }
   );
@@ -488,37 +463,30 @@ function initBot() {
 
         let header = lines[0].split(sep);
         let counter = 0;
-        let longestWaitingTime = 0;
         for (let i = 1; i < lines.length; i++) {
           let line = lines[i].split(sep);
-          if (line.length > 1) {
+          if (line.length > 2) {
             let date = moment(line[0].trim(), dateFormat);
             for (let j = 1; j < line.length; j++) {
               let value = line[j].trim();
               let key = header[j].trim();
               console.log(key + " for " + date.format() + " = " + value);
 
-              // Hacky, as Google Docs API client only allows
-              // single row inserts, and it would run out of calls otherwise
-              let artificialWait = i * 10000 + j * 1200;
-              setTimeout(function() {
-                insertNewValue(value, null, key, "number", date);
-              }, artificialWait);
+              insertNewValue(value, null, key, "number", date);
               counter++;
-              if (artificialWait > longestWaitingTime) {
-                longestWaitingTime = artificialWait;
+
+              if (counter % 100 == 0) {
+                ctx.reply("Importing entry number " + counter);
               }
             }
+          } else {
+            ctx.reply(
+              "The CSV file must use ; as a separator, must have at least 2 columns, with the first column being the date formatted DD.MM.YYYY, and all other columns using the key as the first row"
+            );
           }
         }
 
-        ctx.reply(
-          "Successfully triggered import process for " +
-            counter +
-            " items... this might take a while. There is no confirmation message. The import process will take AT LEAST " +
-            longestWaitingTime / 1000.0 / 60.0 +
-            " minutes"
-        );
+        ctx.reply("✅ Succesfully imported " + counter + " rows");
       });
     });
   });
@@ -571,6 +539,7 @@ function initBot() {
       return;
     }
     currentlyAskedQuestionQueue = [];
+    triggerNextQuestionFromQueue(ctx);
     ctx.reply("Okay, removing all questions that are currently in the queue");
   });
 
@@ -697,56 +666,82 @@ function initBot() {
       insertNewValue(city, ctx, "locationCity", "text");
     });
 
-    let today = moment();
-    if (moment().hours() < 10) {
+    let today;
+    let fromDate;
+    if (moment().hours() < 18) {
       // this is being run after midnight,
       // as I have the tendency to stay up until later
       // we will fetch the weather from yesterday
       today = moment().subtract("1", "day");
+      fromDate = moment().subtract("2", "day");
+    } else {
+      today = moment();
+      fromDate = moment().subtract("1", "day");
     }
 
     let weatherURL =
-      "https://api.apixu.com/v1/history.json?key=" +
-      process.env.WEATHER_API_KEY +
-      "&q=" +
-      lat +
-      ";" +
-      lng +
-      "&dt=" +
-      today.format("YYYY-MM-DD");
+      "http://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/weatherdata/history";
+    let query = {
+      location: lat + "," + lng,
+      aggregateHours: "24",
+      unitGroup: "metric",
+      shortColumnNames: "false",
+      key: process.env.WEATHER_API_KEY,
+      contentType: "json",
+      startDateTime: fromDate.format("YYYY-MM-DD") + "T00:00:00",
+      endDateTime: today.format("YYYY-MM-DD") + "T00:00:00"
+    };
+    console.log(query);
 
-    // we use the `/history` API so we get the average/max/min temps of the day instead of the current one (late at night)
-    needle.get(weatherURL, function(error, response, body) {
+    needle.request("get", weatherURL, query, function(error, response, body) {
       if (error) {
         console.error(error);
         return;
       }
+      console.log(body);
 
-      let result = body["forecast"]["forecastday"][0];
-      let resultDay = result["day"];
-      insertNewValue(resultDay["avgtemp_c"], ctx, "weatherCelsius", "number");
-      insertNewValue(resultDay["totalprecip_mm"], ctx, "weatherRain", "number");
+      let result = Object.values(body["locations"])[0]["values"];
+      console.log(result);
+
+      if (result.length != 2) {
+        console.error(
+          "Something is wrong here... should only have today and the day before"
+        );
+      }
+
+      let currentDay = result[1];
+      let y = result[0];
+
+      // https://www.visualcrossing.com/weather-data-documentation
+
+      // Today
+      insertNewValue(currentDay["temp"], ctx, "weatherCelsius", "number");
+      insertNewValue(currentDay["maxt"], ctx, "weatherCelsiusMax", "number");
+      insertNewValue(currentDay["mint"], ctx, "weatherCelsiusMin", "number");
+      insertNewValue(currentDay["precip"], ctx, "weatherRain", "number");
       insertNewValue(
-        resultDay["avghumidity"],
+        currentDay["precipcover"],
         ctx,
-        "weatherHumidity",
+        "weatherRainPercentageOfDay",
         "number"
       );
+      insertNewValue(currentDay["humidity"], ctx, "weatherHumidity", "number");
+      insertNewValue(currentDay["snowdepth"], ctx, "weatherSnow", "number");
 
-      let dayDurationHours =
-        moment("2000-01-01 " + result["astro"]["sunset"]).diff(
-          moment("2000-01-01 " + result["astro"]["sunrise"]),
-          "minutes"
-        ) / 60.0;
-
+      // Yesterday
+      insertNewValue(y["temp"], ctx, "weatherYesterdayCelsius", "number");
+      insertNewValue(y["maxt"], ctx, "weatherYesterdayCelsiusMax", "number");
+      insertNewValue(y["mint"], ctx, "weatherYesterdayCelsiusMin", "number");
+      insertNewValue(y["precip"], ctx, "weatherYesterdayRain", "number");
       insertNewValue(
-        dayDurationHours,
-        ctx, // hacky, we just pass this, so that we only sent a confirmation text once
-        "weatherHoursOfSunlight",
+        y["precipcover"],
+        ctx,
+        "weatherYesterdayRainPercentageOfDay",
         "number"
       );
+      insertNewValue(y["humidity"], ctx, "weatherYesterdayHumidity", "number");
+      insertNewValue(y["snowdepth"], ctx, "weatherYesterdaySnow", "number");
 
-      // hacky, as at this point, the other http request might not be complete yet
       triggerNextQuestionFromQueue(ctx);
     });
   });
@@ -762,8 +757,7 @@ function initBot() {
     let matchingCommandObject = config.userConfig[command];
 
     if (matchingCommandObject && matchingCommandObject.questions) {
-      console.log("User wants to run:");
-      console.log(matchingCommandObject);
+      console.log("User wants to run: " + command);
       saveLastRun(command);
       if (
         currentlyAskedQuestionQueue.length > 0 &&

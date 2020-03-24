@@ -6,20 +6,14 @@ var needle = require("needle");
 var _a = require("telegraf"), Router = _a.Router, Markup = _a.Markup, Extra = _a.Extra;
 // Internal dependencies
 var config = require("./classes/config.js");
-var google_sheets = require("./classes/google_sheets.js");
+var postgres = require("./classes/postgres.js");
 var telegram = require("./classes/telegram.js");
 var bot = telegram.bot;
 // State
 var currentlyAskedQuestionObject = null;
 var currentlyAskedQuestionMessageId = null; // The Telegram message ID reference
 var currentlyAskedQuestionQueue = []; // keep track of all the questions about to be asked
-var rawDataSheet = null;
-var lastRunSheet = null;
-google_sheets.setupGoogleSheets(function (rawDataSheetRef, lastRunSheetRef) {
-    rawDataSheet = rawDataSheetRef;
-    lastRunSheet = lastRunSheetRef;
-    initBot();
-});
+initBot();
 function getButtonText(number) {
     var emojiNumber = {
         "0": "0️⃣",
@@ -43,27 +37,18 @@ function getButtonText(number) {
     return emojiNumber + " " + currentlyAskedQuestionObject.buttons[number];
 }
 function printGraph(key, ctx, numberOfRecentValuesToPrint, additionalValue, skipImage) {
-    // additionalValue is the value that isn't part of the sheet yet
-    // as it was *just* entered by the user
-    var loadingMessageID = null;
-    if (numberOfRecentValuesToPrint > 0) {
-        ctx.reply("Loading history...").then(function (_a) {
-            var message_id = _a.message_id;
-            loadingMessageID = message_id;
-        });
-    }
-    rawDataSheet.getRows({
-        offset: 0,
-        limit: 100,
-        orderby: "timestamp",
-        reverse: true,
-        query: "key=" + key
-    }, function (error, rows) {
-        if (error) {
-            console.error(error);
-            ctx.reply(error);
+    postgres.client.query({
+        text: "SELECT * FROM raw_data WHERE key = $1 ORDER BY timestamp DESC LIMIT 300",
+        values: [key]
+    }, function (err, res) {
+        console.log(res);
+        if (err) {
+            console.error(err);
+            ctx.reply(err);
             return;
         }
+        var rows = res.rows;
+        console.log("Rows: " + rows.length);
         var allValues = [];
         var allTimes = [];
         var rawText = [];
@@ -92,8 +77,8 @@ function printGraph(key, ctx, numberOfRecentValuesToPrint, additionalValue, skip
                 Number(additionalValue).toFixed(2));
         }
         // Print the raw values
-        if (numberOfRecentValuesToPrint > 0 && loadingMessageID) {
-            ctx.telegram.editMessageText(ctx.update.message.chat.id, loadingMessageID, null, rawText.join("\n") + "\nMinimum: " + minimum + "\nMaximum: " + maximum);
+        if (numberOfRecentValuesToPrint > 0) {
+            ctx.reply(rawText.join("\n") + "\nMinimum: " + minimum + "\nMaximum: " + maximum);
         }
         // Generate the graph
         if (!skipImage) {
@@ -230,32 +215,36 @@ function insertNewValue(parsedUserValue, ctx, key, type, fakeDate) {
         Type: type,
         Value: parsedUserValue
     };
-    rawDataSheet.addRow(row, function (error, row) {
-        if (error) {
-            console.error(error);
-            if (ctx) {
-                ctx.reply("Error saving value: " + error);
-                ctx.reply("Value: " + parsedUserValue);
-                ctx.reply("Key: " + key);
-            }
+    postgres.client.query({
+        text: "INSERT INTO raw_data (" +
+            Object.keys(row).join(",") +
+            ") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)",
+        values: Object.values(row)
+    }, function (err, res) {
+        console.log(res);
+        if (err) {
+            ctx.reply("Error saving value: " + err);
+            console.log(err.stack);
         }
-        if (ctx) {
-            // we don't use this for location sending as we have many values for that, so that's when `ctx` is nil
-            // Show that we saved the value
-            // Currently the Telegram API doens't support updating of messages that have a custom keyboard
-            // for no good reason, as mentioned here https://github.com/TelegramBots/telegram.bot/issues/176
-            //
-            // Bad Request: Message can't be edited
-            //
-            // Please note, that it is currently only possible to edit messages without reply_markup or with inline keyboards
-            // ctx.telegram.editMessageText(
-            //   ctx.update.message.chat.id,
-            //   currentlyAskedQuestionMessageId,
-            //   null,
-            //   "✅ " + lastQuestionAskedDupe + " ✅"
-            // );
+        else {
         }
     });
+    if (ctx) {
+        // we don't use this for location sending as we have many values for that, so that's when `ctx` is nil
+        // Show that we saved the value
+        // Currently the Telegram API doens't support updating of messages that have a custom keyboard
+        // for no good reason, as mentioned here https://github.com/TelegramBots/telegram.bot/issues/176
+        //
+        // Bad Request: Message can't be edited
+        //
+        // Please note, that it is currently only possible to edit messages without reply_markup or with inline keyboards
+        // ctx.telegram.editMessageText(
+        //   ctx.update.message.chat.id,
+        //   currentlyAskedQuestionMessageId,
+        //   null,
+        //   "✅ " + lastQuestionAskedDupe + " ✅"
+        // );
+    }
 }
 function parseUserInput(ctx, text) {
     if (text === void 0) { text = null; }
@@ -341,28 +330,16 @@ function sendAvailableCommands(ctx) {
     });
 }
 function saveLastRun(command) {
-    lastRunSheet.getRows({
-        offset: 1,
-        limit: 100
-    }, function (error, rows) {
-        var updatedExistingRow = false;
-        for (var i = 0; i < rows.length; i++) {
-            var currentRow = rows[i];
-            var currentCommand = currentRow.command;
-            if (command == currentCommand) {
-                updatedExistingRow = true;
-                currentRow.lastrun = moment().valueOf(); // unix timestamp
-                currentRow.save();
-            }
+    postgres.client.query({
+        text: "insert into last_run (command, last_run) VALUES ($1, $2) on conflict (command) do update set last_run = $2",
+        values: [command, moment().valueOf()]
+    }, function (err, res) {
+        console.log(res);
+        if (err) {
+            console.log(err.stack);
         }
-        if (!updatedExistingRow) {
-            var row = {
-                Command: command,
-                LastRun: moment().valueOf() // unix timestamp
-            };
-            lastRunSheet.addRow(row, function (error, row) {
-                console.log("Stored timestamp of last run for " + command);
-            });
+        else {
+            console.log("Stored timestamp of last run for " + command);
         }
     });
 }
@@ -392,39 +369,26 @@ function initBot() {
                 var lines = body.split("\n");
                 var header = lines[0].split(sep);
                 var counter = 0;
-                var longestWaitingTime = 0;
-                var _loop_1 = function (i) {
+                for (var i = 1; i < lines.length; i++) {
                     var line = lines[i].split(sep);
-                    if (line.length > 1) {
-                        var date_1 = moment(line[0].trim(), dateFormat);
-                        var _loop_2 = function (j) {
+                    if (line.length > 2) {
+                        var date = moment(line[0].trim(), dateFormat);
+                        for (var j = 1; j < line.length; j++) {
                             var value = line[j].trim();
                             var key = header[j].trim();
-                            console.log(key + " for " + date_1.format() + " = " + value);
-                            // Hacky, as Google Docs API client only allows
-                            // single row inserts, and it would run out of calls otherwise
-                            var artificialWait = i * 10000 + j * 1200;
-                            setTimeout(function () {
-                                insertNewValue(value, null, key, "number", date_1);
-                            }, artificialWait);
+                            console.log(key + " for " + date.format() + " = " + value);
+                            insertNewValue(value, null, key, "number", date);
                             counter++;
-                            if (artificialWait > longestWaitingTime) {
-                                longestWaitingTime = artificialWait;
+                            if (counter % 100 == 0) {
+                                ctx.reply("Importing entry number " + counter);
                             }
-                        };
-                        for (var j = 1; j < line.length; j++) {
-                            _loop_2(j);
                         }
                     }
-                };
-                for (var i = 1; i < lines.length; i++) {
-                    _loop_1(i);
+                    else {
+                        ctx.reply("The CSV file must use ; as a separator, must have at least 2 columns, with the first column being the date formatted DD.MM.YYYY, and all other columns using the key as the first row");
+                    }
                 }
-                ctx.reply("Successfully triggered import process for " +
-                    counter +
-                    " items... this might take a while. There is no confirmation message. The import process will take AT LEAST " +
-                    longestWaitingTime / 1000.0 / 60.0 +
-                    " minutes");
+                ctx.reply("✅ Succesfully imported " + counter + " rows");
             });
         });
     });
@@ -468,6 +432,7 @@ function initBot() {
             return;
         }
         currentlyAskedQuestionQueue = [];
+        triggerNextQuestionFromQueue(ctx);
         ctx.reply("Okay, removing all questions that are currently in the queue");
     });
     bot.hears(/\/track (\w+)/, function (ctx) {
@@ -548,36 +513,61 @@ function initBot() {
             var city = result["components"]["city"] || result["components"]["state"]; // vienna is not a city according to their API
             insertNewValue(city, ctx, "locationCity", "text");
         });
-        var today = moment();
-        if (moment().hours() < 10) {
+        var today;
+        var fromDate;
+        if (moment().hours() < 18) {
             // this is being run after midnight,
             // as I have the tendency to stay up until later
             // we will fetch the weather from yesterday
             today = moment().subtract("1", "day");
+            fromDate = moment().subtract("2", "day");
         }
-        var weatherURL = "https://api.apixu.com/v1/history.json?key=" +
-            process.env.WEATHER_API_KEY +
-            "&q=" +
-            lat +
-            ";" +
-            lng +
-            "&dt=" +
-            today.format("YYYY-MM-DD");
-        // we use the `/history` API so we get the average/max/min temps of the day instead of the current one (late at night)
-        needle.get(weatherURL, function (error, response, body) {
+        else {
+            today = moment();
+            fromDate = moment().subtract("1", "day");
+        }
+        var weatherURL = "http://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/weatherdata/history";
+        var query = {
+            location: lat + "," + lng,
+            aggregateHours: "24",
+            unitGroup: "metric",
+            shortColumnNames: "false",
+            key: process.env.WEATHER_API_KEY,
+            contentType: "json",
+            startDateTime: fromDate.format("YYYY-MM-DD") + "T00:00:00",
+            endDateTime: today.format("YYYY-MM-DD") + "T00:00:00"
+        };
+        console.log(query);
+        needle.request("get", weatherURL, query, function (error, response, body) {
             if (error) {
                 console.error(error);
                 return;
             }
-            var result = body["forecast"]["forecastday"][0];
-            var resultDay = result["day"];
-            insertNewValue(resultDay["avgtemp_c"], ctx, "weatherCelsius", "number");
-            insertNewValue(resultDay["totalprecip_mm"], ctx, "weatherRain", "number");
-            insertNewValue(resultDay["avghumidity"], ctx, "weatherHumidity", "number");
-            var dayDurationHours = moment("2000-01-01 " + result["astro"]["sunset"]).diff(moment("2000-01-01 " + result["astro"]["sunrise"]), "minutes") / 60.0;
-            insertNewValue(dayDurationHours, ctx, // hacky, we just pass this, so that we only sent a confirmation text once
-            "weatherHoursOfSunlight", "number");
-            // hacky, as at this point, the other http request might not be complete yet
+            console.log(body);
+            var result = Object.values(body["locations"])[0]["values"];
+            console.log(result);
+            if (result.length != 2) {
+                console.error("Something is wrong here... should only have today and the day before");
+            }
+            var currentDay = result[1];
+            var y = result[0];
+            // https://www.visualcrossing.com/weather-data-documentation
+            // Today
+            insertNewValue(currentDay["temp"], ctx, "weatherCelsius", "number");
+            insertNewValue(currentDay["maxt"], ctx, "weatherCelsiusMax", "number");
+            insertNewValue(currentDay["mint"], ctx, "weatherCelsiusMin", "number");
+            insertNewValue(currentDay["precip"], ctx, "weatherRain", "number");
+            insertNewValue(currentDay["precipcover"], ctx, "weatherRainPercentageOfDay", "number");
+            insertNewValue(currentDay["humidity"], ctx, "weatherHumidity", "number");
+            insertNewValue(currentDay["snowdepth"], ctx, "weatherSnow", "number");
+            // Yesterday
+            insertNewValue(y["temp"], ctx, "weatherYesterdayCelsius", "number");
+            insertNewValue(y["maxt"], ctx, "weatherYesterdayCelsiusMax", "number");
+            insertNewValue(y["mint"], ctx, "weatherYesterdayCelsiusMin", "number");
+            insertNewValue(y["precip"], ctx, "weatherYesterdayRain", "number");
+            insertNewValue(y["precipcover"], ctx, "weatherYesterdayRainPercentageOfDay", "number");
+            insertNewValue(y["humidity"], ctx, "weatherYesterdayHumidity", "number");
+            insertNewValue(y["snowdepth"], ctx, "weatherYesterdaySnow", "number");
             triggerNextQuestionFromQueue(ctx);
         });
     });
@@ -590,8 +580,7 @@ function initBot() {
         var command = ctx.match[1];
         var matchingCommandObject = config.userConfig[command];
         if (matchingCommandObject && matchingCommandObject.questions) {
-            console.log("User wants to run:");
-            console.log(matchingCommandObject);
+            console.log("User wants to run: " + command);
             saveLastRun(command);
             if (currentlyAskedQuestionQueue.length > 0 &&
                 currentlyAskedQuestionMessageId) {

@@ -3,24 +3,30 @@ const moment = require("moment");
 
 // Internal dependencies
 let config = require("./classes/config.js");
-let google_sheets = require("./classes/google_sheets.js");
+let postgres = require("./classes/postgres.js");
 let telegram = require("./classes/telegram.js");
 
-google_sheets.setupGoogleSheets(runReminders);
+console.log("Checking if we need to send a reminder to the user...");
 
-function runReminders(rawDataSheet, lastRunSheet) {
-  console.log("Checking if we need to send a reminder to the user...");
-
-  lastRunSheet.getRows(
+// Hacky, as fetching the config file takes a little while
+setTimeout(function() {
+  postgres.client.query(
     {
-      offset: 1,
-      limit: 100
+      text: "SELECT * FROM last_run"
     },
-    function(error, rows) {
+    (err, res) => {
+      console.log(res);
+      if (err) {
+        console.error(err);
+        return;
+      }
+
+      let rows = res.rows;
+
       for (let i = 0; i < rows.length; i++) {
         let currentRow = rows[i];
         let command = currentRow.command;
-        let lastRun = moment(Number(currentRow.lastrun));
+        let lastRun = moment(Number(currentRow.last_run));
 
         if (config.userConfig[command] == null) {
           console.error(
@@ -95,13 +101,23 @@ function runReminders(rawDataSheet, lastRunSheet) {
             process.env.TELEGRAM_CHAT_ID,
             textToSend
           );
-          currentRow.lastmessage = moment().valueOf(); // unix timestamp
-          currentRow.save();
+          postgres.client.query(
+            {
+              text: "UPDATE last_run SET last_message = $1 where command = $2",
+              values: [moment().valueOf(), command]
+            },
+            (err, res) => {
+              if (err) {
+                console.log(err);
+              }
+              console.log(res);
+            }
+          );
         }
       }
       console.log("Reminder check done");
     }
   );
-}
+}, 2000);
 
 export {};

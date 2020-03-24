@@ -4,19 +4,24 @@ exports.__esModule = true;
 var moment = require("moment");
 // Internal dependencies
 var config = require("./classes/config.js");
-var google_sheets = require("./classes/google_sheets.js");
+var postgres = require("./classes/postgres.js");
 var telegram = require("./classes/telegram.js");
-google_sheets.setupGoogleSheets(runReminders);
-function runReminders(rawDataSheet, lastRunSheet) {
-    console.log("Checking if we need to send a reminder to the user...");
-    lastRunSheet.getRows({
-        offset: 1,
-        limit: 100
-    }, function (error, rows) {
+console.log("Checking if we need to send a reminder to the user...");
+// Hacky, as fetching the config file takes a little while
+setTimeout(function () {
+    postgres.client.query({
+        text: "SELECT * FROM last_run"
+    }, function (err, res) {
+        console.log(res);
+        if (err) {
+            console.error(err);
+            return;
+        }
+        var rows = res.rows;
         for (var i = 0; i < rows.length; i++) {
             var currentRow = rows[i];
             var command = currentRow.command;
-            var lastRun = moment(Number(currentRow.lastrun));
+            var lastRun = moment(Number(currentRow.last_run));
             if (config.userConfig[command] == null) {
                 console.error("Error, command not found, means it's not on the last run sheet, probably due to renaming a command: " +
                     command);
@@ -79,10 +84,17 @@ function runReminders(rawDataSheet, lastRunSheet) {
                     console.error("Please set the `TELEGRAM_CHAT_ID` ENV variable");
                 }
                 telegram.bot.telegram.sendMessage(process.env.TELEGRAM_CHAT_ID, textToSend);
-                currentRow.lastmessage = moment().valueOf(); // unix timestamp
-                currentRow.save();
+                postgres.client.query({
+                    text: "UPDATE last_run SET last_message = $1 where command = $2",
+                    values: [moment().valueOf(), command]
+                }, function (err, res) {
+                    if (err) {
+                        console.log(err);
+                    }
+                    console.log(res);
+                });
             }
         }
         console.log("Reminder check done");
     });
-}
+}, 2000);
