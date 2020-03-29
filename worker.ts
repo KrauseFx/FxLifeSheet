@@ -679,71 +679,71 @@ function initBot() {
       fromDate = moment().subtract("1", "day");
     }
 
-    let weatherURL =
-      "http://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/weatherdata/history";
-    let query = {
-      location: lat + "," + lng,
-      aggregateHours: "24",
-      unitGroup: "metric",
-      shortColumnNames: "false",
-      key: process.env.WEATHER_API_KEY,
-      contentType: "json",
-      startDateTime: fromDate.format("YYYY-MM-DD") + "T00:00:00",
-      endDateTime: today.format("YYYY-MM-DD") + "T00:00:00"
-    };
-    console.log(query);
+    // let weatherURL =
+    //   "http://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/weatherdata/history";
+    // let query = {
+    //   location: lat + "," + lng,
+    //   aggregateHours: "24",
+    //   unitGroup: "metric",
+    //   shortColumnNames: "false",
+    //   key: process.env.WEATHER_API_KEY,
+    //   contentType: "json",
+    //   startDateTime: fromDate.format("YYYY-MM-DD") + "T00:00:00",
+    //   endDateTime: today.format("YYYY-MM-DD") + "T00:00:00"
+    // };
+    // console.log(query);
 
-    needle.request("get", weatherURL, query, function(error, response, body) {
-      if (error) {
-        console.error(error);
-        return;
-      }
-      console.log(body);
+    // needle.request("get", weatherURL, query, function(error, response, body) {
+    //   if (error) {
+    //     console.error(error);
+    //     return;
+    //   }
+    //   console.log(body);
 
-      let result = Object.values(body["locations"])[0]["values"];
-      console.log(result);
+    //   let result = Object.values(body["locations"])[0]["values"];
+    //   console.log(result);
 
-      if (result.length != 2) {
-        console.error(
-          "Something is wrong here... should only have today and the day before"
-        );
-      }
+    //   if (result.length != 2) {
+    //     console.error(
+    //       "Something is wrong here... should only have today and the day before"
+    //     );
+    //   }
 
-      let currentDay = result[1];
-      let y = result[0];
+    //   let currentDay = result[1];
+    //   let y = result[0];
 
-      // https://www.visualcrossing.com/weather-data-documentation
+    //   // https://www.visualcrossing.com/weather-data-documentation
 
-      // Today
-      insertNewValue(currentDay["temp"], ctx, "weatherCelsius", "number");
-      insertNewValue(currentDay["maxt"], ctx, "weatherCelsiusMax", "number");
-      insertNewValue(currentDay["mint"], ctx, "weatherCelsiusMin", "number");
-      insertNewValue(currentDay["precip"], ctx, "weatherRain", "number");
-      insertNewValue(
-        currentDay["precipcover"],
-        ctx,
-        "weatherRainPercentageOfDay",
-        "number"
-      );
-      insertNewValue(currentDay["humidity"], ctx, "weatherHumidity", "number");
-      insertNewValue(currentDay["snowdepth"], ctx, "weatherSnow", "number");
+    //   // Today
+    //   insertNewValue(currentDay["temp"], ctx, "weatherCelsius", "number");
+    //   insertNewValue(currentDay["maxt"], ctx, "weatherCelsiusMax", "number");
+    //   insertNewValue(currentDay["mint"], ctx, "weatherCelsiusMin", "number");
+    //   insertNewValue(currentDay["precip"], ctx, "weatherRain", "number");
+    //   insertNewValue(
+    //     currentDay["precipcover"],
+    //     ctx,
+    //     "weatherRainPercentageOfDay",
+    //     "number"
+    //   );
+    //   insertNewValue(currentDay["humidity"], ctx, "weatherHumidity", "number");
+    //   insertNewValue(currentDay["snowdepth"], ctx, "weatherSnow", "number");
 
-      // Yesterday
-      insertNewValue(y["temp"], ctx, "weatherYesterdayCelsius", "number");
-      insertNewValue(y["maxt"], ctx, "weatherYesterdayCelsiusMax", "number");
-      insertNewValue(y["mint"], ctx, "weatherYesterdayCelsiusMin", "number");
-      insertNewValue(y["precip"], ctx, "weatherYesterdayRain", "number");
-      insertNewValue(
-        y["precipcover"],
-        ctx,
-        "weatherYesterdayRainPercentageOfDay",
-        "number"
-      );
-      insertNewValue(y["humidity"], ctx, "weatherYesterdayHumidity", "number");
-      insertNewValue(y["snowdepth"], ctx, "weatherYesterdaySnow", "number");
+    //   // Yesterday
+    //   insertNewValue(y["temp"], ctx, "weatherYesterdayCelsius", "number");
+    //   insertNewValue(y["maxt"], ctx, "weatherYesterdayCelsiusMax", "number");
+    //   insertNewValue(y["mint"], ctx, "weatherYesterdayCelsiusMin", "number");
+    //   insertNewValue(y["precip"], ctx, "weatherYesterdayRain", "number");
+    //   insertNewValue(
+    //     y["precipcover"],
+    //     ctx,
+    //     "weatherYesterdayRainPercentageOfDay",
+    //     "number"
+    //   );
+    //   insertNewValue(y["humidity"], ctx, "weatherYesterdayHumidity", "number");
+    //   insertNewValue(y["snowdepth"], ctx, "weatherYesterdaySnow", "number");
 
-      triggerNextQuestionFromQueue(ctx);
-    });
+    //   triggerNextQuestionFromQueue(ctx);
+    // });
   });
 
   // parse commands to start a survey
