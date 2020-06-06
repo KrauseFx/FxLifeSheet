@@ -377,10 +377,12 @@ function initBot() {
                             var value = line[j].trim();
                             var key = header[j].trim();
                             console.log(key + " for " + date.format() + " = " + value);
-                            insertNewValue(value, null, key, "number", date);
-                            counter++;
-                            if (counter % 100 == 0) {
-                                ctx.reply("Importing entry number " + counter);
+                            if (value.length > 0) {
+                                insertNewValue(value, null, key, "number", date);
+                                counter++;
+                                if (counter % 100 == 0) {
+                                    ctx.reply("Importing entry number " + counter);
+                                }
                             }
                         }
                     }
