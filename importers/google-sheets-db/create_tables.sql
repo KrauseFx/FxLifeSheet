@@ -33,3 +33,31 @@ CREATE TABLE last_run (
     last_message bigint
 );
 
+
+-- View needed for metrics
+
+create or replace function cast_to_int(text) returns integer as $$
+begin
+    -- Note the double casting to avoid infinite recursion.
+    return cast($1::varchar as integer);
+exception
+    when invalid_text_representation then
+        return 0;
+end;
+$$ language plpgsql immutable;
+
+create or replace function cast_to_float(text) returns float as $$
+begin
+    -- Note the double casting to avoid infinite recursion.
+    return cast($1::varchar as integer);
+exception
+    when invalid_text_representation then
+        return 0;
+end;
+$$ language plpgsql immutable;
+
+CREATE VIEW raw_data_for_metabase AS
+  SELECT *,
+  cast_to_int(value) AS valueAsInt,
+  cast_to_float(value) AS valueAsFloat
+  FROM raw_data
