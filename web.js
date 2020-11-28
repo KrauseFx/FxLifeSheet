@@ -40,7 +40,7 @@ console.log("Launching up API web server...");
 var interval = 5 * 60 * 1000;
 var keys = [
     "mood",
-    "sleepDuration",
+    "sleepDurationWithings",
     "weight",
     "gym",
     "macrosCarbs",
