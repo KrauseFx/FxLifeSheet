@@ -1,0 +1,104 @@
+<html>
+  <head>
+    <!-- Load plotly.js into the DOM -->
+    <script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+  </head>
+  
+  <body>
+    <form>
+      <select class="keys" id="keys-0" onchange="updateKeys(0)"></select>
+      <select class="keys" id="keys-1" onchange="updateKeys(1)"></select>
+      <select class="keys" id="keys-2" onchange="updateKeys(2)"></select>
+      <select class="keys" id="keys-3" onchange="updateKeys(3)"></select>
+      <select class="keys" id="keys-4" onchange="updateKeys(4)"></select>
+    </form>
+    <div id='myDiv' />
+  </body>
+
+  <script type="text/javascript">
+    let host = "http://127.0.0.1:4567"
+    var keys = []
+    var allData = []
+    var allAxis = []
+    var layout = {
+      title: 'Life Sheet Data'
+    };
+
+    Plotly.newPlot('myDiv', allData, layout);
+
+    loadKeys()
+    loadData("mood", 0)
+    loadData("weekLifeProgress", 1)
+
+    function loadKeys() {
+      httpGetAsync(host + "/keys", function(data) {
+        selects = document.getElementsByClassName("keys");
+        for (let i = 0; i < selects.length; i++) {
+          data.forEach((row) => {
+            var opt = document.createElement("option");
+            opt.value = row["key"];
+            opt.innerHTML = row["key"] + " (" + row["count"] + ")";
+            selects[i].appendChild(opt);
+          })
+        }
+      })
+    }
+
+    function updateKeys(index) {
+      select = document.getElementById("keys-" + index)
+      loadData(select.value, index)
+    }
+
+    function loadData(key, index) {
+      httpGetAsync(host + "/data?group_by=month&key=" + key, function(data) {
+        let newAxis = {
+          title: 'yaxis ' + key,
+          titlefont: {color: '#ff7f0e'},
+          tickfont: {color: '#ff7f0e'},
+          anchor: 'free',
+          overlaying: 'y',
+        }
+        layout["yaxis" + index] = newAxis
+
+        // Remove item 'seven' from array
+        // var filteredAry = allData.filter(function(e) { return e[yaxis] == ('y' + index) })
+        // var filteredAry = ary.filter(e => e !== 'seven')
+
+        allData.push({
+          x: data.rows.map((r) => r.as_date),
+          y: data.rows.map((r) => r.avg),
+          name: key,
+          type: 'scatter',
+          yaxis: 'y' + index,
+        })
+        
+        Plotly.redraw('myDiv')
+        console.log(allData)
+        console.log(layout)
+      })
+    }
+
+    function httpGetAsync(theUrl, callback) {
+      var xmlHttp = new XMLHttpRequest();
+      xmlHttp.onreadystatechange = function() { 
+        if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+          callback(JSON.parse(xmlHttp.responseText));
+        }
+      }
+      xmlHttp.open("GET", theUrl, true);
+      xmlHttp.send(null);
+    }
+  </script>
+
+  <style type="text/css">
+    #myDiv {
+      width: "100%";
+      height: 500;
+    }
+    .keys {
+      display: block;
+      height: 35px;
+      margin: 20px 0px;
+    }
+  </style>
+</html>
