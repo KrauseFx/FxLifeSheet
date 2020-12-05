@@ -19,7 +19,7 @@ get "/data" do
   JSON.pretty_generate(api.fetch(
     key: params.fetch("key"),
     group_by: params.fetch("group_by", "month"),
-    start_date: params.fetch("start_date", "2019-04")
+    start_date: params.fetch("start_date", ENV["DEFAULT_MIN_DATE"].strip)
   ))
 end
 
