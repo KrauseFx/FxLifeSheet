@@ -1,6 +1,8 @@
 <html>
   <head>
     <script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+    <link rel="stylesheet" href="style.css">
+    <meta charset="utf-8">
   </head>
   
   <body>
@@ -10,32 +12,47 @@
           <tr>
             <th>Key</th>
             <th>Avg</th>
+            <th>Shown</th>
           </tr>
           <tr>
             <td><select class="keys" id="keys-0" onchange="updateKeys(0)" /></td>
             <td><input type="checkbox" id="keys-avg-0" onchange="updateKeys(0)" checked="checked" /></td>
+            <td><input type="checkbox" id="keys-show-0" onchange="updateKeys(0)" checked="checked" /></td>
           </tr>
           <tr>
             <td><select class="keys" id="keys-1" onchange="updateKeys(1)" /></td>
             <td><input type="checkbox" id="keys-avg-1" onchange="updateKeys(1)" checked="checked" /></td>
+            <td><input type="checkbox" id="keys-show-1" onchange="updateKeys(1)" checked="checked" /></td>
           </tr>
           <tr>
             <td><select class="keys" id="keys-2" onchange="updateKeys(2)" /></td>
             <td><input type="checkbox" id="keys-avg-2" onchange="updateKeys(2)" checked="checked" /></td>
+            <td><input type="checkbox" id="keys-show-2" onchange="updateKeys(2)" checked="checked" /></td>
           </tr>
           <tr>
             <td><select class="keys" id="keys-3" onchange="updateKeys(3)" /></td>
             <td><input type="checkbox" id="keys-avg-3" onchange="updateKeys(3)" checked="checked" /></td>
+            <td><input type="checkbox" id="keys-show-3" onchange="updateKeys(3)" checked="checked" /></td>
           </tr>
           <tr>
             <td><select class="keys" id="keys-4" onchange="updateKeys(4)" /></td>
             <td><input type="checkbox" id="keys-avg-4" onchange="updateKeys(4)" checked="checked" /></td>
+            <td><input type="checkbox" id="keys-show-4" onchange="updateKeys(4)" checked="checked" /></td>
           </tr>
         </table>        
       </span>
       <span id="attributesContainer">
         <h2>Attributes</h2>
         <table id="attributesTable">
+          <tr>
+            <td>Graph Type</td>
+            <td>
+              <select id="graph-type" onchange="updateGraphType()">
+                <option value="scatter">Lines</option>
+                <option value="bar">Bars</option>
+              </select>
+            </td>
+          </tr>
           <tr>
             <td>Start date</td>
             <td><input type="text" value="2019-04" id="start-date" name="start-date" onchange="updatedAttribute()" /></td>
@@ -45,185 +62,5 @@
     </form>
     <div id='myGraph' />
   </body>
-
-  <script type="text/javascript">
-    let host = "http://127.0.0.1:4567"
-    var keys = []
-    var allData = []
-    // Multiple axis https://plotly.com/javascript/multiple-axes/
-    for (let currentIndex of Array(5).keys()) {
-      let current = {
-        x: [],
-        y: [],
-        name: 'yaxis' + (currentIndex + 1) + ' data',
-        type: 'scatter',
-        line: {shape: 'spline'}
-      }
-      if (currentIndex > 0) { current["yaxis"] = "y" + (currentIndex + 1) }
-      allData.push(current)
-    };
-    console.log(allData)
-
-    var layout = {
-      title: 'Life Sheet Data',
-      yaxis: {
-        titlefont: {color: '#1f77b4'},
-        tickfont: {color: '#1f77b4'},
-        showgrid: false,
-        zeroline: false,
-        showticklabels: false
-      },
-      yaxis2: {
-        titlefont: {color: '#ff7f0e'},
-        tickfont: {color: '#ff7f0e'},
-        anchor: 'free',
-        overlaying: 'y',
-        showgrid: false,
-        zeroline: false,
-        showticklabels: false
-      },
-      yaxis3: {
-        titlefont: {color: '#d62728'},
-        tickfont: {color: '#d62728'},
-        anchor: 'x',
-        overlaying: 'y',
-        showgrid: false,
-        zeroline: false,
-        showticklabels: false
-      },
-      yaxis4: {
-        titlefont: {color: '#9467bd'},
-        tickfont: {color: '#9467bd'},
-        anchor: 'free',
-        overlaying: 'y',
-        showgrid: false,
-        zeroline: false,
-        showticklabels: false
-      },
-      yaxis5: {
-        anchor: 'free',
-        overlaying: 'y',
-        showgrid: false,
-        zeroline: false,
-        showticklabels: false
-      },
-    };
-
-
-    Plotly.newPlot('myGraph', allData, layout);
-
-    loadKeys(function() {
-      loadData("mood", 0)
-      loadData("mood", 1)
-      loadData("sleepDurationWithings", 2)
-      loadData("bedTime", 3)
-      loadData("gym", 4)
-    })
-
-    function loadKeys(callback) {
-      httpGetAsync(host + "/keys", function(data) {
-        selects = document.getElementsByClassName("keys");
-        for (let i = 0; i < selects.length; i++) {
-          data.forEach((row) => {
-            var opt = document.createElement("option");
-            opt.value = row["key"];
-            opt.innerHTML = row["key"] + " (" + row["count"] + ")";
-            selects[i].appendChild(opt);
-          })
-        }
-        callback();
-      })
-    }
-
-    function updateKeys(index) {
-      select = document.getElementById("keys-" + index)
-      loadData(select.value, index)
-    }
-
-    function updatedAttribute() {
-      for (let currentIndex of Array(5).keys()) {
-        updateKeys(currentIndex)
-      }
-    }
-
-    function loadData(key, index) {
-      // TODO: remove the line below
-      select = document.getElementById("keys-" + index)
-      select.value = key
-      
-      let startDate = document.getElementById("start-date")
-
-      httpGetAsync(host + "/data?group_by=month&key=" + key + "&start_date=" + startDate.value, function(data) {
-        allData[index]["x"] = data.rows.map((r) => r.as_date)
-        if (document.getElementById("keys-avg-" + index).checked) {
-          allData[index]["y"] = data.rows.map((r) => Math.round(r.avg * 1000) / 1000)
-        } else {
-          allData[index]["y"] = data.rows.map((r) => Math.round(r.sum * 1000) / 1000)
-        }
-        allData[index]["name"] = key
-        
-        Plotly.redraw('myGraph')
-        console.log(allData)
-        console.log(layout)
-      })
-    }
-
-    function httpGetAsync(theUrl, callback) {
-      var xmlHttp = new XMLHttpRequest();
-      xmlHttp.onreadystatechange = function() { 
-        if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
-          callback(JSON.parse(xmlHttp.responseText));
-        }
-      }
-      xmlHttp.open("GET", theUrl, true);
-      xmlHttp.send(null);
-    }
-  </script>
-
-  <style type="text/css">
-    #myGraph {
-      width: "100%";
-      height: 500;
-    }
-    #keysTable > tbody > tr > th {
-      padding: 15px;
-      font-weight: 800;
-    }
-    #keysTable > tbody > tr > td {
-      padding: 5px;
-      text-align: center;
-    }
-    select.keys {
-      display: block;
-      height: 40px;
-      line-height: 40px;
-    }
-    #keysContainer {
-      float: left;
-      width: 340px;
-    }
-    #keysContainer input {
-      height: 20px;
-      width: 20px;
-    }
-    #keysContainer tr {
-      margin: 0;
-      padding: 0;
-    }
-    #attributesContainer {
-      float: right;
-      width: calc(100% - 550px);
-    }
-    #mainForm {
-      height: 300px;
-      padding: 20px;
-    }
-    * {
-      font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
-      font-weight: 300;
-    }
-    td:first-child {
-      text-align: right;
-    }
-  </style>
+  <script type="text/javascript" src="/frontend.js"></script>
 </html>
