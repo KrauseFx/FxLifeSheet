@@ -1,13 +1,14 @@
 <html>
-  <head>
+
+<head>
     <script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
     <link rel="stylesheet" href="style.css">
     <meta charset="utf-8">
-  </head>
-  
-  <body>
+</head>
+
+<body>
     <form id="mainForm" onSubmit="return false;">
-      <span id="keysContainer">
+        <span id="keysContainer">
         <table id="keysTable">
           <tr>
             <th>Key</th>
@@ -15,33 +16,33 @@
             <th>Shown</th>
           </tr>
           <tr>
-            <td><select class="keys" id="keys-0" onchange="updateKeys(0)" /></td>
-            <td><input type="checkbox" id="keys-avg-0" onchange="updateKeys(0)" checked="checked" /></td>
-            <td><input type="checkbox" id="keys-show-0" onchange="updateKeys(0)" checked="checked" /></td>
+            <td><select class="keys" id="keys-0" onchange="reloadIndex(0)" /></td>
+            <td><input type="checkbox" id="keys-avg-0" onchange="reloadIndex(0)" checked="checked" /></td>
+            <td><input type="checkbox" id="keys-show-0" onchange="reloadIndex(0)" checked="checked" /></td>
           </tr>
           <tr>
-            <td><select class="keys" id="keys-1" onchange="updateKeys(1)" /></td>
-            <td><input type="checkbox" id="keys-avg-1" onchange="updateKeys(1)" checked="checked" /></td>
-            <td><input type="checkbox" id="keys-show-1" onchange="updateKeys(1)" checked="checked" /></td>
+            <td><select class="keys" id="keys-1" onchange="reloadIndex(1)" /></td>
+            <td><input type="checkbox" id="keys-avg-1" onchange="reloadIndex(1)" checked="checked" /></td>
+            <td><input type="checkbox" id="keys-show-1" onchange="reloadIndex(1)" checked="checked" /></td>
           </tr>
           <tr>
-            <td><select class="keys" id="keys-2" onchange="updateKeys(2)" /></td>
-            <td><input type="checkbox" id="keys-avg-2" onchange="updateKeys(2)" checked="checked" /></td>
-            <td><input type="checkbox" id="keys-show-2" onchange="updateKeys(2)" checked="checked" /></td>
+            <td><select class="keys" id="keys-2" onchange="reloadIndex(2)" /></td>
+            <td><input type="checkbox" id="keys-avg-2" onchange="reloadIndex(2)" checked="checked" /></td>
+            <td><input type="checkbox" id="keys-show-2" onchange="reloadIndex(2)" checked="checked" /></td>
           </tr>
           <tr>
-            <td><select class="keys" id="keys-3" onchange="updateKeys(3)" /></td>
-            <td><input type="checkbox" id="keys-avg-3" onchange="updateKeys(3)" checked="checked" /></td>
-            <td><input type="checkbox" id="keys-show-3" onchange="updateKeys(3)" checked="checked" /></td>
+            <td><select class="keys" id="keys-3" onchange="reloadIndex(3)" /></td>
+            <td><input type="checkbox" id="keys-avg-3" onchange="reloadIndex(3)" checked="checked" /></td>
+            <td><input type="checkbox" id="keys-show-3" onchange="reloadIndex(3)" checked="checked" /></td>
           </tr>
           <tr>
-            <td><select class="keys" id="keys-4" onchange="updateKeys(4)" /></td>
-            <td><input type="checkbox" id="keys-avg-4" onchange="updateKeys(4)" checked="checked" /></td>
-            <td><input type="checkbox" id="keys-show-4" onchange="updateKeys(4)" checked="checked" /></td>
+            <td><select class="keys" id="keys-4" onchange="reloadIndex(4)" /></td>
+            <td><input type="checkbox" id="keys-avg-4" onchange="reloadIndex(4)" checked="checked" /></td>
+            <td><input type="checkbox" id="keys-show-4" onchange="reloadIndex(4)" checked="checked" /></td>
           </tr>
         </table>        
       </span>
-      <span id="attributesContainer">
+        <span id="attributesContainer">
         <h2>Attributes</h2>
         <table id="attributesTable">
           <tr>
@@ -54,13 +55,23 @@
             </td>
           </tr>
           <tr>
+            <td>Group By</td>
+            <td>
+              <select id="group-by" onchange="updateGroupBy()">
+                <option value="month" selected="selected">Month</option>
+                <option value="week">Week</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
             <td>Start date</td>
-            <td><input type="text" value="2019-04" id="start-date" name="start-date" onchange="updatedAttribute()" /></td>
+            <td><input type="text" value="2019-04" id="start-date" name="start-date" onchange="reloadAllData()" /></td>
           </tr>
         </table>
       </span>
     </form>
     <div id='myGraph' />
-  </body>
-  <script type="text/javascript" src="/frontend.js"></script>
+</body>
+<script type="text/javascript" src="/frontend.js"></script>
+
 </html>

@@ -30,6 +30,8 @@ class API
         row[:sum] = row[:sum].truncate(5).to_s('F').to_f # convert from BigFloat to float
         if group_by == :yearmonth
           row[:as_date] = Date.strptime(row[:yearmonth].to_s, "%Y%m")
+        elsif group_by == :yearweek
+          row[:as_date] = Date.strptime(row[:yearweek].to_s, "%Y%W")
         else
           raise "not yet implemented"
         end
