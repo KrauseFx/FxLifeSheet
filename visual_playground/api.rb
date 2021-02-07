@@ -45,6 +45,38 @@ class API
     return raw_data.group_and_count(:key).order_by(:count).reverse.to_a
   end
 
+  def bucket(by:, value:, start_date:)
+    raise "`start_date` must be in format '2019-04'" unless start_date.match(/\d\d\d\d\-\d\d/)
+    start_timestamp = Date.strptime(start_date, "%Y-%m").strftime("%Q")
+    other_key = "fishoilIntake"
+    
+    buckets = {}
+
+    flat = database.fetch("
+      SELECT
+      raw_data.value AS bucket,
+      (
+        SELECT 
+          rd.value
+        FROM raw_data rd
+        WHERE key = 'fishoilIntake' 
+        AND timestamp > 1554076800000 
+        ORDER BY abs(rd.timestamp - raw_data.timestamp) ASC 
+        LIMIT 1	
+      )
+      FROM raw_data raw_data
+      WHERE key = 'gym' AND timestamp > 1554076800000
+    ")
+    # TODO: Limit that the entry can't be more than 24 hours away
+    flat.each do |current_row|
+      buckets[current_row[:bucket]] ||= []
+      buckets[current_row[:bucket]] << current_row[:value].to_f
+    end
+    grouped = buckets.collect { |k, v| [k, v.sum / v.count]}.to_h
+
+    return grouped
+  end
+
   private
 
   def database
@@ -58,5 +90,10 @@ class API
 end
 
 if __FILE__ == $0
-  puts API.new.fetch(key: "mood")
+  # puts API.new.fetch(key: "mood")
+  puts API.new.bucket(
+    by: "gym",
+    value: "steps",
+    start_date: ENV["DEFAULT_MIN_DATE"].strip
+  )
 end
