@@ -259,7 +259,6 @@ Create a new Postgres database, and run the SQL queries defined in [importers/go
 <img src="screenshots/Database1.png" />
 <img src="screenshots/Database2.png" />
 
-
 ### Google Data Studio
 
 Right now, you'll need to setup Google Data studio to visualize your data. I created a [public report](https://datastudio.google.com/open/1xNRbyt_JicmYRw8DOB8DBuabaUyDhIAk) you can copy and connect with your data source. As data source, you'll need to select your Google Sheet and select `RawData` as the Sheet to use.
