@@ -1,5 +1,5 @@
 const { Pool, Client } = require("pg");
-const connectionString = process.env.DATABASE_URL;
+const connectionString = process.env.DATABASE_URL + "&ssl=true";
 const pool = new Pool();
 
 const client = new Client({
