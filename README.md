@@ -224,7 +224,6 @@ npm run dev
 
 After using `npm run dev`, open [chrome://inspect](chrome://inspect) to use the Chrome Dev Tools
 
-
 ### Setup
 
 ### Environment variables
