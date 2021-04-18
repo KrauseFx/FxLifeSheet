@@ -67,6 +67,22 @@ class API
       FROM raw_data raw_data
       WHERE key = 'gym' AND timestamp > 1554076800000
     ")
+
+#     SELECT
+#       rd.value AS bucket,
+#       nrd.key AS other_key,
+#       AVG(nrd.value::numeric) AS avg_value,
+#       COUNT(nrd.id) as count
+#   FROM raw_data rd
+#   INNER JOIN raw_data nrd ON (
+#     (nrd.type != 'text') AND
+#   	abs(rd.timestamp - nrd.timestamp) < 20000000 /* 10000 is one minute */
+#   )
+# WHERE rd.key = 'headache' AND rd.timestamp > 1554076800000
+# GROUP BY bucket, other_key
+# ORDER BY other_key, bucket
+
+
     # TODO: Limit that the entry can't be more than 24 hours away
     flat.each do |current_row|
       buckets[current_row[:bucket]] ||= []
@@ -97,3 +113,73 @@ if __FILE__ == $0
     start_date: ENV["DEFAULT_MIN_DATE"].strip
   )
 end
+
+
+
+# SELECT 
+# 	raw_data.value,
+# 	(
+# 		SELECT AVG(
+# 			(
+# 				SELECT AVG(value::numeric) as avg FROM raw_data AS rdd 
+# 				WHERE rd.key = 'fishoilIntake' AND timestamp > 1554076800000
+# 			)
+# 		) as avg
+# 		FROM raw_data AS rd
+# 		WHERE rd.key = 'gym' AND timestamp > 1554076800000 AND rd.value = raw_data.value
+# 	) AS avg
+# FROM raw_data WHERE key = 'gym' AND timestamp > 1554076800000 GROUP BY raw_data.value
+
+
+
+# SELECT
+# 	raw_data.value AS bucket,
+# 	(
+# 		SELECT 
+# 			rd.value
+# 		FROM raw_data rd
+# 		WHERE key = 'fishoilIntake' 
+# 		AND timestamp > 1554076800000 
+# 		ORDER BY abs(rd.timestamp - raw_data.timestamp) ASC 
+# 		LIMIT 1	
+# 	)
+# FROM raw_data raw_data
+# WHERE key = 'gym' AND timestamp > 1554076800000
+
+
+# SELECT AVG(value::numeric) as avg from raw_data where key='fishoilIntake'
+
+
+# SELECT 
+# 	raw_data.value AS bucket
+# 	(
+# 		SELECT 
+# 			rd.value
+# 		FROM raw_data rd
+# 		WHERE key = 'fishoilIntake' 
+# 		AND timestamp > 1554076800000 
+# 		ORDER BY abs(rd.timestamp - raw_data.timestamp) ASC 
+# 		LIMIT 1	
+# 	)
+	
+# FROM raw_data
+# WHERE key = 'gym'
+# GROUP BY raw_data.value
+
+
+
+# SELECT
+#       rd.value AS bucket,
+#       nrd.key AS other_key,
+#       AVG(nrd.value::numeric) AS avg_value,
+#       COUNT(nrd.id) as count
+#   FROM raw_data rd
+#   INNER JOIN raw_data nrd ON (
+#     (nrd.type != 'text') AND
+#   	abs(rd.timestamp - nrd.timestamp) < 20000000 /* 10000 is one minute */
+#   )
+# WHERE rd.key = 'headache' AND rd.timestamp > 1554076800000
+# GROUP BY bucket, other_key
+# ORDER BY other_key, bucket
+
+
