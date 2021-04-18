@@ -224,7 +224,6 @@ npm run dev
 
 After using `npm run dev`, open [chrome://inspect](chrome://inspect) to use the Chrome Dev Tools
 
-
 ### Setup
 
 ### Environment variables
@@ -258,7 +257,6 @@ Create a new Postgres database, and run the SQL queries defined in [importers/go
 
 <img src="screenshots/Database1.png" />
 <img src="screenshots/Database2.png" />
-
 
 ### Google Data Studio
 

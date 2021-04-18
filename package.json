@@ -1,18 +1,18 @@
 {
-  "scripts": {
-    "prettier": "prettier worker.ts web.ts reminder.ts classes/*.ts --write",
-    "typescript": "tsc web.ts worker.ts reminder.ts classes/postgres.ts classes/telegram.ts classes/config.ts",
-    "dev": "source .keys && npm run prettier && npm run typescript && heroku local",
-    "web": "npm run prettier && npm run typescript && node web.js",
-    "worker": "npm run prettier && npm run typescript && node worker.js",
-    "reminder": "npm run prettier && npm run typescript && node reminder.js"
-  },
-  "dependencies": {
-    "moment": "^2.24.0",
-    "needle": "^2.3.3",
-    "pg": "^7.18.2",
-    "prettier": "^1.19.1",
-    "telegraf": "^3.36.0",
-    "typescript": "^3.8.3"
-  }
+    "scripts": {
+        "prettier": "prettier worker.ts web.ts reminder.ts classes/*.ts --write",
+        "typescript": "tsc web.ts worker.ts reminder.ts classes/postgres.ts classes/telegram.ts classes/config.ts",
+        "dev": "source .keys && npm run prettier && npm run typescript && heroku local",
+        "web": "npm run prettier && npm run typescript && node web.js",
+        "worker": "npm run prettier && npm run typescript && node worker.js",
+        "reminder": "npm run prettier && npm run typescript && node reminder.js"
+    },
+    "dependencies": {
+        "moment": "^2.24.0",
+        "needle": "^2.3.3",
+        "pg": "^8.5.1",
+        "prettier": "^1.19.1",
+        "telegraf": "^3.36.0",
+        "typescript": "^3.8.3"
+    }
 }
