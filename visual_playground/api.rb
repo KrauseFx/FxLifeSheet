@@ -45,52 +45,59 @@ class API
     return raw_data.group_and_count(:key).order_by(:count).reverse.to_a
   end
 
-  def bucket(by:, value:, start_date:)
+  def bucket_options_list(by:, start_date:)
     raise "`start_date` must be in format '2019-04'" unless start_date.match(/\d\d\d\d\-\d\d/)
     start_timestamp = Date.strptime(start_date, "%Y-%m").strftime("%Q")
-    other_key = "fishoilIntake"
-    
-    buckets = {}
 
+    res = database.fetch("
+      SELECT value, count(*) 
+      FROM raw_data
+      WHERE key=? AND timestamp > ?
+      GROUP BY value
+    ", by, start_timestamp)
+    return res.to_a.reverse # have on by default
+  end
+
+  def bucket(by:, start_date:)
+    raise "`start_date` must be in format '2019-04'" unless start_date.match(/\d\d\d\d\-\d\d/)
+    start_timestamp = Date.strptime(start_date, "%Y-%m").strftime("%Q")
+    
     flat = database.fetch("
       SELECT
-      raw_data.value AS bucket,
-      (
-        SELECT 
-          rd.value
+          rd.value AS bucket,
+          nrd.key AS other_key,
+          AVG(nrd.value::numeric) AS avg_value,
+          COUNT(nrd.id) as count
         FROM raw_data rd
-        WHERE key = 'fishoilIntake' 
-        AND timestamp > 1554076800000 
-        ORDER BY abs(rd.timestamp - raw_data.timestamp) ASC 
-        LIMIT 1	
-      )
-      FROM raw_data raw_data
-      WHERE key = 'gym' AND timestamp > 1554076800000
-    ")
+        INNER JOIN raw_data nrd ON (
+          (nrd.type != 'text') AND
+          abs(rd.timestamp - nrd.timestamp) < 20000000 /* 10000 is one minute */
+        )
+      WHERE rd.key = ? AND rd.timestamp > ?
+      GROUP BY bucket, other_key
+      ORDER BY other_key, bucket
+    ", by, start_timestamp).to_a
 
-#     SELECT
-#       rd.value AS bucket,
-#       nrd.key AS other_key,
-#       AVG(nrd.value::numeric) AS avg_value,
-#       COUNT(nrd.id) as count
-#   FROM raw_data rd
-#   INNER JOIN raw_data nrd ON (
-#     (nrd.type != 'text') AND
-#   	abs(rd.timestamp - nrd.timestamp) < 20000000 /* 10000 is one minute */
-#   )
-# WHERE rd.key = 'headache' AND rd.timestamp > 1554076800000
-# GROUP BY bucket, other_key
-# ORDER BY other_key, bucket
+    # Group it properly, easier to just do that in Ruby
+    structured = {}
+    flat.each do |row|
+      next if row[:avg_value].nil? # some rows can be nil
+      next if row[:other_key].include?("swarmLocation") || row[:other_key].include?("locationL") || ["weight"].include?(row[:other_key])
 
-
-    # TODO: Limit that the entry can't be more than 24 hours away
-    flat.each do |current_row|
-      buckets[current_row[:bucket]] ||= []
-      buckets[current_row[:bucket]] << current_row[:value].to_f
+      structured[row[:other_key]] ||= {}
+      structured[row[:other_key]][row[:bucket]] = {
+        value: row[:avg_value].truncate(5).to_s('F').to_f, # convert from BigFloat to float,
+        count: row[:count]
+      }
     end
-    grouped = buckets.collect { |k, v| [k, v.sum / v.count]}.to_h
 
-    return grouped
+    # Remove the useless ones (e.g. only one value, not large enough buckets)
+    structured.delete_if do |key, value|
+      value.count < 2 ||
+        value.find_all { |k, r| r[:count] > 30 }.count < 2
+    end
+
+    return structured
   end
 
   private
@@ -167,7 +174,6 @@ end
 # GROUP BY raw_data.value
 
 
-
 # SELECT
 #       rd.value AS bucket,
 #       nrd.key AS other_key,
@@ -183,3 +189,18 @@ end
 # ORDER BY other_key, bucket
 
 
+# flat = database.fetch("
+#   SELECT
+#   raw_data.value AS bucket,
+#   (
+#     SELECT 
+#       rd.value
+#     FROM raw_data rd
+#     WHERE key = 'fishoilIntake' 
+#     AND timestamp > 1554076800000 
+#     ORDER BY abs(rd.timestamp - raw_data.timestamp) ASC 
+#     LIMIT 1	
+#   )
+#   FROM raw_data raw_data
+#   WHERE key = 'gym' AND timestamp > 1554076800000
+# ")

@@ -29,12 +29,20 @@ get "/keys" do
   JSON.pretty_generate(api.list_keys)
 end
 
+get "/bucket_options_list" do
+  json_response
+
+  JSON.pretty_generate(api.bucket_options_list(
+    by: params.fetch("by"),
+    start_date: params.fetch("start_date", ENV["DEFAULT_MIN_DATE"].strip)
+  ))
+end
+
 get "/bucket" do
   json_response
 
   JSON.pretty_generate(api.bucket(
-    by: "gym",
-    value: "fishoilIntake",
+    by: params.fetch("by"),
     start_date: params.fetch("start_date", ENV["DEFAULT_MIN_DATE"].strip)
   ))
 end

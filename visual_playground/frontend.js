@@ -1,4 +1,4 @@
-const host = 'http://127.0.0.1:4567';
+const host = 'http://127.0.0.1:8080';
 let keys = [];
 const allData = [];
 let groupBy = 'month';
@@ -14,7 +14,6 @@ for (const currentIndex of Array(5).keys()) {
     if (currentIndex > 0) { current.yaxis = `y${currentIndex + 1}`; }
     allData.push(current);
 }
-console.log(allData);
 
 const layout = {
     title: 'Life Sheet Data',
@@ -63,6 +62,26 @@ const layout = {
 };
 
 Plotly.newPlot('myGraph', allData, layout);
+
+const bucketLayout = {
+    title: 'Life Sheet Buckets',
+    barmode: 'group',
+    yaxis: {
+        range: [-1, 1]
+    }
+}
+const allBucketData = [{
+    x: [],
+    y: [],
+    marker: {
+        color: '#C8A2C8',
+        line: {
+            width: 2.5
+        }
+    },
+    type: "bar"
+}]
+Plotly.newPlot('bucketGraph', allBucketData, bucketLayout);
 
 function loadKeys(callback) {
     httpGetAsync(`${host}/keys`, (data) => {
@@ -121,12 +140,69 @@ function reloadIndex(index) {
 
             Plotly.redraw('myGraph');
             console.log(allData);
-            console.log(layout);
+            // console.log(layout);
         });
     } else {
         allData[index].y = [];
         Plotly.redraw('myGraph');
     }
+}
+
+let currentBucketData = null;
+
+function updateBucket() {
+    bucket = document.getElementById("bucket-key").value
+    httpGetAsync(`${host}/bucket_options_list?by=${bucket}`, (data) => {
+        selects = document.getElementsByClassName('bucket-by-option');
+        for (let i = 0; i < selects.length; i++) {
+            selects[i].innerHTML = ""
+            data.forEach((row) => {
+                const opt = document.createElement('option');
+                opt.value = row.value;
+                opt.innerHTML = `${row.value} (${row.count})`;
+                selects[i].appendChild(opt);
+            });
+            selects[i].selectedIndex = i
+        }
+        updateBucketByOption();
+    })
+    httpGetAsync(`${host}/bucket?by=${bucket}`, (data) => {
+        currentBucketData = data;
+        console.log(data)
+        updateBucketByOption();
+    });
+}
+
+function updateBucketByOption() {
+    if (!currentBucketData) { return; }
+
+    bucket1 = document.getElementById("bucket-by-option-1").value
+    bucket2 = document.getElementById("bucket-by-option-2").value
+
+    const dataToRender = []
+    for (var key in currentBucketData) {
+        val = currentBucketData[key]
+        let diff = parseFloat(val[bucket1]["value"] - val[bucket2]["value"].toFixed(5))
+
+        if (Math.abs(diff) > 0.2) {
+            dataToRender.push({
+                "key": key,
+                "bucket1": val[bucket1],
+                "bucket2": val[bucket2],
+                "diff": diff
+            })
+        }
+    }
+    dataToRender.sort(function(a, b) {
+        return a.diff - b.diff;
+    })
+    console.log(dataToRender)
+
+    allBucketData[0]["x"] = dataToRender.map(({ key }) => key);
+    allBucketData[0]["y"] = dataToRender.map(({ diff }) => diff);
+    console.log(allBucketData)
+
+    Plotly.redraw('bucketGraph');
 }
 
 function httpGetAsync(theUrl, callback) {
@@ -146,6 +222,10 @@ loadKeys(() => {
     updateKeyForIndex('sleepDurationWithings', 2);
     updateKeyForIndex('bedTime', 3);
     updateKeyForIndex('gym', 4);
+
+    document.getElementById("bucket-key").value = "headache"
+    updateBucket();
+
     // reloadAllData();
 
     // updateKeyForIndex(keys[0].key, 0);

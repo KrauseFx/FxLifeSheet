@@ -64,14 +64,6 @@
             </td>
           </tr>
           <tr>
-            <td>Bucket By</td>
-            <td>
-              <select id="bucket-by" class="keys" onchange="updateBucketBy()">
-                <option value="" selected="selected">None</option>
-              </select>
-            </td>
-          </tr>
-          <tr>
             <td>Start date</td>
             <td><input type="text" value="2019-04" id="start-date" name="start-date" onchange="reloadAllData()" /></td>
           </tr>
@@ -79,6 +71,13 @@
       </span>
     </form>
     <div id='myGraph' />
+    <br />
+
+    <h1>Buckets</h1>
+    <select class="keys" id="bucket-key" onchange="updateBucket()"></select>
+    <select class="bucket-by-option" id="bucket-by-option-1" onchange="updateBucketByOption()"></select>
+    <select class="bucket-by-option" id="bucket-by-option-2" onchange="updateBucketByOption()"></select>
+    <div id='bucketGraph' />
 </body>
 <script type="text/javascript" src="/frontend.js"></script>
 
