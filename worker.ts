@@ -613,6 +613,10 @@ function initBot() {
     let lat = location.latitude;
     let lng = location.longitude;
 
+    insertNewValue(lat, ctx, "locationLat", "number");
+    insertNewValue(lng, ctx, "locationLng", "number");
+    return; // since the rest doens't currently work
+
     let url =
       "https://api.opencagedata.com/geocode/v1/json?q=" +
       lat +
@@ -630,8 +634,6 @@ function initBot() {
 
       // we have some custom handling of the data here, as we get
       // so much useful data, that we want to insert more rows here
-      insertNewValue(lat, ctx, "locationLat", "number");
-      insertNewValue(lng, ctx, "locationLng", "number");
       insertNewValue(
         result["components"]["country"],
         ctx,
