@@ -615,6 +615,7 @@ function initBot() {
 
     insertNewValue(lat, ctx, "locationLat", "number");
     insertNewValue(lng, ctx, "locationLng", "number");
+    triggerNextQuestionFromQueue(ctx);
     return; // since the rest doens't currently work
 
     let url =

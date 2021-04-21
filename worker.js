@@ -492,6 +492,7 @@ function initBot() {
         var lng = location.longitude;
         insertNewValue(lat, ctx, "locationLat", "number");
         insertNewValue(lng, ctx, "locationLng", "number");
+        triggerNextQuestionFromQueue(ctx);
         return; // since the rest doens't currently work
         var url = "https://api.opencagedata.com/geocode/v1/json?q=" +
             lat +
