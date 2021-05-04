@@ -3,7 +3,10 @@ exports.__esModule = true;
 // Third party dependencies
 var moment = require("moment");
 var needle = require("needle");
-var _a = require("telegraf"), Router = _a.Router, Markup = _a.Markup, Extra = _a.Extra;
+var _a = require("telegraf"),
+    Router = _a.Router,
+    Markup = _a.Markup,
+    Extra = _a.Extra;
 // Internal dependencies
 var config = require("./classes/config.js");
 var postgres = require("./classes/postgres.js");
@@ -14,6 +17,7 @@ var currentlyAskedQuestionObject = null;
 var currentlyAskedQuestionMessageId = null; // The Telegram message ID reference
 var currentlyAskedQuestionQueue = []; // keep track of all the questions about to be asked
 initBot();
+
 function getButtonText(number) {
     var emojiNumber = {
         "0": "0️⃣",
@@ -36,11 +40,12 @@ function getButtonText(number) {
     }
     return emojiNumber + " " + currentlyAskedQuestionObject.buttons[number];
 }
+
 function printGraph(key, ctx, numberOfRecentValuesToPrint, additionalValue, skipImage) {
     postgres.client.query({
         text: "SELECT * FROM raw_data WHERE key = $1 ORDER BY timestamp DESC LIMIT 300",
         values: [key]
-    }, function (err, res) {
+    }, function(err, res) {
         console.log(res);
         if (err) {
             console.error(err);
@@ -101,8 +106,9 @@ function printGraph(key, ctx, numberOfRecentValuesToPrint, additionalValue, skip
         }
     });
 }
+
 function triggerNextQuestionFromQueue(ctx) {
-    var keyboard = Extra.markup(function (m) { return m.removeKeyboard(); }); // default keyboard
+    var keyboard = Extra.markup(function(m) { return m.removeKeyboard(); }); // default keyboard
     var questionAppendix = "";
     currentlyAskedQuestionObject = currentlyAskedQuestionQueue.shift();
     if (currentlyAskedQuestionObject == null) {
@@ -118,10 +124,10 @@ function triggerNextQuestionFromQueue(ctx) {
         // This is information only, just print and go to the next one
         ctx
             .reply(currentlyAskedQuestionObject.question, keyboard)
-            .then(function (_a) {
-            var message_id = _a.message_id;
-            triggerNextQuestionFromQueue(ctx);
-        });
+            .then(function(_a) {
+                var message_id = _a.message_id;
+                triggerNextQuestionFromQueue(ctx);
+            });
         return;
     }
     // Looks like Telegram has some limitations:
@@ -140,19 +146,19 @@ function triggerNextQuestionFromQueue(ctx) {
         keyboard = Markup.keyboard(allButtons)
             .oneTime()
             .extra();
-    }
-    else if (currentlyAskedQuestionObject.type == "boolean") {
-        keyboard = Markup.keyboard([["1: Yes"], ["0: No"]])
+    } else if (currentlyAskedQuestionObject.type == "boolean") {
+        keyboard = Markup.keyboard([
+                ["1: Yes"],
+                ["0: No"]
+            ])
             .oneTime()
             .extra();
-    }
-    else if (currentlyAskedQuestionObject.type == "text") {
+    } else if (currentlyAskedQuestionObject.type == "text") {
         // use the default keyboard we set here anyway
         questionAppendix +=
             "You can use a Bear note, and then paste the deep link to the note here";
-    }
-    else if (currentlyAskedQuestionObject.type == "location") {
-        keyboard = Extra.markup(function (markup) {
+    } else if (currentlyAskedQuestionObject.type == "location") {
+        keyboard = Extra.markup(function(markup) {
             return markup.keyboard([
                 markup.locationRequestButton("📡 Send location")
             ]);
@@ -166,7 +172,7 @@ function triggerNextQuestionFromQueue(ctx) {
         questionAppendix = "last question";
     }
     var question = currentlyAskedQuestionObject.question + " (" + questionAppendix + ")";
-    ctx.reply(question, keyboard).then(function (_a) {
+    ctx.reply(question, keyboard).then(function(_a) {
         var message_id = _a.message_id;
         currentlyAskedQuestionMessageId = message_id;
     });
@@ -185,14 +191,14 @@ function shuffleArray(array) {
         _a = [array[j], array[i]], array[i] = _a[0], array[j] = _a[1];
     }
 }
+
 function insertNewValue(parsedUserValue, ctx, key, type, fakeDate) {
     if (fakeDate === void 0) { fakeDate = null; }
     console.log("Inserting value '" + parsedUserValue + "' for key " + key);
     var dateToAdd;
     if (fakeDate) {
         dateToAdd = fakeDate;
-    }
-    else {
+    } else {
         dateToAdd = moment(ctx.update.message.date * 1000);
     }
     var questionText = null;
@@ -220,14 +226,12 @@ function insertNewValue(parsedUserValue, ctx, key, type, fakeDate) {
             Object.keys(row).join(",") +
             ") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)",
         values: Object.values(row)
-    }, function (err, res) {
+    }, function(err, res) {
         console.log(res);
         if (err) {
             ctx.reply("Error saving value: " + err);
             console.log(err.stack);
-        }
-        else {
-        }
+        } else {}
     });
     if (ctx) {
         // we don't use this for location sending as we have many values for that, so that's when `ctx` is nil
@@ -246,6 +250,7 @@ function insertNewValue(parsedUserValue, ctx, key, type, fakeDate) {
         // );
     }
 }
+
 function parseUserInput(ctx, text) {
     if (text === void 0) { text = null; }
     if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
@@ -255,18 +260,17 @@ function parseUserInput(ctx, text) {
     if (currentlyAskedQuestionMessageId == null) {
         ctx
             .reply("Sorry, I forgot the question I asked, this usually means it took too long for you to respond, please trigger the question again by running the `/` command")
-            .then(function (_a) {
-            var message_id = _a.message_id;
-            sendAvailableCommands(ctx);
-        });
+            .then(function(_a) {
+                var message_id = _a.message_id;
+                sendAvailableCommands(ctx);
+            });
         return;
     }
     // user replied with a value
     var userValue;
     if (text != null) {
         userValue = text;
-    }
-    else {
+    } else {
         userValue = ctx.match[1];
     }
     var parsedUserValue = null;
@@ -278,8 +282,7 @@ function parseUserInput(ctx, text) {
             var tryToParseNumber = parseInt(userValue[0]);
             if (!isNaN(tryToParseNumber)) {
                 parsedUserValue = tryToParseNumber;
-            }
-            else {
+            } else {
                 ctx.reply("Sorry, looks like your input is invalid, please enter a valid number from the selection", Extra.inReplyTo(ctx.update.message.message_id));
             }
         }
@@ -292,8 +295,7 @@ function parseUserInput(ctx, text) {
             }
             parsedUserValue = userValue[1];
         }
-    }
-    else {
+    } else {
         parsedUserValue = userValue; // raw value is fine
     }
     if (currentlyAskedQuestionObject.type == "range") {
@@ -319,33 +321,35 @@ function parseUserInput(ctx, text) {
         ctx.reply(currentlyAskedQuestionObject.replies[parsedUserValue], Extra.inReplyTo(ctx.update.message.message_id));
     }
     insertNewValue(parsedUserValue, ctx, currentlyAskedQuestionObject.key, currentlyAskedQuestionObject.type);
-    setTimeout(function () {
+    setTimeout(function() {
         triggerNextQuestionFromQueue(ctx);
     }, 50); // timeout just to make sure the order is right
 }
+
 function sendAvailableCommands(ctx) {
-    ctx.reply("Available commands:").then(function (_a) {
+    ctx.reply("Available commands:").then(function(_a) {
         var message_id = _a.message_id;
         ctx.reply("\n\n/skip\n/report\n\n/" + Object.keys(config.userConfig).join("\n/"));
     });
 }
+
 function saveLastRun(command) {
     postgres.client.query({
         text: "insert into last_run (command, last_run) VALUES ($1, $2) on conflict (command) do update set last_run = $2",
         values: [command, moment().valueOf()]
-    }, function (err, res) {
+    }, function(err, res) {
         console.log(res);
         if (err) {
             console.log(err.stack);
-        }
-        else {
+        } else {
             console.log("Stored timestamp of last run for " + command);
         }
     });
 }
+
 function initBot() {
     console.log("Launching up Telegram bot...");
-    bot.on(["document"], function (ctx) {
+    bot.on(["document"], function(ctx) {
         // This is used to import other historic data
         var fileId = ctx.update.message.document.file_id;
         console.log("Received a file of ID " + fileId);
@@ -355,9 +359,9 @@ function initBot() {
         // 28.05.2019;   6.9   ;   74.6  ,   71.1
         // 27.05.2019;   7.5   ;   74.1  ,   70.6
         // ....
-        ctx.telegram.getFileLink(fileId).then(function (link) {
+        ctx.telegram.getFileLink(fileId).then(function(link) {
             console.log(link);
-            needle.get(link, function (error, response, body) {
+            needle.get(link, function(error, response, body) {
                 if (error) {
                     console.error(error);
                     return;
@@ -385,8 +389,7 @@ function initBot() {
                                 }
                             }
                         }
-                    }
-                    else {
+                    } else {
                         ctx.reply("The CSV file must use ; as a separator, must have at least 2 columns, with the first column being the date formatted DD.MM.YYYY, and all other columns using the key as the first row");
                     }
                 }
@@ -397,7 +400,7 @@ function initBot() {
     // parse numeric/text inputs
     // `^([^\/].*)$` matches everything that doens't start with /
     // This will enable us to get any user inputs, including longer texts
-    bot.hears(/^([^\/].*)$/, function (ctx) {
+    bot.hears(/^([^\/].*)$/, function(ctx) {
         parseUserInput(ctx);
     });
     // As we get no benefit of using `bot.command` to add commands, we might as well use
@@ -406,21 +409,21 @@ function initBot() {
     // parse one-off commands:
     //
     // Those have to be above the regex match
-    bot.hears("/report", function (ctx) {
+    bot.hears("/report", function(ctx) {
         if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
             return;
         }
         console.log("Generating report...");
         ctx
             .replyWithPhoto({
-            url: "https://datastudio.google.com/reporting/1a-1rVk-4ZFOg0WTNNGRvJDXMTNXpl5Uy/page/MpTm/thumbnail?sz=s3000"
-        })
-            .then(function (_a) {
-            var message_id = _a.message_id;
-            ctx.reply("Full report: https://datastudio.google.com/s/uwV1-Pv9dk4");
-        });
+                url: "https://datastudio.google.com/reporting/1a-1rVk-4ZFOg0WTNNGRvJDXMTNXpl5Uy/page/MpTm/thumbnail?sz=s3000"
+            })
+            .then(function(_a) {
+                var message_id = _a.message_id;
+                ctx.reply("Full report: https://datastudio.google.com/s/uwV1-Pv9dk4");
+            });
     });
-    bot.hears("/skip", function (ctx) {
+    bot.hears("/skip", function(ctx) {
         if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
             console.error("Invalid user " + ctx.update.message.from.username);
             return;
@@ -429,7 +432,7 @@ function initBot() {
         ctx.reply("Okay, skipping question. If you see yourself skipping a question too often, maybe it's time to rephrase or remove it");
         triggerNextQuestionFromQueue(ctx);
     });
-    bot.hears("/skip_all", function (ctx) {
+    bot.hears("/skip_all", function(ctx) {
         if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
             return;
         }
@@ -437,7 +440,7 @@ function initBot() {
         triggerNextQuestionFromQueue(ctx);
         ctx.reply("Okay, removing all questions that are currently in the queue");
     });
-    bot.hears(/\/track (\w+)/, function (ctx) {
+    bot.hears(/\/track (\w+)/, function(ctx) {
         if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
             console.error("Invalid user " + ctx.update.message.from.username);
             return;
@@ -446,7 +449,7 @@ function initBot() {
         console.log("User wants to track a specific value, without the whole survey: " +
             toTrack);
         var questionToAsk = null;
-        Object.keys(config.userConfig).forEach(function (key) {
+        Object.keys(config.userConfig).forEach(function(key) {
             var survey = config.userConfig[key];
             for (var i = 0; i < survey.questions.length; i++) {
                 var currentQuestion = survey.questions[i];
@@ -459,14 +462,13 @@ function initBot() {
         if (questionToAsk) {
             currentlyAskedQuestionQueue = currentlyAskedQuestionQueue.concat(questionToAsk);
             triggerNextQuestionFromQueue(ctx);
-        }
-        else {
+        } else {
             ctx.reply("Sorry, I couldn't find the key `" +
                 toTrack +
                 "`, please make sure it's not mispelled");
         }
     });
-    bot.hears(/\/graph (\w+)/, function (ctx) {
+    bot.hears(/\/graph (\w+)/, function(ctx) {
         if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
             return;
         }
@@ -474,17 +476,17 @@ function initBot() {
         console.log("User wants to graph a specific value " + key);
         printGraph(key, ctx, 100, null, false);
     });
-    bot.on("location", function (ctx) {
+    bot.on("location", function(ctx) {
         if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
             return;
         }
         if (currentlyAskedQuestionMessageId == null) {
             ctx
                 .reply("Sorry, I forgot the question I asked, this usually means it took too long for you to respond, please trigger the question again by running the `/` command")
-                .then(function (_a) {
-                var message_id = _a.message_id;
-                sendAvailableCommands(ctx);
-            });
+                .then(function(_a) {
+                    var message_id = _a.message_id;
+                    sendAvailableCommands(ctx);
+                });
             return;
         }
         var location = ctx.update.message.location;
@@ -492,6 +494,8 @@ function initBot() {
         var lng = location.longitude;
         insertNewValue(lat, ctx, "locationLat", "number");
         insertNewValue(lng, ctx, "locationLng", "number");
+        triggerNextQuestionFromQueue(ctx);
+
         return; // since the rest doens't currently work
         var url = "https://api.opencagedata.com/geocode/v1/json?q=" +
             lat +
@@ -499,7 +503,7 @@ function initBot() {
             lng +
             "&key=" +
             process.env.OPEN_CAGE_API_KEY;
-        needle.get(url, function (error, response, body) {
+        needle.get(url, function(error, response, body) {
             if (error) {
                 console.error(error);
                 return;
@@ -524,8 +528,7 @@ function initBot() {
             // we will fetch the weather from yesterday
             today = moment().subtract("1", "day");
             fromDate = moment().subtract("2", "day");
-        }
-        else {
+        } else {
             today = moment();
             fromDate = moment().subtract("1", "day");
         }
@@ -588,7 +591,7 @@ function initBot() {
         // });
     });
     // parse commands to start a survey
-    bot.hears(/\/(\w+)/, function (ctx) {
+    bot.hears(/\/(\w+)/, function(ctx) {
         if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
             return;
         }
@@ -607,18 +610,17 @@ function initBot() {
             if (currentlyAskedQuestionObject == null) {
                 triggerNextQuestionFromQueue(ctx);
             }
-        }
-        else {
+        } else {
             ctx
                 .reply("Sorry, I don't know how to run `/" + command)
-                .then(function (_a) {
-                var message_id = _a.message_id;
-                sendAvailableCommands(ctx);
-            });
+                .then(function(_a) {
+                    var message_id = _a.message_id;
+                    sendAvailableCommands(ctx);
+                });
         }
     });
-    bot.start(function (ctx) { return ctx.reply("Welcome to FxLifeSheet"); });
-    bot.on(["voice", "video_note"], function (ctx) {
+    bot.start(function(ctx) { return ctx.reply("Welcome to FxLifeSheet"); });
+    bot.on(["voice", "video_note"], function(ctx) {
         if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
             return;
         }
@@ -629,15 +631,15 @@ function initBot() {
         console.log("Received voice with file ID '" + fileId + "'");
         ctx
             .reply("🦄 Received message, transcribing now...", Extra.inReplyTo(ctx.message.message_id))
-            .then(function (_a) {
-            var message_id = _a.message_id;
-            transcribingMessageId = message_id;
-        });
+            .then(function(_a) {
+                var message_id = _a.message_id;
+                transcribingMessageId = message_id;
+            });
         var transcribeURL = "https://bubbles-transcribe.herokuapp.com/transcribe";
         transcribeURL += "?file_id=" + fileId;
         transcribeURL += "&language=en-US";
         transcribeURL += "&telegram_token=" + process.env.TELEGRAM_BOT_TOKEN;
-        needle.get(transcribeURL, function (error, response, body) {
+        needle.get(transcribeURL, function(error, response, body) {
             if (error) {
                 console.error(error);
                 ctx.reply("Error: " + error, Extra.inReplyTo(ctx.message.message_id));
@@ -649,11 +651,11 @@ function initBot() {
             }
         });
     });
-    bot.help(function (ctx) {
+    bot.help(function(ctx) {
         return ctx.reply("No in-bot help right now, for now please visit https://github.com/KrauseFx/FxLifeSheet");
     });
-    bot.on("sticker", function (ctx) { return ctx.reply("Sorry, I don't support stickers"); });
-    bot.hears("hi", function (ctx) { return ctx.reply("Hey there"); });
+    bot.on("sticker", function(ctx) { return ctx.reply("Sorry, I don't support stickers"); });
+    bot.hears("hi", function(ctx) { return ctx.reply("Hey there"); });
     // has to be last
     bot.launch();
 }
