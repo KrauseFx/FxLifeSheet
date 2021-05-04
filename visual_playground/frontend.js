@@ -140,7 +140,6 @@ function reloadIndex(index) {
 
             Plotly.redraw('myGraph');
             console.log(allData);
-            // console.log(layout);
         });
     } else {
         allData[index].y = [];
@@ -174,6 +173,7 @@ function updateBucket() {
 }
 
 function updateBucketByOption() {
+    const minDiff = 0.1;
     if (!currentBucketData) { return; }
 
     bucket1 = document.getElementById("bucket-by-option-1").value
@@ -184,7 +184,7 @@ function updateBucketByOption() {
         val = currentBucketData[key]
         let diff = parseFloat(val[bucket1]["value"] - val[bucket2]["value"].toFixed(5))
 
-        if (Math.abs(diff) > 0.2) {
+        if (Math.abs(diff) > minDiff) {
             dataToRender.push({
                 "key": key,
                 "bucket1": val[bucket1],
@@ -194,7 +194,7 @@ function updateBucketByOption() {
         }
     }
     dataToRender.sort(function(a, b) {
-        return a.diff - b.diff;
+        return b.diff - a.diff;
     })
     console.log(dataToRender)
 
@@ -202,6 +202,7 @@ function updateBucketByOption() {
     allBucketData[0]["y"] = dataToRender.map(({ diff }) => diff);
     console.log(allBucketData)
 
+    bucketLayout["title"] = `${bucket} being ${bucket1} had the following effects on that day`
     Plotly.redraw('bucketGraph');
 }
 

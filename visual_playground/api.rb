@@ -31,7 +31,14 @@ class API
         if group_by == :yearmonth
           row[:as_date] = Date.strptime(row[:yearmonth].to_s, "%Y%m")
         elsif group_by == :yearweek
-          row[:as_date] = Date.strptime(row[:yearweek].to_s, "%Y%W")
+          begin
+            year_week = row[:yearweek].to_s
+            # TODO
+            year_week = (year_week.gsub("53", "01").to_i - 100).to_s if year_week.end_with?("53") # Week 53 can't be parsed by Ruby, messy for now
+            row[:as_date] = Date.strptime(year_week, "%Y%W")
+          rescue => ex
+            require 'pry'; binding.pry
+          end
         else
           raise "not yet implemented"
         end
@@ -113,7 +120,6 @@ class API
 end
 
 if __FILE__ == $0
-  # puts API.new.fetch(key: "mood")
   puts API.new.bucket(
     by: "gym",
     value: "steps",
