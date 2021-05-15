@@ -10,7 +10,7 @@ module Importers
           next
         end
 
-        insert_row(
+        self.insert_row_for_date(
           date: date,
           key: key,
           value: value,
