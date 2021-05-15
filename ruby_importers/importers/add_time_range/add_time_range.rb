@@ -1,4 +1,4 @@
-require_relative "importer"
+require_relative "../importer"
 
 module Importers
   class AddTimeRange < Importer

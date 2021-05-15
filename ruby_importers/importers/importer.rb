@@ -56,7 +56,7 @@ module Importers
         new_entry[:value] = value
         raw_data.insert(new_entry)
         puts "--- Successfully backfilled entry for #{key} to #{value} on #{new_entry[:yearmonth]}-#{new_entry[:day]}"
-      elsif key == "employer" && value == "Google"
+      else
         require 'pry'; binding.pry
       end
     end
