@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Heatmap</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=&libraries=visualization"></script>
+</head>
+
+<body>
+    <div id="nyc" style="width: 900px;height:900px;"></div>
+    <div id="vienna" style="width: 900px;height:900px;"></div>
+    <div id="world" style="width: 900px;height:900px;"></div>
+
+    <script type="text/javascript">
+        var ROOT_PATH = 'http://127.0.0.1:8000/tracks_just_to_test.json';
+        var app = {};
+        var points = [];
+
+        httpGetAsync(ROOT_PATH, function(data) {
+            points = data
+            initMaps();
+        });
+
+        let maps = [];
+
+        function initMaps() {
+            const defaultConfig = {
+                zoom: 13,
+                // mapTypeId: "satellite",
+                styles: [
+                    // hide all labels
+                    {
+                        featureType: "administrative",
+                        elementType: "labels",
+                        stylers: [{
+                            visibility: "off"
+                        }]
+                    }, {
+                        featureType: "poi",
+                        elementType: "labels",
+                        stylers: [{
+                            visibility: "off"
+                        }]
+                    }, {
+                        featureType: "water",
+                        elementType: "labels",
+                        stylers: [{
+                            visibility: "off"
+                        }]
+                    }, {
+                        featureType: "road",
+                        elementType: "labels",
+                        stylers: [{
+                            visibility: "off"
+                        }]
+                    }, {
+                        featureType: 'transit',
+                        elementType: 'labels.icon',
+                        stylers: [{
+                            visibility: 'off'
+                        }]
+                    },
+                    // enable dark mode
+                    {
+                        elementType: "geometry",
+                        stylers: [{
+                            color: "#242f3e"
+                        }]
+                    }, {
+                        elementType: "labels.text.stroke",
+                        stylers: [{
+                            color: "#242f3e"
+                        }],
+                    }, {
+                        elementType: "labels.text.fill",
+                        stylers: [{
+                            color: "#746855"
+                        }],
+                    }, {
+                        featureType: "administrative.locality",
+                        elementType: "labels.text.fill",
+                        stylers: [{
+                            color: "#d59563"
+                        }],
+                    }, {
+                        featureType: "poi",
+                        elementType: "labels.text.fill",
+                        stylers: [{
+                            color: "#d59563"
+                        }],
+                    }, {
+                        featureType: "poi.park",
+                        elementType: "geometry",
+                        stylers: [{
+                            color: "#263c3f"
+                        }],
+                    }, {
+                        featureType: "poi.park",
+                        elementType: "labels.text.fill",
+                        stylers: [{
+                            color: "#6b9a76"
+                        }],
+                    }, {
+                        featureType: "road",
+                        elementType: "geometry",
+                        stylers: [{
+                            color: "#38414e"
+                        }],
+                    }, {
+                        featureType: "road",
+                        elementType: "geometry.stroke",
+                        stylers: [{
+                            color: "#212a37"
+                        }],
+                    }, {
+                        featureType: "road",
+                        elementType: "labels.text.fill",
+                        stylers: [{
+                            color: "#9ca5b3"
+                        }],
+                    }, {
+                        featureType: "road.highway",
+                        elementType: "geometry",
+                        stylers: [{
+                            color: "#746855"
+                        }],
+                    }, {
+                        featureType: "road.highway",
+                        elementType: "geometry.stroke",
+                        stylers: [{
+                            color: "#1f2835"
+                        }],
+                    }, {
+                        featureType: "road.highway",
+                        elementType: "labels.text.fill",
+                        stylers: [{
+                            color: "#f3d19c"
+                        }],
+                    }, {
+                        featureType: "transit",
+                        elementType: "geometry",
+                        stylers: [{
+                            color: "#2f3948"
+                        }],
+                    }, {
+                        featureType: "transit.station",
+                        elementType: "labels.text.fill",
+                        stylers: [{
+                            color: "#d59563"
+                        }],
+                    }, {
+                        featureType: "water",
+                        elementType: "geometry",
+                        stylers: [{
+                            color: "#17263c"
+                        }],
+                    }, {
+                        featureType: "water",
+                        elementType: "labels.text.fill",
+                        stylers: [{
+                            color: "#515c6d"
+                        }],
+                    }, {
+                        featureType: "water",
+                        elementType: "labels.text.stroke",
+                        stylers: [{
+                            color: "#17263c"
+                        }],
+                    },
+                ],
+            }
+            const zoomGradient = [
+                "rgba(102, 255, 0, 0)",
+                "rgba(193, 255, 0, 1)",
+                "rgba(238, 255, 0, 1)",
+                "rgba(244, 227, 0, 1)",
+                "rgba(249, 198, 0, 1)",
+                "rgba(255, 170, 0, 1)",
+                "rgba(255, 170, 0, 1)",
+                "rgba(255, 170, 0, 1)",
+                "rgba(255, 170, 0, 1)",
+                "rgba(255, 113, 0, 1)",
+                "rgba(255, 113, 0, 1)",
+                "rgba(255, 113, 0, 1)",
+                "rgba(255, 113, 0, 1)",
+                "rgba(255, 113, 0, 1)",
+                "rgba(255, 113, 0, 1)",
+                "rgba(255, 57, 0, 1)",
+                "rgba(255, 57, 0, 1)",
+                "rgba(255, 57, 0, 1)",
+                "rgba(255, 57, 0, 1)",
+                "rgba(255, 57, 0, 1)",
+                "rgba(255, 57, 0, 1)",
+                "rgba(255, 57, 0, 1)",
+                "rgba(255, 57, 0, 1)",
+                "rgba(255, 0, 0, 1)",
+                "rgba(255, 0, 0, 1)",
+                "rgba(255, 0, 0, 1)",
+                "rgba(255, 0, 0, 1)",
+                "rgba(255, 0, 0, 1)",
+                "rgba(255, 0, 0, 1)",
+                "rgba(255, 0, 0, 1)",
+                "rgba(255, 0, 0, 1)",
+                "rgba(255, 0, 0, 1)",
+                "rgba(255, 0, 0, 1)",
+                "rgba(255, 0, 0, 1)",
+                "rgba(255, 0, 0, 1)",
+                "rgba(255, 0, 0, 1)"
+            ];
+            const worldGradient = null;
+
+            const heatmapConfig = {
+                data: getPoints(),
+                radius: 40,
+                opacity: 1,
+            };
+
+            let map = new google.maps.Map(document.getElementById("nyc"), {
+                ...defaultConfig,
+                ... {
+                    center: {
+                        lat: 40.730610,
+                        lng: -73.98
+                    }
+                }
+            });
+            let heatmap = new google.maps.visualization.HeatmapLayer({...heatmapConfig,
+                ... {
+                    map: map,
+                    gradient: zoomGradient
+                }
+            });
+            maps.push(map)
+
+            map = new google.maps.Map(document.getElementById("vienna"), {
+                ...defaultConfig,
+                ... {
+                    center: {
+                        lat: 48.210033,
+                        lng: 16.363449
+                    }
+                }
+            });
+            heatmap = new google.maps.visualization.HeatmapLayer({...heatmapConfig,
+                ... {
+                    map: map,
+                    gradient: zoomGradient
+                }
+            });
+            maps.push(map)
+
+            map = new google.maps.Map(document.getElementById("world"), {
+                ...defaultConfig,
+                ... {
+                    center: {
+                        lat: 48,
+                        lng: 16
+                    },
+                    zoom: 2
+                }
+            });
+            heatmap = new google.maps.visualization.HeatmapLayer({...heatmapConfig,
+                ... {
+                    map: map,
+                    gradient: worldGradient
+                }
+            });
+            maps.push(map)
+        }
+
+        function getPoints() {
+            return points.map((a) => new google.maps.LatLng(a[0], a[1]));
+        }
+
+        function httpGetAsync(theUrl, callback) {
+            const xmlHttp = new XMLHttpRequest();
+            xmlHttp.onreadystatechange = function() {
+                if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+                    callback(JSON.parse(xmlHttp.responseText));
+                }
+            };
+            xmlHttp.open('GET', theUrl, true);
+            xmlHttp.send(null);
+        }
+    </script>
+    <style type="text/css">
+        #nyc {
+            position: absolute;
+        }
+        
+        #vienna {
+            position: absolute;
+            left: 920px;
+        }
+        
+        #world {
+            position: absolute;
+            top: 920px;
+            left: 450px;
+        }
+    </style>
+</body>
+
+</html>
