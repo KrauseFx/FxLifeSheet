@@ -17,7 +17,7 @@ class API
     # 
     # Run the query
     # 
-    results = database.fetch("SELECT ?, AVG(value::numeric) as avg, SUM(value::numeric) as sum from raw_data where key = ? AND timestamp > ? GROUP BY ? ORDER BY ?", group_by, key, start_timestamp, group_by, group_by)
+    results = database.fetch("SELECT ?, AVG(value::numeric) as avg, SUM(value::numeric) AS sum FROM raw_data WHERE key = ? AND timestamp > ? GROUP BY ? ORDER BY ?", group_by, key, start_timestamp, group_by, group_by)
 
     # 
     # Return the results
