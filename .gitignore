@@ -7,3 +7,4 @@ importers/moves/daily
 *tsv
 checkins.json
 /importers/moves/data
+/importers/swarm/fx/_swarm_cache.json

@@ -1,7 +1,7 @@
-require_relative "importer"
+require_relative "../importer"
 
 module Importers
-  class AddTimeRange < Importer
+  class TimeRangeImporter < Importer
     def run(from:, to:, key:, value:, type:, question:)
       raise "invalid from to dates, check if they're in the right order" unless from < to
       (from..to).each do |date|
@@ -10,7 +10,7 @@ module Importers
           next
         end
 
-        insert_row(
+        self.insert_row_for_date(
           date: date,
           key: key,
           value: value,
