@@ -32,7 +32,6 @@ module Importers
           )
         end
         
-        break if all.count > 100
         puts all.count
       end
       File.write("tracks.json", JSON.pretty_generate(all))    

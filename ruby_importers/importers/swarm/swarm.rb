@@ -16,7 +16,7 @@ class Swarm
       details = JSON.parse(r.body)
       raise "Foursquare request has failed" if details["meta"].fetch("code") != 200
       add_to_swarm_cache(location_id, details)
-      sleep(2.5 + rand * 2)
+      sleep(4.5 + rand * 10)
     else
       puts "loaded from swarm cache #{location_id}"
     end
