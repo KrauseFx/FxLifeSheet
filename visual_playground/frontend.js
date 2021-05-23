@@ -182,14 +182,17 @@ function updateBucketByOption() {
     const dataToRender = []
     for (var key in currentBucketData) {
         val = currentBucketData[key]
-        let diff = parseFloat(val[bucket1]["value"] - val[bucket2]["value"].toFixed(5))
+        let diffAbs = parseFloat(val[bucket1]["value"] - val[bucket2]["value"]).toFixed(5)
+        let diff = parseFloat(val[bucket1]["value"] / val[bucket2]["value"] - 1.0).toFixed(5)
+        if (val[bucket2]["value"] == 0) { diff = 0 }
 
         if (Math.abs(diff) > minDiff) {
             dataToRender.push({
                 "key": key,
                 "bucket1": val[bucket1],
                 "bucket2": val[bucket2],
-                "diff": diff
+                "diff": diff,
+                "diffAbs": diffAbs
             })
         }
     }
@@ -202,7 +205,7 @@ function updateBucketByOption() {
     allBucketData[0]["y"] = dataToRender.map(({ diff }) => diff);
     console.log(allBucketData)
 
-    bucketLayout["title"] = `${bucket} being ${bucket1} had the following effects on that day`
+    bucketLayout["title"] = `${bucket} being ${bucket1} had the following effects on that day in %`
     Plotly.redraw('bucketGraph');
 }
 
