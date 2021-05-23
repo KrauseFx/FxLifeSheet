@@ -11,6 +11,7 @@ module Importers
       swarm.checkins.each do |checkin|
         timestamp = Time.at(checkin["createdAt"])
         d = swarm.fetch_checkin_detail(checkin)
+        next if d.nil?
         l = d["response"]["checkin"]["venue"]["location"]
         all << [
           l.fetch("lat"),

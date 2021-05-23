@@ -7,6 +7,8 @@ class Swarm
   end
 
   def fetch_checkin_detail(checkin)
+    return nil if checkin["venue"].nil? # I guess those are the check-ins where the venue got deleted
+
     location_id = checkin["venue"].fetch("id")
     details = swarm_cache[location_id]
     raise "No foursquare auth" unless ENV['FOURSQUARE_SESSION'].to_s.length > 0
