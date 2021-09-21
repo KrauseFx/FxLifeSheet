@@ -1,7 +1,7 @@
 require_relative "../importer"
 
 module Importers
-  class TimeRangeImporter < Importer
+  class AddTimeRange < Importer
     def run(from:, to:, key:, value:, type:, question:)
       raise "invalid from to dates, check if they're in the right order" unless from < to
       (from..to).each do |date|
@@ -58,12 +58,18 @@ module Importers
     private
     def parse_date(date)
       Date.strptime(date, "%Y-%m-%d")
+    rescue
+      raise "Could not parse date '#{date}'"
     end
   end
 end
 
 if __FILE__ == $0
+  # Run using
+  #
+  #   be ruby importers/time_range/add_time_range_importer.rb
+  # 
   Importers::AddTimeRange.new.import(
-    time_ranges: JSON.parse(File.read("importers/time_ranges.json"))
+    time_ranges: JSON.parse(File.read("importers/time_range/time_ranges.json"))
   )
 end
