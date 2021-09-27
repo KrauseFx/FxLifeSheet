@@ -33,6 +33,8 @@ headers = number_of_checkins.collect { |_, values| values.keys }.flatten.uniq
 
 output_content = [(["Date"] + headers).join(";")]
 output_content += number_of_checkins.collect do |date, values|
+    # TODO: use the importer I wrote, as this won't consider the right time
+    # And the importer source
     ([date.strftime("%d.%m.%Y")] + headers.collect do |current_header|
         values[current_header]
     end).join(";")
