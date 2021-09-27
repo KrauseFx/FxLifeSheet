@@ -14,5 +14,8 @@
         "prettier": "^1.19.1",
         "telegraf": "^3.36.0",
         "typescript": "^3.8.3"
+    },
+    "devDependencies": {
+        "@types/node": "~10.12.0"
     }
 }
