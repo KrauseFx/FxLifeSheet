@@ -1,8 +1,7 @@
 "use strict";
 exports.__esModule = true;
-var _a = require("pg"), Pool = _a.Pool, Client = _a.Client;
+var Client = require("pg").Client;
 var connectionString = process.env.DATABASE_URL + "?ssl=true";
-var pool = new Pool();
 var client = new Client({
     connectionString: connectionString
 });
