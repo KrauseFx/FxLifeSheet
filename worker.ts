@@ -244,7 +244,7 @@ function insertNewValue(parsedUserValue, ctx, key, type, fakeDate = null) {
   let row = {
     Timestamp: dateToAdd.valueOf(),
     YearMonth: dateToAdd.format("YYYYMM"),
-    YearWeek: dateToAdd.format("YYYYWW"),
+    YearWeek: dateToAdd.format("YYYYWW"), // TODO: verify Monday/Sunday week start
     Year: dateToAdd.year(),
     Quarter: dateToAdd.quarter(),
     Month: dateToAdd.format("MM"), // to get the leading 0 needed for Google Data Studio
