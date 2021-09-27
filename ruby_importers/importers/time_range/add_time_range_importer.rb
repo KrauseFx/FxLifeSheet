@@ -1,4 +1,4 @@
-require_relative "importer"
+require_relative "../importer"
 
 module Importers
   class AddTimeRange < Importer
@@ -10,7 +10,7 @@ module Importers
           next
         end
 
-        insert_row(
+        self.insert_row_for_date(
           date: date,
           key: key,
           value: value,
@@ -58,12 +58,18 @@ module Importers
     private
     def parse_date(date)
       Date.strptime(date, "%Y-%m-%d")
+    rescue
+      raise "Could not parse date '#{date}'"
     end
   end
 end
 
 if __FILE__ == $0
+  # Run using
+  #
+  #   be ruby importers/time_range/add_time_range_importer.rb
+  # 
   Importers::AddTimeRange.new.import(
-    time_ranges: JSON.parse(File.read("importers/time_ranges.json"))
+    time_ranges: JSON.parse(File.read("importers/time_range/time_ranges.json"))
   )
 end
