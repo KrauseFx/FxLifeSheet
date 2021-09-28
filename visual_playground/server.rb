@@ -29,6 +29,15 @@ get "/keys" do
   JSON.pretty_generate(api.list_keys)
 end
 
+get "/github_style" do
+  json_response
+
+  JSON.pretty_generate(api.github_style(
+    key: params.fetch("key"),
+    start_date: params.fetch("start_date", ENV["DEFAULT_MIN_DATE"].strip)
+  ))
+end
+
 get "/bucket_options_list" do
   json_response
 

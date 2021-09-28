@@ -108,6 +108,21 @@ class API
     return structured
   end
 
+  def github_style(key:, start_date:)
+    raise "`start_date` must be in format '2019-04'" unless start_date.match(/\d\d\d\d\-\d\d/)
+    start_timestamp = Date.strptime(start_date, "%Y-%m").strftime("%Q")
+
+    results = raw_data.where(key: key).where{timestamp > start_timestamp}.order(:timestamp).to_a
+    return results.collect do |row|
+      {
+        matchedDateDay: row[:matcheddate].day,
+        matchedDateMonth: row[:matcheddate].month,
+        matchedDateYear: row[:matcheddate].year,
+        matchedDayOfWeek: row[:matcheddate].wday,
+        matchedWeekOfTheYear: row[:matcheddate].cweek,
+      }.merge(row)
+    end.uniq { |row| row[:matcheddate] }
+  end
   private
 
   def database

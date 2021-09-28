@@ -8,6 +8,11 @@
     height: 500;
 }
 
+#myGitHubGraph {
+    width: "100%";
+    height: 400;
+}
+
 #keysTable>tbody>tr>th {
     padding: 15px;
     font-weight: 800;

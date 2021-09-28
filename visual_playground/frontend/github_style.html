@@ -1,0 +1,54 @@
+<html>
+
+<head>
+    <script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+    <link rel="stylesheet" href="style.css">
+    <meta charset="utf-8">
+</head>
+
+<body>
+    <form id="mainForm" onSubmit="return false;">
+        <span id="keysContainer">
+        <table id="keysTable">
+          <tr>
+            <th>Key</th>
+          </tr>
+          <tr>
+            <td><select class="keys" id="keys-0" onchange="reloadIndex()" /></td>
+          </tr>
+        </table>        
+      </span>
+        <span id="attributesContainer">
+        <!-- <h2>Attributes</h2> -->
+        <!-- <table id="attributesTable">
+          <tr>
+            <td>Graph Type</td>
+            <td>
+              <select id="graph-type" onchange="updateGraphType()">
+                <option value="scatter">Lines</option>
+                <option value="bar">Bars</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td>Group By</td>
+            <td>
+              <select id="group-by" onchange="updateGroupBy()">
+                <option value="month" selected="selected">Month</option>
+                <option value="week">Week</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td>Start date</td>
+            <td><input type="text" value="2019-04" id="start-date" name="start-date" onchange="reloadAllData()" /></td>
+          </tr>
+        </table> -->
+      </span>
+    </form>
+    <div id='myGitHubGraph' />
+    <br />
+</body>
+<script type="text/javascript" src="/github_style.js"></script>
+
+</html>
