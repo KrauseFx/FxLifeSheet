@@ -18,7 +18,8 @@ function loadKeys(callback) {
 }
 
 function getGitHubData(key) {
-    httpGetAsync(`${host}/github_style?key=${key}&start_date=2021-01`, (data) => {
+    let year = document.getElementById('year').value;
+    httpGetAsync(`${host}/github_style?key=${key}&start_date=${year}-01`, (data) => {
         var x = [];
         var y = [];
         data = Object.values(data);
@@ -67,7 +68,7 @@ function getGitHubData(key) {
         }];
 
         var layout = {
-            title: key,
+            title: `${key} (${document.getElementById('year').value})`,
             yaxis: {
                 tickvals: ["6", "5", "4", "3", "2", "1", "0"],
                 ticktext: ['Monday<br /><br />', '', 'Wednesday<br /><br />', '', 'Friday<br /><br />', '', 'Sunday<br /><br />', ''],
