@@ -255,7 +255,8 @@ function insertNewValue(parsedUserValue, ctx, key, type, fakeDate = null) {
     Key: key,
     Question: questionText,
     Type: type,
-    Value: parsedUserValue
+    Value: parsedUserValue,
+    Source: "telegram"
   };
 
   postgres.client.query(

@@ -45,7 +45,7 @@ module Importers
     # if you provide a `date`, we will look for the closed alcoholIntake entry, and use the same timestamp
     # if you provide a `timestamp`, we will use that exact time stamp
 
-    def insert_row_for_date(date:, key:, type:, value:, question:)
+    def insert_row_for_date(date:, key:, type:, value:, question:, source:)
       raise "invalid type #{type}" unless ["boolean", "range", "number", "text"].include?(type)
       
       puts "Looking for match on #{date}..."
@@ -58,6 +58,7 @@ module Importers
         new_entry[:question] = question
         new_entry[:type] = type
         new_entry[:value] = value
+        new_entry[:source] = source
         raw_data.insert(new_entry)
         puts "--- Successfully backfilled entry for #{key} to #{value} on #{new_entry[:yearmonth]}-#{new_entry[:day]}"
       else
@@ -65,7 +66,7 @@ module Importers
       end
     end
 
-    def insert_row_for_timestamp(timestamp:, key:, type:, value:, question:)
+    def insert_row_for_timestamp(timestamp:, key:, type:, value:, question:, source:)
       raise "invalid type #{type}" unless ["boolean", "range", "number", "text"].include?(type)
         
       new_entry = generate_timestamp_details_based_on_timestamp(timestamp)
@@ -73,6 +74,7 @@ module Importers
       new_entry[:question] = question
       new_entry[:type] = type
       new_entry[:value] = value
+      new_entry[:source] = source
       raw_data.insert(new_entry)
       puts timestamp
       puts new_entry

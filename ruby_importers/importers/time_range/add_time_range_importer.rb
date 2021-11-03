@@ -15,7 +15,8 @@ module Importers
           key: key,
           value: value,
           type: type,
-          question: question
+          question: question,
+          source: "add_time_range"
         )
       end
     end

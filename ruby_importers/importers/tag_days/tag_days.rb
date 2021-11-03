@@ -3,9 +3,10 @@ require_relative "../importer"
 module Importers
   class TagDays < Importer
     def import
-      # TODO: add .where(matcheddate: nil)
-      raw_data.each do |row|
+      puts "Starting tagging days..."
+      raw_data.where(matcheddate: nil).each do |row|
         next if row[:key] == "mood" # TODO: this will be separate
+        next if row[:key].start_with?("swarm") # TODO: We need to re-import Swarm checkins anyway
 
         timestamp_to_use = row[:timestamp] / 1000.0
         timestamp_date = Time.at(timestamp_to_use)
