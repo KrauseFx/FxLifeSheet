@@ -112,8 +112,9 @@ class API
     raise "`start_date` must be in format '2019-04'" unless start_date.match(/\d\d\d\d\-\d\d/)
     start_timestamp = Date.strptime(start_date, "%Y-%m").strftime("%Q")
 
-    results = raw_data.where(key: key).where{timestamp > start_timestamp}.order(:timestamp).to_a
-    return results.collect do |row|
+    results = raw_data.where(key: key).where{timestamp > start_timestamp}.order(:timestamp)
+    # Excluding where matcheddate is nil, since we didn't run the backfill yet
+    return results.exclude(matcheddate: nil).to_a.collect do |row|
       {
         matchedDateDay: row[:matcheddate].day,
         matchedDateMonth: row[:matcheddate].month,

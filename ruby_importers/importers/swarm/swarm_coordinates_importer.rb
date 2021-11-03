@@ -29,7 +29,8 @@ module Importers
             key: key,
             value: value,
             type: key.include?("LatLng") ? "text" : "number",
-            question: "Swarm coordinates #{key}"
+            question: "Swarm coordinates #{key}",
+            source: "importer_swarm"
           )
         end
         
