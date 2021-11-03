@@ -4,3 +4,7 @@ gem "sinatra"
 gem "sequel"
 gem "pry"
 gem "pg"
+
+group :development do
+  gem "webrick"
+end
