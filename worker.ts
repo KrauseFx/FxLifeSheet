@@ -508,22 +508,6 @@ function initBot() {
   // parse one-off commands:
   //
   // Those have to be above the regex match
-  bot.hears("/report", ctx => {
-    if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
-      return;
-    }
-
-    console.log("Generating report...");
-    ctx
-      .replyWithPhoto({
-        url:
-          "https://datastudio.google.com/reporting/1a-1rVk-4ZFOg0WTNNGRvJDXMTNXpl5Uy/page/MpTm/thumbnail?sz=s3000"
-      })
-      .then(({ message_id }) => {
-        ctx.reply("Full report: https://datastudio.google.com/s/uwV1-Pv9dk4");
-      });
-  });
-
   bot.hears("/skip", ctx => {
     if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
       console.error("Invalid user " + ctx.update.message.from.username);
