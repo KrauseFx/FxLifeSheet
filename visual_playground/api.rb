@@ -112,8 +112,11 @@ class API
   def github_style(key:, start_date:)
     raise "`start_date` must be in format '2019-04'" unless start_date.match(/\d\d\d\d\-\d\d/)
     start_timestamp = Date.strptime(start_date, "%Y-%m").strftime("%Q")
+    matched = start_date.match(/(\d\d\d\d)\-(\d\d)/)
+    end_date = (matched[1].to_i + 1).to_s + "-" + matched[2]
+    end_timestamp = Date.strptime(end_date, "%Y-%m").strftime("%Q")
 
-    results = raw_data.where(key: key).where{timestamp > start_timestamp}.order(:timestamp)
+    results = raw_data.where(key: key).where{(timestamp > start_timestamp) & (timestamp < end_timestamp)}.order(:timestamp)
     # Excluding where matcheddate is nil, since we didn't run the backfill yet
     final_returns = results.exclude(matcheddate: nil).to_a.collect do |row|
       {
