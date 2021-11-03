@@ -21,14 +21,23 @@ function getGitHubData(key) {
     httpGetAsync(`${host}/github_style?key=${key}&start_date=2021-01`, (data) => {
         var x = [];
         var y = [];
+        data = Object.values(data);
         console.log(data)
         for (var i = 0; i < data.length; i++) {
             let currentRow = data[i]
-            let value = parseInt(currentRow.value)
-            while (value > 0) {
-                value--;
+            if (!!currentRow.value) {
+                let value = parseInt(currentRow.value)
+                while (value > 0) {
+                    value--;
+                    x.push(currentRow.matchedWeekOfTheYear)
+                    y.push(currentRow.matchedDayOfWeek)
+                }
+
+                // Add one entry, just for it not being nil
                 x.push(currentRow.matchedWeekOfTheYear)
                 y.push(currentRow.matchedDayOfWeek)
+            } else {
+                console.log("TODO: Add support for nil values...");
             }
         }
         console.log(x)
@@ -36,12 +45,11 @@ function getGitHubData(key) {
         let allData = [{
             x: x,
             y: y,
-
             type: 'histogram2d',
             histnorm: "count",
             autobinx: false,
             xbins: {
-                start: 0,
+                start: 1,
                 end: 52,
                 size: 1
             },
@@ -53,14 +61,25 @@ function getGitHubData(key) {
             },
             colorscale: [
                 ['0', 'rgba(0, 0, 0, 0)'],
-                ['1', 'rgb(40,140,40)']
+                ['0.5', 'rgba(160, 190, 37, 0.5)'],
+                ['1', 'rgb(37, 190, 37)'],
             ]
         }];
 
-        configuration = {
-            title: key
+        var layout = {
+            title: key,
+            yaxis: {
+                tickvals: ["6", "5", "4", "3", "2", "1", "0"],
+                ticktext: ['Monday<br /><br />', '', 'Wednesday<br /><br />', '', 'Friday<br /><br />', '', 'Sunday<br /><br />', ''],
+            },
         }
-        Plotly.newPlot('myGitHubGraph', allData, configuration);
+        var config = {
+            showLink: true,
+            plotlyServerURL: "https://chart-studio.plotly.com",
+            linkText: 'Customize'
+        };
+
+        Plotly.newPlot('myGitHubGraph', allData, layout, config);
     })
 }
 

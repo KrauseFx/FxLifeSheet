@@ -108,23 +108,53 @@ class API
     return structured
   end
 
+  # Used for GitHub style graphs
   def github_style(key:, start_date:)
     raise "`start_date` must be in format '2019-04'" unless start_date.match(/\d\d\d\d\-\d\d/)
     start_timestamp = Date.strptime(start_date, "%Y-%m").strftime("%Q")
 
     results = raw_data.where(key: key).where{timestamp > start_timestamp}.order(:timestamp)
     # Excluding where matcheddate is nil, since we didn't run the backfill yet
-    return results.exclude(matcheddate: nil).to_a.collect do |row|
+    final_returns = results.exclude(matcheddate: nil).to_a.collect do |row|
       {
         matchedDateDay: row[:matcheddate].day,
         matchedDateMonth: row[:matcheddate].month,
         matchedDateYear: row[:matcheddate].year,
-        matchedDayOfWeek: row[:matcheddate].wday,
+        matchedDayOfWeek: day_of_week(row[:matcheddate]),
         matchedWeekOfTheYear: row[:matcheddate].cweek,
       }.merge(row)
     end.uniq { |row| row[:matcheddate] }
+    # the `.uniq` takes care that we only have one entry per date, which only happens for a few days where
+    # time zones got really messy
+
+    # Convert to hash, where the key is the date
+    final_returns = final_returns.collect do |entry|
+      [entry[:matcheddate], entry]
+    end.to_h
+
+    # Backfill empty dates with a nil value, so we can properly render those
+    current_date = final_returns.keys.min
+    while current_date < final_returns.keys.max
+      final_returns[current_date] ||= {
+        value: nil,
+        matchedDateDay: current_date.day,
+        matchedDateMonth: current_date.month,
+        matchedDateYear: current_date.year,
+        matchedDayOfWeek: day_of_week(current_date),
+        matchedWeekOfTheYear: current_date.cweek,
+      }
+      current_date += 1
+    end
+
+    return final_returns
   end
   private
+
+  # Day of week = 1 - 7, Monday is 1
+  # We want Sunday to be 0
+  def day_of_week(date)
+    7 - date.cwday
+  end
 
   def database
     raise "missing DATABASE_URL ENV variable" if ENV["DATABASE_URL"].to_s.length == 0
