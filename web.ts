@@ -1,3 +1,5 @@
+declare var require: any;
+
 // Third party dependencies
 var http = require("http");
 const moment = require("moment");

@@ -1,3 +1,5 @@
+declare var require: any;
+
 var needle = require("needle");
 
 // Interfaces

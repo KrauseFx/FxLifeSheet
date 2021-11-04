@@ -1,3 +1,5 @@
+declare var require: any;
+
 // Telegram setup
 const Telegraf = require("telegraf");
 
