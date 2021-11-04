@@ -5,7 +5,7 @@ var moment = require("moment");
 var postgres = require("./classes/postgres.js");
 var lastFetchedData = {};
 function loadCurrentData(key) {
-    console.log("Refreshing latest moood entry...");
+    console.log("Refreshing latest " + key + " entry...");
     var query;
     if (key == "gym" || key == "meditated") {
         query =
@@ -15,6 +15,7 @@ function loadCurrentData(key) {
         query =
             "SELECT * FROM raw_data WHERE key = $1 ORDER BY timestamp DESC LIMIT 1";
     }
+    console.log(query);
     postgres.client.query({
         text: query,
         values: [key]

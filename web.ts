@@ -9,7 +9,7 @@ let postgres = require("./classes/postgres.js");
 var lastFetchedData = {};
 
 function loadCurrentData(key) {
-  console.log("Refreshing latest moood entry...");
+  console.log(`Refreshing latest ${key} entry...`);
 
   let query;
   if (key == "gym" || key == "meditated") {
@@ -20,6 +20,7 @@ function loadCurrentData(key) {
       "SELECT * FROM raw_data WHERE key = $1 ORDER BY timestamp DESC LIMIT 1";
   }
 
+  console.log(query);
   postgres.client.query(
     {
       text: query,
