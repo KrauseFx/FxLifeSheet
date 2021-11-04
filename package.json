@@ -10,7 +10,7 @@
     "dependencies": {
         "moment": "^2.24.0",
         "needle": "^2.3.3",
-        "pg": "^8.5.1",
+        "pg": "^7.0.0",
         "prettier": "^1.19.1",
         "telegraf": "^3.36.0",
         "typescript": "^3.8.3"
