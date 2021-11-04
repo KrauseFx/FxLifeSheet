@@ -4,7 +4,7 @@ module Importers
   class TagDays < Importer
     def import
       puts "Starting tagging days..."
-      raw_data.where(matcheddate: nil).each do |row|
+      raw_data.each do |row|
         next if row[:key] == "mood" # TODO: this will be separate
         next if row[:key].start_with?("swarm") # TODO: We need to re-import Swarm checkins anyway
 

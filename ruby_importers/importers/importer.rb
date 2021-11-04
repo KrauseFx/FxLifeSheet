@@ -68,7 +68,8 @@ module Importers
       end
     end
 
-    def insert_row_for_timestamp(timestamp:, key:, type:, value:, question:, source:)
+    # e.g. precise Swarm check-in time
+    def insert_row_for_timestamp(timestamp:, key:, type:, value:, question:, source:, import_id:)
       raise "invalid type #{type}" unless ["boolean", "range", "number", "text"].include?(type)
         
       new_entry = generate_timestamp_details_based_on_timestamp(timestamp)
@@ -77,9 +78,9 @@ module Importers
       new_entry[:type] = type
       new_entry[:value] = value
       new_entry[:source] = source
+      new_entry[:importedat] = DateTime.now
+      new_entry[:importid] = import_id
       raw_data.insert(new_entry)
-      puts timestamp
-      puts new_entry
       puts "--- Successfully backfilled entry for #{key} to #{value} on #{new_entry[:yearmonth]}-#{new_entry[:day]}"
     end
 
@@ -103,7 +104,7 @@ module Importers
       # And support multiple per run
       existing_entries = raw_data.where(key: key)
       if existing_entries.count > 0
-        puts "Using database #{ENV['DATABASE_URL'][0...30]}"
+        puts "Using database #{ENV['DATABASE_URL'][0...30]}..."
         puts "Already #{existing_entries.count} entries for #{key}, are you sure you want to replace all of those entries? (y/n)"
         raise "user cancelled" unless gets.strip == 'y'
         existing_entries.delete

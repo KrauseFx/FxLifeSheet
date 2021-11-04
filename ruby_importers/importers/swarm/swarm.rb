@@ -1,4 +1,5 @@
 require 'excon'
+require 'securerandom'
 require_relative '../importer'
 
 class Swarm
