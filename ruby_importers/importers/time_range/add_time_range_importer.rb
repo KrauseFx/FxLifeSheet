@@ -9,7 +9,7 @@ module Importers
 
       (from..to).each do |date|
         if date > Date.today
-          puts "Date is in the future, skipping now..."
+          puts "Date #{date} is in the future, skipping now..."
           next
         end
 

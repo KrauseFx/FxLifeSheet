@@ -25,12 +25,12 @@ module Importers
       )
 
       if matching_entries.count > 1
-        matching_entries = matching_entries.to_a.sort_by { |v| (v[:timestamp] - timestamp).abs }.reverse
+        matching_entries = matching_entries.to_a.sort_by { |v| (v[:timestamp] - timestamp).abs }
         # First one is the closer one here
       elsif matching_entries.count == 0
-        # fallback to other keys (e.g. data before we tracked alcohol etc)
-        fallback_entries = raw_data.where(timestamp: (timestamp - buffer_in_ticks / 2.0)..(timestamp + buffer_in_ticks / 2.0))
-        fallback_entries = raw_data.where(timestamp: (timestamp - buffer_in_ticks * 2)..(timestamp + buffer_in_ticks * 2)) if fallback_entries.count == 0
+        # fallback to other keys (e.g. data before we tracked alcohol etc), except for mood since we don't have matchedDate for those entries
+        fallback_entries = raw_data.exclude(key: "mood").where(timestamp: (timestamp - buffer_in_ticks / 2.0)..(timestamp + buffer_in_ticks / 2.0))
+        fallback_entries = raw_data.exclude(key: "mood").where(timestamp: (timestamp - buffer_in_ticks * 2)..(timestamp + buffer_in_ticks * 2)) if fallback_entries.count == 0
         matching_entries = fallback_entries.to_a.sort_by { |v| (v[:timestamp] - timestamp).abs }.reverse
         if matching_entries.count == 0
           puts "none found, this is okay #{date}"
@@ -42,7 +42,7 @@ module Importers
     end
 
     # You have to provide either a `date` or a `timestamp`
-    # if you provide a `date`, we will look for the closed alcoholIntake entry, and use the same timestamp
+    # if you provide a `date`, we will look for the closed `alcoholIntake` entry, and use the same timestamp
     # if you provide a `timestamp`, we will use that exact time stamp
 
     def insert_row_for_date(date:, key:, type:, value:, question:, source:, import_id:)
