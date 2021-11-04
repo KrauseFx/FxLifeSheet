@@ -45,7 +45,7 @@ module Importers
     # if you provide a `date`, we will look for the closed alcoholIntake entry, and use the same timestamp
     # if you provide a `timestamp`, we will use that exact time stamp
 
-    def insert_row_for_date(date:, key:, type:, value:, question:, source:)
+    def insert_row_for_date(date:, key:, type:, value:, question:, source:, import_id:)
       raise "invalid type #{type}" unless ["boolean", "range", "number", "text"].include?(type)
       
       puts "Looking for match on #{date}..."
@@ -59,6 +59,8 @@ module Importers
         new_entry[:type] = type
         new_entry[:value] = value
         new_entry[:source] = source
+        new_entry[:importedat] = DateTime.now
+        new_entry[:importid] = import_id
         raw_data.insert(new_entry)
         puts "--- Successfully backfilled entry for #{key} to #{value} on #{new_entry[:yearmonth]}-#{new_entry[:day]}"
       else
@@ -101,6 +103,7 @@ module Importers
       # And support multiple per run
       existing_entries = raw_data.where(key: key)
       if existing_entries.count > 0
+        puts "Using database #{ENV['DATABASE_URL'][0...30]}"
         puts "Already #{existing_entries.count} entries for #{key}, are you sure you want to replace all of those entries? (y/n)"
         raise "user cancelled" unless gets.strip == 'y'
         existing_entries.delete

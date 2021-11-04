@@ -1,9 +1,12 @@
 require_relative "../importer"
+require 'securerandom'
 
 module Importers
   class AddTimeRange < Importer
     def run(from:, to:, key:, value:, type:, question:)
       raise "invalid from to dates, check if they're in the right order" unless from < to
+      import_id = SecureRandom.hex
+
       (from..to).each do |date|
         if date > Date.today
           puts "Date is in the future, skipping now..."
@@ -16,7 +19,8 @@ module Importers
           value: value,
           type: type,
           question: question,
-          source: "add_time_range"
+          source: "add_time_range",
+          import_id: import_id
         )
       end
     end
@@ -25,6 +29,7 @@ module Importers
       time_ranges.each do |key, obj|
         existing_entries = raw_data.where(key: key)
         if existing_entries.count > 0
+          puts "Using database #{ENV['DATABASE_URL'][0...30]}"
           puts "Already #{existing_entries.count} entries for #{key}, are you sure you want to replace all of those entries? (y/n)"
           raise "user cancelled" unless gets.strip == 'y'
           existing_entries.delete
