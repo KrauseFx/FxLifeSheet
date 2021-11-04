@@ -9,11 +9,11 @@ function loadCurrentData(key) {
     var query;
     if (key == "gym" || key == "meditated") {
         query =
-            "SELECT * FROM raw_data WHERE key = $1 AND value != '0' ORDER BY timestamp DESC LIMIT 1";
+            "SELECT * FROM raw_data WHERE key = '$1' AND value != '0' ORDER BY timestamp DESC LIMIT 1";
     }
     else {
         query =
-            "SELECT * FROM raw_data WHERE key = $1 ORDER BY timestamp DESC LIMIT 1";
+            "SELECT * FROM raw_data WHERE key = '$1' ORDER BY timestamp DESC LIMIT 1";
     }
     console.log(query);
     postgres.client.query({
