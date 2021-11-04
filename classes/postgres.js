@@ -5,8 +5,10 @@ var connectionString = process.env.DATABASE_URL + "?ssl=true";
 var client = new Client({
     connectionString: connectionString
 });
-client.connect();
-console.log(client);
+client.connect(function (err, client, done) {
+    console.log(err);
+    console.log(done);
+});
 console.log("Successfully connected to Postgres");
 client.query("SELECT NOW()", function (err, res) {
     console.log(err, res);
