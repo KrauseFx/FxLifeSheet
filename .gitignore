@@ -9,3 +9,4 @@ checkins.json
 /importers/moves/data
 /importers/swarm/fx/_swarm_cache.json
 /visual_playground/tracks_just_to_test.json
+*.js.map
