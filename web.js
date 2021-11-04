@@ -41,6 +41,7 @@ var interval = 5 * 60 * 1000;
 var keys = [
     "mood",
     "sleepDurationWithings",
+    "emailsInbox",
     "weight",
     "gym",
     "macrosCarbs",

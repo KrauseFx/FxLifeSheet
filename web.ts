@@ -49,6 +49,7 @@ let interval = 5 * 60 * 1000;
 let keys = [
   "mood",
   "sleepDurationWithings",
+  "emailsInbox",
   "weight",
   "gym",
   "macrosCarbs",
