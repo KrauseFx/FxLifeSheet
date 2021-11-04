@@ -1,13 +1,10 @@
 "use strict";
 exports.__esModule = true;
-// Third party dependencies
 var moment = require("moment");
-// Internal dependencies
 var config = require("./classes/config.js");
 var postgres = require("./classes/postgres.js");
 var telegram = require("./classes/telegram.js");
 console.log("Checking if we need to send a reminder to the user...");
-// Hacky, as fetching the config file takes a little while
 setTimeout(function () {
     postgres.client.query({
         text: "SELECT * FROM last_run"
@@ -28,7 +25,7 @@ setTimeout(function () {
                 break;
             }
             var scheduleType = config.userConfig[command].schedule;
-            var timeDifferenceHours = moment().diff(moment(lastRun), "hours"); // hours
+            var timeDifferenceHours = moment().diff(moment(lastRun), "hours");
             var shouldRemindUser = false;
             if (scheduleType == "eightTimesADay") {
                 if (timeDifferenceHours >= 24 / 8) {
@@ -37,7 +34,6 @@ setTimeout(function () {
             }
             else if (scheduleType == "daily") {
                 if (timeDifferenceHours >= 24 * 0.95) {
-                    // 0.95 to send that alert earlier to make it easier to tap
                     shouldRemindUser = true;
                 }
             }
@@ -52,7 +48,6 @@ setTimeout(function () {
                 }
             }
             else if (scheduleType == "manual") {
-                // Never remind the user
             }
             else {
                 console.error("Unknown schedule type " + scheduleType);
@@ -98,3 +93,4 @@ setTimeout(function () {
         console.log("Reminder check done");
     });
 }, 2000);
+//# sourceMappingURL=reminder.js.map

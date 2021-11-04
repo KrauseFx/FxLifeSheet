@@ -1,5 +1,3 @@
-declare var require: any;
-
 // Third party dependencies
 const moment = require("moment");
 var needle = require("needle");

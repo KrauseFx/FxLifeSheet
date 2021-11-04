@@ -15,3 +15,4 @@ else {
     console.log("Successfully loaded user config");
     module.exports.userConfig = userConfig;
 }
+//# sourceMappingURL=config.js.map

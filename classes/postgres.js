@@ -12,3 +12,4 @@ client.query("SELECT NOW()", function (err, res) {
     console.log(err, res);
 });
 module.exports.client = client;
+//# sourceMappingURL=postgres.js.map

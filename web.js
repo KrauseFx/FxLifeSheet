@@ -1,10 +1,8 @@
 "use strict";
 exports.__esModule = true;
-// Third party dependencies
 var http = require("http");
 var moment = require("moment");
 var postgres = require("./classes/postgres.js");
-// State
 var lastFetchedData = {};
 function loadCurrentData(key) {
     console.log("Refreshing latest moood entry...");
@@ -36,7 +34,6 @@ function loadCurrentData(key) {
     });
 }
 console.log("Launching up API web server...");
-// Periodically refresh the value
 var interval = 5 * 60 * 1000;
 var keys = [
     "mood",
@@ -65,7 +62,6 @@ var _loop_1 = function (i) {
 for (var i = 0; i < keys.length; i++) {
     _loop_1(i);
 }
-// One-off total computer usage
 postgres.client.query({
     text: "SELECT SUM(value::int) FROM raw_data WHERE key = 'dailyComputerUse'"
 }, function (err, res) {
@@ -75,9 +71,8 @@ postgres.client.query({
         return;
     }
     var hoursComputerUsed = res.rows[0]["sum"] / 60.0;
-    // calculate up averages since we don't import RescueTime every day
-    var daysDifference = moment().diff(moment("2020-03-22"), "days"); // that's when we imported last
-    hoursComputerUsed += daysDifference * 6.5; // average computer usage a day nowadays
+    var daysDifference = moment().diff(moment("2020-03-22"), "days");
+    hoursComputerUsed += daysDifference * 6.5;
     lastFetchedData["totalComputerUsageHours"] = {
         time: moment().format(),
         value: Math.round(hoursComputerUsed)
@@ -90,3 +85,4 @@ http
     return res.end();
 })
     .listen(process.env.PORT);
+//# sourceMappingURL=web.js.map
