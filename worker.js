@@ -200,7 +200,9 @@ function insertNewValue(parsedUserValue, ctx, key, type, fakeDate) {
         Question: questionText,
         Type: type,
         Value: parsedUserValue,
-        Source: "telegram"
+        Source: "telegram",
+        Importedat: moment(ctx.update.message.date * 1000),
+        Importid: null
     };
     postgres.client.query({
         text: "INSERT INTO raw_data (" +
