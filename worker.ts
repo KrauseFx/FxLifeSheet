@@ -266,7 +266,7 @@ function insertNewValue(parsedUserValue, ctx, key, type, fakeDate = null) {
       text:
         "INSERT INTO raw_data (" +
         Object.keys(row).join(",") +
-        ") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)",
+        ") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)",
       values: Object.values(row)
     },
     (err, res) => {
