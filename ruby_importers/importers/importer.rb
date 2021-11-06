@@ -2,6 +2,7 @@ require 'pry'
 require 'pg'
 require 'sequel'
 require 'date'
+require 'securerandom'
 
 module Importers
   class Importer
