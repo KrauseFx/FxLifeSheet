@@ -100,10 +100,13 @@ module Importers
       }
     end
 
-    def clear_prior_rows(key)
+    # pass in either a key, or a custom `existing_entries` filter
+    def clear_prior_rows(key: nil, existing_entries: nil)
       # TODO: store a reference to those, and delete only after the new ones were imported successfully
       # And support multiple per run
-      existing_entries = raw_data.where(key: key)
+      raise "No data provided" if key.nil? && existing_entries.nil?
+      existing_entries ||= raw_data.where(key: key)
+
       if existing_entries.count > 0
         puts "Using database #{ENV['DATABASE_URL'][0...30]}..."
         puts "Already #{existing_entries.count} entries for #{key}, are you sure you want to replace all of those entries? (y/n)"

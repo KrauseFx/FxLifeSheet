@@ -3,10 +3,8 @@ require_relative "swarm"
 module Importers
   class SwarmCoordinatesImporter < Importer
     def import
-      clear_prior_rows("swarmCheckinCoordinatesLat")
-      clear_prior_rows("swarmCheckinCoordinatesLng")
-      clear_prior_rows("swarmCheckinCoordinatesLatLng")
-      clear_prior_rows("swarmCheckinCategory")
+      existing_entries = raw_data.where(Sequel.like(:key, 'swarmCheckin%'))
+      clear_prior_rows(existing_entries: existing_entries)
 
       import_id = SecureRandom.hex
       all = []
@@ -15,14 +13,15 @@ module Importers
         timestamp = Time.at(checkin["createdAt"])
         d = swarm.fetch_checkin_detail(checkin)
         next if d.nil?
-        l = d["response"]["checkin"]["venue"]["location"]
+        venue = d["response"]["checkin"]["venue"]
+        l = venue["location"]
         all << [
           l.fetch("lat"),
           l.fetch("lng")
         ]
         
-        category = Hash(d["response"]["checkin"]["venue"]["categories"].find { |a| a["primary"] == true })["name"]
-        location = d["response"]["checkin"]["venue"]["location"]
+        category = Hash(venue["categories"].find { |a| a["primary"] == true })["name"]
+        location = venue["location"]
         timezone_offset = d["response"]["checkin"]["timeZoneOffset"]
 
         {
@@ -30,14 +29,15 @@ module Importers
           "swarmCheckinCoordinatesLng" => l.fetch("lng"),
           "swarmCheckinCoordinatesLatLng" => [l.fetch("lat"), l.fetch("lng")].join(","),
           "swarmCheckinCategory" => category,
+          "swarmCheckinName" => venue["name"],
+          "swarmCheckinTimezone" => timezone_offset,
           # Address
           "swarmCheckinAddressAddress" => location["address"],
           "swarmCheckinAddressCity" => location["city"],
           "swarmCheckinAddressState" => location["state"],
           "swarmCheckinAddressCountry" => location["country"],
           "swarmCheckinAddressPostalCode" => location["postalCode"],
-          "swarmCheckinAddressCC" => location["cc"],
-          "swarmCheckinTimezone" => timezone_offset
+          "swarmCheckinAddressCC" => location["cc"]
         }.each do |key, value|
           next if value.to_s.length == 0 # e.g. no category
 
