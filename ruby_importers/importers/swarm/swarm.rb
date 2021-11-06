@@ -1,5 +1,4 @@
 require 'excon'
-require_relative '../importer'
 
 class Swarm
   def checkins

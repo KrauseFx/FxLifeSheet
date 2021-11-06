@@ -1,4 +1,5 @@
 require_relative "swarm"
+require_relative '../importer'
 
 module Importers
   class SwarmCoordinatesImporter < Importer
