@@ -69,7 +69,7 @@ module Importers
     end
 
     # e.g. precise Swarm check-in time
-    def insert_row_for_timestamp(timestamp:, key:, type:, value:, question:, source:, import_id:)
+    def insert_row_for_timestamp(timestamp:, key:, type:, value:, question:, source:, import_id:, matched_date:)
       raise "invalid type #{type}" unless ["boolean", "range", "number", "text"].include?(type)
         
       new_entry = generate_timestamp_details_based_on_timestamp(timestamp)
@@ -80,6 +80,7 @@ module Importers
       new_entry[:source] = source
       new_entry[:importedat] = DateTime.now
       new_entry[:importid] = import_id
+      new_entry[:matcheddate] = matched_date
       raw_data.insert(new_entry)
       puts "--- Successfully backfilled entry for #{key} to #{value} on #{new_entry[:yearmonth]}-#{new_entry[:day]}"
     end
