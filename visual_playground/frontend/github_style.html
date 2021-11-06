@@ -7,7 +7,7 @@
 </head>
 
 <body>
-    <form id="mainForm" onSubmit="return false;">
+    <form id="mainFormGitHub" onSubmit="return false;">
         <span id="keysContainer">
         <table id="keysTable">
           <tr>
@@ -15,45 +15,13 @@
           </tr>
           <tr>
             <td><select class="keys" id="keys-0" onchange="reloadIndex()" /></td>
-            <td>
-              <select class="year" id="year" onchange="reloadIndex()">
-                <option>2021</option>
-                <option>2020</option>
-                <option>2019</option>
-              </select>
-            </td>
           </tr>
         </table>        
       </span>
-        <span id="attributesContainer">
-        <!-- <h2>Attributes</h2> -->
-        <!-- <table id="attributesTable">
-          <tr>
-            <td>Graph Type</td>
-            <td>
-              <select id="graph-type" onchange="updateGraphType()">
-                <option value="scatter">Lines</option>
-                <option value="bar">Bars</option>
-              </select>
-            </td>
-          </tr>
-          <tr>
-            <td>Group By</td>
-            <td>
-              <select id="group-by" onchange="updateGroupBy()">
-                <option value="month" selected="selected">Month</option>
-                <option value="week">Week</option>
-              </select>
-            </td>
-          </tr>
-          <tr>
-            <td>Start date</td>
-            <td><input type="text" value="2019-04" id="start-date" name="start-date" onchange="reloadAllData()" /></td>
-          </tr>
-        </table> -->
-      </span>
     </form>
-    <div id='myGitHubGraph' />
+    <div class="githubGraph" id='myGitHubGraph2021' />
+    <div class="githubGraph" id='myGitHubGraph2020' />
+    <div class="githubGraph" id='myGitHubGraph2019' />
     <br />
 </body>
 <script type="text/javascript" src="/github_style.js"></script>

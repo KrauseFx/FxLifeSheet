@@ -17,8 +17,7 @@ function loadKeys(callback) {
     });
 }
 
-function getGitHubData(key) {
-    let year = document.getElementById('year').value;
+function getGitHubData(key, year) {
     httpGetAsync(`${host}/github_style?key=${key}&start_date=${year}-01`, (data) => {
         var x = [];
         var y = [];
@@ -68,7 +67,7 @@ function getGitHubData(key) {
         }];
 
         var layout = {
-            title: `${key} (${document.getElementById('year').value})`,
+            title: `${key} (${year})`,
             yaxis: {
                 tickvals: ["6", "5", "4", "3", "2", "1", "0"],
                 ticktext: ['Monday<br /><br />', '', 'Wednesday<br /><br />', '', 'Friday<br /><br />', '', 'Sunday<br /><br />', ''],
@@ -80,17 +79,21 @@ function getGitHubData(key) {
             linkText: 'Customize'
         };
 
-        Plotly.newPlot('myGitHubGraph', allData, layout, config);
+        Plotly.newPlot(`myGitHubGraph${year}`, allData, layout, config);
     })
 }
 
 function updateKeyForIndex(key) {
     document.getElementById(`keys-0`).value = key;
-    getGitHubData(key)
+    getGitHubData(key, 2021)
+    setTimeout(function() { getGitHubData(key, 2020) }, 200);
+    setTimeout(function() { getGitHubData(key, 2019) }, 400);
 }
 
 function reloadIndex() {
-    getGitHubData(document.getElementById(`keys-0`).value)
+    getGitHubData(document.getElementById(`keys-0`).value, 2021)
+    setTimeout(function() { getGitHubData(document.getElementById(`keys-0`).value, 2020) }, 200);
+    setTimeout(function() { getGitHubData(document.getElementById(`keys-0`).value, 2019) }, 400);
 }
 
 function httpGetAsync(theUrl, callback) {
