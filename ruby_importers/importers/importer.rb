@@ -19,27 +19,31 @@ module Importers
 
       # Find the nearest evening question (using alcohol since I'll always be tracking that)
       buffer_in_ticks = 120000000
-                          
+
+      # First, prefer the already-tagged one
+      matching_entries = raw_data.where(key: "alcoholIntake").where(matcheddate: date)
+      return matching_entries.first if matching_entries.count == 1
+
       matching_entries = raw_data.where(
         key: "alcoholIntake", 
-        timestamp: (timestamp - buffer_in_ticks / 2.0)..(timestamp + buffer_in_ticks / 2.0)
+        timestamp: (timestamp - buffer_in_ticks / 2.0)..(timestamp + buffer_in_ticks / 2.0),
       )
+      return matching_entries.first if matching_entries.count == 1
 
       if matching_entries.count > 1
-        matching_entries = matching_entries.to_a.sort_by { |v| (v[:timestamp] - timestamp).abs }
         # First one is the closer one here
+        return matching_entries.to_a.sort_by { |v| (v[:timestamp] - timestamp).abs }.first
       elsif matching_entries.count == 0
         # fallback to other keys (e.g. data before we tracked alcohol etc), except for mood since we don't have matchedDate for those entries
-        fallback_entries = raw_data.exclude(key: "mood").where(timestamp: (timestamp - buffer_in_ticks / 2.0)..(timestamp + buffer_in_ticks / 2.0))
-        fallback_entries = raw_data.exclude(key: "mood").where(timestamp: (timestamp - buffer_in_ticks * 2)..(timestamp + buffer_in_ticks * 2)) if fallback_entries.count == 0
+        fallback_entries = raw_data.exclude(key: "mood").exclude(source: "add_time_range").exclude(source: "importer_swarm").exclude(source: "backfill_weather").where(timestamp: (timestamp - buffer_in_ticks / 2.0)..(timestamp + buffer_in_ticks / 2.0))
+        fallback_entries = raw_data.exclude(key: "mood").exclude(source: "add_time_range").exclude(source: "importer_swarm").exclude(source: "backfill_weather").where(timestamp: (timestamp - buffer_in_ticks * 2)..(timestamp + buffer_in_ticks * 2)) if fallback_entries.count == 0
         matching_entries = fallback_entries.to_a.sort_by { |v| (v[:timestamp] - timestamp).abs }.reverse
         if matching_entries.count == 0
           puts "none found, this is okay #{date}"
           return nil
         end
+        return matching_entries.first
       end
-
-      return matching_entries.first
     end
 
     # You have to provide either a `date` or a `timestamp`
@@ -48,29 +52,51 @@ module Importers
 
     def insert_row_for_date(date:, key:, type:, value:, question:, source:, import_id:)
       raise "invalid type #{type}" unless ["boolean", "range", "number", "text"].include?(type)
-      
-      puts "Looking for match on #{date}..."
-      if matching_entry = find_closest_row_for_date(date: date)
-        puts "Found match: #{date}\t\t#{matching_entry[:month]}-#{matching_entry[:day]} #{matching_entry[:hour]}:#{matching_entry[:minute]}"
-        
-        new_entry = matching_entry.dup
-        new_entry.delete(:id)
-        new_entry[:key] = key
-        new_entry[:question] = question
-        new_entry[:type] = type
-        new_entry[:value] = value
-        new_entry[:source] = source
-        new_entry[:importedat] = DateTime.now
-        new_entry[:importid] = import_id
-        raw_data.insert(new_entry)
-        puts "--- Successfully backfilled entry for #{key} to #{value} on #{new_entry[:yearmonth]}-#{new_entry[:day]}"
+
+      # First, look if we have an existing row from a previous import
+      existing_entries = raw_data.where(
+        matcheddate: date,
+        key: key,
+      )
+      if existing_entries.count == 1
+        existing_entry = existing_entries.first
+        if existing_entry[:source] == source && existing_entry[:value].to_s == value.to_s # to_s to work with nil, and numbers also
+          puts "Verified existing entry from import_id #{existing_entry[:importid]} is valid & matching..."
+        else
+          # TODO: This means the value has changed, it will be fine to just update the entry probably
+          binding.pry
+        end
+      elsif existing_entries.count > 1
+        binding.pry # TODO: how to handle
       else
-        require 'pry'; binding.pry
+        puts "Looking for match on #{date}..."
+        if matching_entry = find_closest_row_for_date(date: date)
+          puts "Found match: #{date}\t\t#{matching_entry[:month]}-#{matching_entry[:day]} #{matching_entry[:hour]}:#{matching_entry[:minute]}"
+
+          new_entry = matching_entry.dup
+          if new_entry[:matcheddate] != date
+            binding.pry
+          end
+          
+          new_entry.delete(:id)
+          new_entry[:key] = key
+          new_entry[:question] = question
+          new_entry[:type] = type
+          new_entry[:value] = value
+          new_entry[:source] = source
+          new_entry[:importedat] = DateTime.now
+          new_entry[:importid] = import_id
+
+          raw_data.insert(new_entry)
+          puts "--- Successfully backfilled entry for #{key} to #{value} on #{new_entry[:yearmonth]}-#{new_entry[:day]}"
+        else
+          puts "Couldn't find an entry for that day, but that's okay if we can't backfill, since all other data is basically missing for that day also"
+        end
       end
     end
 
     # e.g. precise Swarm check-in time
-    def insert_row_for_timestamp(timestamp:, key:, type:, value:, question:, source:, import_id:, matched_date:)
+    def insert_row_for_timestamp(timestamp:, key:, type:, value:, question: nil, source:, import_id:, matched_date:)
       raise "invalid type #{type}" unless ["boolean", "range", "number", "text"].include?(type)
         
       new_entry = generate_timestamp_details_based_on_timestamp(timestamp)
@@ -102,6 +128,8 @@ module Importers
     end
 
     # pass in either a key, or a custom `existing_entries` filter
+    # This will only be used if you change the whole system of how something is being imported
+    # because otherwise we want to be smart and not replace all the data each time
     def clear_prior_rows(key: nil, existing_entries: nil)
       # TODO: store a reference to those, and delete only after the new ones were imported successfully
       # And support multiple per run

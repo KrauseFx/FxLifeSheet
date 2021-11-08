@@ -4,9 +4,6 @@ require_relative '../importer'
 module Importers
   class SwarmCoordinatesImporter < Importer
     def import
-      existing_entries = raw_data.where(Sequel.like(:key, 'swarmCheckin%'))
-      clear_prior_rows(existing_entries: existing_entries)
-
       import_id = SecureRandom.hex
       all = []
 

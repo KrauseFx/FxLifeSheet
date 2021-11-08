@@ -4,13 +4,10 @@ require 'net/http'
 module Importers
   class BackfillWeather < Importer
     def import
-      # existing_entries = raw_data.where(Sequel.like(:key, 'weather%'))
-      # clear_prior_rows(existing_entries: existing_entries)
-
       import_id = SecureRandom.hex
       all = []
 
-      current_date = Date.new(2020, 03, 03) # TODO: Update date
+      current_date = Date.new(2019, 01, 01)
       previously_used_lat = nil
       previously_used_lng = nil
 
