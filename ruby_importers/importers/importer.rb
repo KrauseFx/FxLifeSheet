@@ -36,8 +36,8 @@ module Importers
       elsif matching_entries.count == 0
         # fallback to other keys (e.g. data before we tracked alcohol etc), except for mood since we don't have matchedDate for those entries
         to_exclude = ["add_time_range", "importer_swarm", "backfill_weather"]
-        fallback_entries = raw_data.where(timestamp: (timestamp - buffer_in_ticks / 2.0)..(timestamp + buffer_in_ticks / 2.0)).to_a.find_all { |a| to_exclude.include?(a[:source]) }
-        fallback_entries = raw_data.where(timestamp: (timestamp - buffer_in_ticks * 2)..(timestamp + buffer_in_ticks * 2)).to_a.find_all { |a| to_exclude.include?(a[:source]) } if fallback_entries.count == 0
+        fallback_entries = raw_data.where(timestamp: (timestamp - buffer_in_ticks / 2.0)..(timestamp + buffer_in_ticks / 2.0)).to_a.find_all { |a| !to_exclude.include?(a[:source]) }
+        fallback_entries = raw_data.where(timestamp: (timestamp - buffer_in_ticks * 2)..(timestamp + buffer_in_ticks * 2)).to_a.find_all { |a| !to_exclude.include?(a[:source]) } if fallback_entries.count == 0
         matching_entries = fallback_entries.to_a.sort_by { |v| (v[:timestamp] - timestamp).abs }
         if matching_entries.count == 0
           puts "none found, this is okay #{date}"
