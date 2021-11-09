@@ -99,18 +99,36 @@ module Importers
     # e.g. precise Swarm check-in time
     def insert_row_for_timestamp(timestamp:, key:, type:, value:, question: nil, source:, import_id:, matched_date:)
       raise "invalid type #{type}" unless ["boolean", "range", "number", "text"].include?(type)
-        
+
       new_entry = generate_timestamp_details_based_on_timestamp(timestamp)
-      new_entry[:key] = key
-      new_entry[:question] = question
-      new_entry[:type] = type
-      new_entry[:value] = value
-      new_entry[:source] = source
-      new_entry[:importedat] = DateTime.now
-      new_entry[:importid] = import_id
-      new_entry[:matcheddate] = matched_date
-      raw_data.insert(new_entry)
-      puts "--- Successfully backfilled entry for #{key} to #{value} on #{new_entry[:yearmonth]}-#{new_entry[:day]}"
+      existing_entries = raw_data.where(
+        timestamp: timestamp.to_i * 1000,
+        matcheddate: matched_date,
+        key: key,
+      )
+
+      if existing_entries.count == 1
+        existing_entry = existing_entries.first
+        if existing_entry[:source] == source && existing_entry[:value].to_s == value.to_s # to_s to work with nil, and numbers also
+          puts "Verified existing entry from import_id #{existing_entry[:importid]} is valid & matching..."
+        else
+          # TODO: This means the value has changed, it will be fine to just update the entry probably
+          binding.pry
+        end
+      elsif existing_entries.count > 1
+        binding.pry # TODO: how to handle
+      else
+        new_entry[:key] = key
+        new_entry[:question] = question
+        new_entry[:type] = type
+        new_entry[:value] = value
+        new_entry[:source] = source
+        new_entry[:importedat] = DateTime.now
+        new_entry[:importid] = import_id
+        new_entry[:matcheddate] = matched_date
+        raw_data.insert(new_entry)
+        puts "--- Successfully backfilled entry for #{key} to #{value} on #{new_entry[:yearmonth]}-#{new_entry[:day]}"
+      end
     end
 
     def generate_timestamp_details_based_on_timestamp(timestamp)
