@@ -14,8 +14,23 @@ heroku pg:backups:download
 pg_restore -c -d fxlifesheet latest.dump
 ```
 
-**Tag the days**
+
+## Run the scripts below in the right order:
+
+### Step 1: Tag the days
 
 ```
 be ruby importers/tag_days/tag_days.rb
+```
+
+### Step 2: Import historic location based on Swarm & Telegram
+
+```
+be ruby importers/swarm/swarm_coordinates_importer.rb
+```
+
+### Step 3: Fetch historic weather data
+
+```
+be ruby importers/weather/backfill_weather.rb
 ```
