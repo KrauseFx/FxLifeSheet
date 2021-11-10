@@ -63,6 +63,11 @@ module Importers
         request["x-rapidapi-key"] = ENV.fetch("RAPID_API_KEY")
         response = http.request(request)
         parsed_json = JSON.parse(response.read_body)
+        if parsed_json["locations"].nil?
+          puts "ran out of weather API quota..."
+          binding.pry
+          return
+        end
         add_to_weather_cache(id, parsed_json)
         store_weather_in_db(weather: parsed_json, matched_date: matched_date)
       end
@@ -84,7 +89,6 @@ module Importers
         "SolarEnergy" => "solarenergy",
         "Humidity" => "humidity",
         "SolarRadiation" => "solarradiation",
-        "WindSpeed" => "wspd",
         "WindSpeed" => "wspd",
         "SeaLevelPressure" => "sealevelpressure",
       }.each do |key, value|
