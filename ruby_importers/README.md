@@ -35,7 +35,9 @@ be ruby importers/swarm/swarm_coordinates_importer.rb
 be ruby importers/weather/backfill_weather.rb
 ```
 
-### Step 4: Apple Health
+## Unordered scripts you can run at any time after tagging the days
+
+### Apple Health: Steps
 
 1. Export Apple Health data using the QS Acecss app
 1. Choose `1 Day` & `Steps`
@@ -45,4 +47,12 @@ be ruby importers/weather/backfill_weather.rb
 
 ```
 be ruby importers/apple_health/apple_health.rb
+```
+
+### RescueTime
+
+1. Copy the latest archive from [https://www.rescuetime.com/accounts/your-data](https://www.rescuetime.com/accounts/your-data) to `./importers/rescuetime`, unzipped (the `rescuetime-activity-history.csv` file)
+
+```
+be ruby importers/rescuetime/rescuetime.rb
 ```
