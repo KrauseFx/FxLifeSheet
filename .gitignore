@@ -2,11 +2,11 @@
 credentials.json
 .DS_STORE
 node_modules
-importers/moves/daily
+deprecated_importers/moves/daily
 *csv
 *tsv
 checkins.json
-/importers/moves/data
-/importers/swarm/fx/_swarm_cache.json
+/deprecated_importers/moves/data
+/deprecated_importers/swarm/fx/_swarm_cache.json
 /visual_playground/tracks_just_to_test.json
 *.js.map
