@@ -51,7 +51,7 @@ module Importers
     # if you provide a `date`, we will look for the closed `alcoholIntake` entry, and use the same timestamp
     # if you provide a `timestamp`, we will use that exact time stamp
 
-    def insert_row_for_date(date:, key:, type:, value:, question:, source:, import_id:)
+    def insert_row_for_date(date:, key:, type:, value:, question: nil, source:, import_id:)
       raise "invalid type #{type}" unless ["boolean", "range", "number", "text"].include?(type)
 
       # First, look if we have an existing row from a previous import
