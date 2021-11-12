@@ -42,7 +42,6 @@ module Importers
       end
 
       # TODO: also add "yesterday" and "tomorrow" for weather
-      # TODO: add hours sunlight
     end
 
     def pull_weather(lat:, lng:, matched_date:)

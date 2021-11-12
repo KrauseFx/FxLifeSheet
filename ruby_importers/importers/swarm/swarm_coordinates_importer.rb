@@ -44,7 +44,7 @@ module Importers
             timestamp: timestamp,
             key: key,
             value: value,
-            type: key.include?("LatLng") ? "text" : "number",
+            type: ["swarmCheckinCoordinatesLat", "swarmCheckinCoordinatesLng", "swarmCheckinTimezone"].include?(key) ? "number" : "text",
             question: "Swarm coordinates #{key}",
             source: "importer_swarm",
             import_id: import_id,
