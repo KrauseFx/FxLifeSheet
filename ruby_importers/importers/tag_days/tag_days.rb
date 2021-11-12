@@ -5,8 +5,8 @@ module Importers
     def import
       puts "Starting tagging days..."
       raw_data.each do |row|
+        next if row[:key].start_with?("swarm") # those are always already tagged during import
         next if row[:key] == "mood" # TODO: this will be separate
-        next if row[:key].start_with?("swarm") # TODO: We need to re-import Swarm checkins anyway
 
         timestamp_to_use = row[:timestamp] / 1000.0
         timestamp_date = Time.at(timestamp_to_use)
