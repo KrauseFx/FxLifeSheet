@@ -5,8 +5,6 @@ require 'csv'
 module Importers
   class AppleHealth < Importer
     def import
-      import_id = SecureRandom.hex
-
       apple_health_file.each do |current_date, values|
         steps = values[:steps]
         next unless steps > 0

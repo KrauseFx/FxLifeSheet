@@ -4,7 +4,6 @@ require 'net/http'
 module Importers
   class BackfillWeather < Importer
     def import
-      import_id = SecureRandom.hex
       all = []
 
       current_date = Date.new(2019, 01, 01)
