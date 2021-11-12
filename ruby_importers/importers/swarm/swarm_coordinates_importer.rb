@@ -19,6 +19,7 @@ module Importers
         ]
         
         category = Hash(venue["categories"].find { |a| a["primary"] == true })["name"]
+        category = "Gym" if category.include?("Gym") # since we also have "Gym / Fitness Center"
         location = venue["location"]
         timezone_offset = d["response"]["checkin"]["timeZoneOffset"]
 
