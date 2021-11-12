@@ -94,7 +94,8 @@ class API
     structured = {}
     flat.each do |row|
       next if row[:avg_value].nil? # some rows can be nil
-      next if row[:other_key].include?("swarmLocation") || row[:other_key].include?("locationL") || ["weight"].include?(row[:other_key])
+      next if row[:other_key].start_with?("swarmCheckinCoordinatesL")
+      next if row[:other_key].start_with?("locationL") # Telegram locations
       next if denylisted_other_keys.include?(row[:other_key])
 
       structured[row[:other_key]] ||= {}

@@ -205,7 +205,7 @@ function updateBucketByOption() {
     allBucketData[0]["y"] = dataToRender.map(({ diff }) => diff);
     console.log(allBucketData)
 
-    bucketLayout["title"] = `${bucket} being ${bucket1} had the following effects on that day in %`
+    bucketLayout["title"] = `${bucket} being ${bucket1} compared to ${bucket2} had the following effects on that day in %`
     Plotly.redraw('bucketGraph');
 }
 
