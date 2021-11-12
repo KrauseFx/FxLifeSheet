@@ -151,6 +151,11 @@ class API
 
     return final_returns
   end
+
+  def denylisted_other_keys
+    ENV["DENYLISTED_OTHER_KEYS"].split(";")
+  end
+
   private
 
   # Day of week = 1 - 7, Monday is 1
