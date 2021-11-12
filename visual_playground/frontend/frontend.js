@@ -151,21 +151,26 @@ let currentBucketData = null;
 
 function updateBucket() {
     bucket = document.getElementById("bucket-key").value
+    bucketBorder = document.getElementById('bucketValue').value
     httpGetAsync(`${host}/bucket_options_list?by=${bucket}`, (data) => {
-        selects = document.getElementsByClassName('bucket-by-option');
-        for (let i = 0; i < selects.length; i++) {
-            selects[i].innerHTML = ""
-            data.forEach((row) => {
-                const opt = document.createElement('option');
-                opt.value = row.value;
-                opt.innerHTML = `${row.value} (${row.count})`;
-                selects[i].appendChild(opt);
-            });
-            selects[i].selectedIndex = i
-        }
+        document.getElementById("max-value").innerHTML = `${data[0].value} (${data[0].count})`;
+        document.getElementById("min-value").innerHTML = `${data[data.length - 1].value} (${data[data.length - 1].count})`;
+        select = document.getElementById('all-values');
+        select.innerHTML = ""
+        const opt = document.createElement('option');
+        opt.innerHTML = "All values"
+        select.appendChild(opt);
+
+        data.forEach((row) => {
+            const opt = document.createElement('option');
+            opt.value = row.value;
+            opt.innerHTML = `${row.value} (${row.count})`;
+            select.appendChild(opt);
+        });
+        select.selectedIndex = 0
         updateBucketByOption();
     })
-    httpGetAsync(`${host}/bucket?by=${bucket}`, (data) => {
+    httpGetAsync(`${host}/bucket?by=${bucket}&bucketBorder=${bucketBorder}`, (data) => {
         currentBucketData = data;
         console.log(data)
         updateBucketByOption();
@@ -176,24 +181,23 @@ function updateBucketByOption() {
     const minDiff = 0.1;
     if (!currentBucketData) { return; }
 
-    bucket1 = document.getElementById("bucket-by-option-1").value
-    bucket2 = document.getElementById("bucket-by-option-2").value
-
     const dataToRender = []
     for (var key in currentBucketData) {
         val = currentBucketData[key]
-        let diffAbs = parseFloat(val[bucket1]["value"] - val[bucket2]["value"]).toFixed(5)
-        let diff = parseFloat(val[bucket1]["value"] / val[bucket2]["value"] - 1.0).toFixed(5)
-        if (val[bucket2]["value"] == 0) { diff = 0 }
+        if (val[true] && val[false]) {
+            let diffAbs = parseFloat(val[true]["value"] - val[false]["value"]).toFixed(5)
+            let diff = parseFloat(val[true]["value"] / val[false]["value"] - 1.0).toFixed(5)
+            if (val[false]["value"] == 0) { diff = 0 }
 
-        if (Math.abs(diff) > minDiff) {
-            dataToRender.push({
-                "key": key,
-                "bucket1": val[bucket1],
-                "bucket2": val[bucket2],
-                "diff": diff,
-                "diffAbs": diffAbs
-            })
+            if (Math.abs(diff) > minDiff) {
+                dataToRender.push({
+                    "key": key,
+                    "bucket1": val[true],
+                    "bucket2": val[false],
+                    "diff": diff,
+                    "diffAbs": diffAbs
+                })
+            }
         }
     }
     dataToRender.sort(function(a, b) {
@@ -205,7 +209,7 @@ function updateBucketByOption() {
     allBucketData[0]["y"] = dataToRender.map(({ diff }) => diff);
     console.log(allBucketData)
 
-    bucketLayout["title"] = `${bucket} being ${bucket1} compared to ${bucket2} had the following effects on that day in %`
+    bucketLayout["title"] = `${bucket} being above ${document.getElementById('bucketValue').value} had the following effects on that day in %`
     Plotly.redraw('bucketGraph');
 }
 
@@ -227,7 +231,7 @@ loadKeys(() => {
     updateKeyForIndex('bedTime', 3);
     updateKeyForIndex('gym', 4);
 
-    document.getElementById("bucket-key").value = "headache"
+    document.getElementById("bucket-key").value = "alcoholIntake"
     updateBucket();
 
     // reloadAllData();

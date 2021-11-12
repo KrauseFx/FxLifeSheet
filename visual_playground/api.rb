@@ -62,21 +62,25 @@ class API
     start_timestamp = Date.strptime(start_date, "%Y-%m").strftime("%Q")
 
     res = database.fetch("
-      SELECT value, count(*) 
+      SELECT value::numeric, count(*) 
       FROM raw_data
       WHERE key=? AND timestamp > ?
       GROUP BY value
+      ORDER BY value
     ", by, start_timestamp)
-    return res.to_a.reverse # have on by default
+    return res.to_a.collect do |row|
+      row[:value] = row[:value].truncate(5).to_s('F').to_f # convert from BigFloat to float
+      row
+    end.reverse # have on by default
   end
 
-  def bucket(by:, start_date:)
+  def bucket(by:, bucket_border:, start_date:)
     raise "`start_date` must be in format '2019-04'" unless start_date.match(/\d\d\d\d\-\d\d/)
     start_timestamp = Date.strptime(start_date, "%Y-%m").strftime("%Q")
     
     flat = database.fetch("
       SELECT
-          rd.value AS bucket,
+          (rd.value::numeric > ?) AS bucket,
           nrd.key AS other_key,
           AVG(nrd.value::numeric) AS avg_value,
           COUNT(nrd.id) as count
@@ -88,7 +92,7 @@ class API
       WHERE rd.key = ? AND rd.timestamp > ?
       GROUP BY bucket, other_key
       ORDER BY other_key, bucket
-    ", by, start_timestamp).to_a
+    ", bucket_border, by, start_timestamp).to_a
 
     # Group it properly, easier to just do that in Ruby
     structured = {}
@@ -97,6 +101,7 @@ class API
       next if row[:other_key].start_with?("swarmCheckinCoordinatesL")
       next if row[:other_key].start_with?("locationL") # Telegram locations
       next if denylisted_other_keys.include?(row[:other_key])
+      next if row[:other_key].start_with?("measurement") # Measurements from Faron
 
       structured[row[:other_key]] ||= {}
       structured[row[:other_key]][row[:bucket]] = {

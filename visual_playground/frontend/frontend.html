@@ -73,11 +73,19 @@
     <div id='myGraph' />
     <br />
 
-    <h1>Buckets</h1>
-    <select class="keys" id="bucket-key" onchange="updateBucket()"></select>
-    <select class="bucket-by-option" id="bucket-by-option-1" onchange="updateBucketByOption()"></select>
-    <select class="bucket-by-option" id="bucket-by-option-2" onchange="updateBucketByOption()"></select>
-    <div id='bucketGraph' />
+    <form>
+        <h1>Buckets</h1>
+        <select class="keys" id="bucket-key" onchange="updateBucket()"></select>
+        <p>Maximum Value: <span id="max-value"></span></p>
+        <p>Minimum Value: <span id="min-value"></span></p>
+        <p>
+            <b>Bucket everything larger than ></b>
+            <input type="text" id="bucketValue" placeholder="Bucket Value" />
+            <select class="bucket-by-option" id="all-values" onchange="document.getElementById('bucketValue').value = document.getElementById('all-values').value; updateBucket()"></select>
+            <input type="button" value="Generate" onclick="updateBucket()" />
+        </p>
+        <div id='bucketGraph' />
+    </form>
 </body>
 <script type="text/javascript" src="/frontend.js"></script>
 
