@@ -49,7 +49,12 @@ class API
   end
 
   def list_keys
-    return raw_data.group_and_count(:key).order_by(:count).reverse.to_a
+    raw_keys = raw_data.group_and_count(:key).order_by(:count).reverse.to_a
+
+    # Also, manually add the Swarm categories
+    raw_keys += database[:all_swarm_checkin_categories].to_a.collect { |row| {key: "Swarm #{row[:category]}", count: row[:count]} }
+
+    return raw_keys
   end
 
   def bucket_options_list(by:, start_date:)
@@ -116,7 +121,15 @@ class API
     end_date = (matched[1].to_i + 1).to_s + "-" + matched[2]
     end_timestamp = Date.strptime(end_date, "%Y-%m").strftime("%Q")
 
-    results = raw_data.where(key: key).where{(timestamp > start_timestamp) & (timestamp < end_timestamp)}.order(:timestamp)
+    if key.start_with?("Swarm ")
+      # This is only for Swarm check-ins, since we need to look for the `value`, not the key in those cases
+      key = key.gsub("Swarm ", "")
+      results = raw_data.where(key: "swarmCheckinCategory", value: key).where{(timestamp > start_timestamp) & (timestamp < end_timestamp)}.order(:timestamp)
+    else
+      # This is the normal case
+      results = raw_data.where(key: key).where{(timestamp > start_timestamp) & (timestamp < end_timestamp)}.order(:timestamp)
+    end
+
     # Excluding where matcheddate is nil, since we didn't run the backfill yet
     final_returns = results.exclude(matcheddate: nil).to_a.collect do |row|
       {
