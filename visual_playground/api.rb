@@ -197,7 +197,8 @@ class API
 
   # Day of week = 1 - 7, Monday is 1
   # We want Sunday to be 0
-  def day_of_week(date)    7 - date.cwday
+  def day_of_week(date)
+    7 - date.cwday
   end
 
   def database
@@ -211,9 +212,12 @@ class API
 end
 
 if __FILE__ == $0
-  puts API.new.bucket(
-    by: "gym",
-    value: "steps",
-    start_date: ENV["DEFAULT_MIN_DATE"].strip
+  # puts API.new.bucket(
+  #   by: "gym",
+  #   value: "steps",
+  #   start_date: ENV["DEFAULT_MIN_DATE"].strip
+  # )
+  puts API.new.pie_data(
+    key: "swarmCheckinAddressCity",
   )
 end
