@@ -42,7 +42,9 @@ get "/pie_data" do
   json_response
 
   JSON.pretty_generate(api.pie_data(
-    key: params.fetch("key")
+    key: params.fetch("key"),
+    start_date: params["start_date"],
+    end_date: params["end_date"],
   ))
 end
 

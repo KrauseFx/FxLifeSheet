@@ -171,8 +171,21 @@ class API
     return final_returns
   end
 
-  def pie_data(key:)
-    results = database.fetch("SELECT value, COUNT(*) FROM raw_data WHERE key=? GROUP BY value ORDER BY count DESC", key)
+  def pie_data(key:, start_date: nil, end_date: nil)
+    puts "Start: #{start_date}"
+    puts "End: #{end_date}"
+    if start_date.nil? && end_date.nil?
+      results = database.fetch("SELECT value, COUNT(*) FROM raw_data WHERE key=? GROUP BY value ORDER BY count DESC", key)
+    elsif start_date && end_date
+      raise "`start_date` must be in format '2019-04'" unless start_date.match(/\d\d\d\d\-\d\d/)
+      raise "`end_date` must be in format '2019-04'" unless end_date.match(/\d\d\d\d\-\d\d/)
+      start_timestamp = Date.strptime(start_date, "%Y-%m").strftime("%Q")
+      end_timestamp = Date.strptime(end_date, "%Y-%m").strftime("%Q")
+
+      results = database.fetch("SELECT value, COUNT(*) FROM raw_data WHERE key=? AND timestamp >= ? AND timestamp <= ? GROUP BY value ORDER BY count DESC", key, start_timestamp, end_timestamp)
+    else
+      raise "Something went wrong, we need both a start- and an end date"
+    end
     return results.to_a
   end
 
@@ -184,8 +197,7 @@ class API
 
   # Day of week = 1 - 7, Monday is 1
   # We want Sunday to be 0
-  def day_of_week(date)
-    7 - date.cwday
+  def day_of_week(date)    7 - date.cwday
   end
 
   def database
