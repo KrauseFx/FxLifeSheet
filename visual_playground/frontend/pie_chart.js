@@ -18,7 +18,13 @@ function loadKeys(callback) {
 }
 
 function getPieData(key, year) {
-    httpGetAsync(`${host}/pie_data?key=${key}`, (data) => {
+    let url;
+    if (year == "All") {
+        url = `${host}/pie_data?key=${key}`
+    } else {
+        url = `${host}/pie_data?key=${key}&start_date=${year}-01&end_date=${year + 1}-01`
+    }
+    httpGetAsync(url, (data) => {
         data = Object.values(data);
         console.log(data)
         values = []
@@ -56,19 +62,20 @@ function getPieData(key, year) {
 function updateKeyForIndex(key) {
     document.getElementById(`keys-0`).value = key;
     getPieData(key, 'All')
-    setTimeout(function() { getPieData(key, 2020) }, 200);
-    setTimeout(function() { getPieData(key, 2019) }, 400);
-    // setTimeout(function() { getPieData(key, 2018) }, 600);
-    // setTimeout(function() { getPieData(key, 2017) }, 800);
-    // setTimeout(function() { getPieData(key, 2016) }, 1000);
-    // setTimeout(function() { getPieData(key, 2015) }, 1200);
+        // setTimeout(function() { getPieData(key, 2021) }, 200);
+        // setTimeout(function() { getPieData(key, 2020) }, 400);
+        // setTimeout(function() { getPieData(key, 2019) }, 600);
+        // setTimeout(function() { getPieData(key, 2018) }, 700);
+        // setTimeout(function() { getPieData(key, 2017) }, 800);
+        // setTimeout(function() { getPieData(key, 2016) }, 1000);
+        // setTimeout(function() { getPieData(key, 2015) }, 1200);
 }
 
 function reloadIndex() {
     getPieData(document.getElementById(`keys-0`).value, 'All');
-    setTimeout(function() { getPieData(document.getElementById(`keys-0`).value, 2021) }, 100);
-    setTimeout(function() { getPieData(document.getElementById(`keys-0`).value, 2020) }, 200);
-    // setTimeout(function() { getPieData(document.getElementById(`keys-0`).value, 2019) }, 400);
+    // setTimeout(function() { getPieData(document.getElementById(`keys-0`).value, 2021) }, 200);
+    // setTimeout(function() { getPieData(document.getElementById(`keys-0`).value, 2020) }, 400);
+    // setTimeout(function() { getPieData(document.getElementById(`keys-0`).value, 2019) }, 500);
     // setTimeout(function() { getPieData(document.getElementById(`keys-0`).value, 2018) }, 600);
     // setTimeout(function() { getPieData(document.getElementById(`keys-0`).value, 2017) }, 800);
     // setTimeout(function() { getPieData(document.getElementById(`keys-0`).value, 2016) }, 1000);
