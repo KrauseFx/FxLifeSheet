@@ -41,9 +41,7 @@ function getPieData(key, year) {
         }];
 
         var layout = {
-            title: `${key} (${year})`,
-            height: 900,
-            width: 1400
+            title: `${key} (${year})`
         }
         var config = {
             showLink: true,
