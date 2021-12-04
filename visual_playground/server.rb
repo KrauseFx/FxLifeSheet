@@ -38,6 +38,14 @@ get "/github_style" do
   ))
 end
 
+get "/pie_data" do
+  json_response
+
+  JSON.pretty_generate(api.pie_data(
+    key: params.fetch("key")
+  ))
+end
+
 get "/bucket_options_list" do
   json_response
 
