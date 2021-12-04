@@ -63,8 +63,11 @@ module Importers
         existing_entry = existing_entries.first
         if existing_entry[:source] == source && existing_entry[:value].to_s == value.to_s # to_s to work with nil, and numbers also
           puts "Verified existing entry from import_id #{existing_entry[:importid]} is valid & matching..."
-        else
+        elsif existing_entry[:source] == source
           # TODO: This means the value has changed, it will be fine to just update the entry probably
+          binding.pry
+        else
+          # Different source/value
           binding.pry
         end
       elsif existing_entries.count > 1
@@ -75,9 +78,9 @@ module Importers
           puts "Found match: #{date}\t\t#{matching_entry[:month]}-#{matching_entry[:day]} #{matching_entry[:hour]}:#{matching_entry[:minute]}"
 
           new_entry = matching_entry.dup
-          if new_entry[:matcheddate] != date
-            binding.pry
-          end
+          # if new_entry[:matcheddate] != date
+          #   binding.pry
+          # end
           
           new_entry.delete(:id)
           new_entry[:key] = key
