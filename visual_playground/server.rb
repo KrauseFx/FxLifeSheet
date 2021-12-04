@@ -52,6 +52,7 @@ get "/bucket" do
 
   JSON.pretty_generate(api.bucket(
     by: params.fetch("by"),
+    bucket_border: params.fetch("bucketBorder"),
     start_date: params.fetch("start_date", ENV["DEFAULT_MIN_DATE"].strip)
   ))
 end
