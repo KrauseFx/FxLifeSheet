@@ -18,6 +18,11 @@ module Importers
           l.fetch("lat"),
           l.fetch("lng")
         ]
+
+        # TODO: Update script to speed up importing new data
+        # the checkins.json file is sorted with the most recent checkins first
+        # so we can just stop importing once we hit an existing checkin, once 
+        # the initial import is complete
         
         category = Hash(venue["categories"].find { |a| a["primary"] == true })["name"]
         category = "Gym" if category && category.include?("Gym") # since we also have "Gym / Fitness Center"
