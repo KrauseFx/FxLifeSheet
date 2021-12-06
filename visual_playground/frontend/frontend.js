@@ -23,7 +23,7 @@ const layout = {
         tickfont: { color: '#1f77b4' },
         showgrid: false,
         zeroline: false,
-        showticklabels: false,
+        showticklabels: true,
     },
     yaxis2: {
         titlefont: { color: '#ff7f0e' },
@@ -61,7 +61,12 @@ const layout = {
     },
 };
 
-Plotly.newPlot('myGraph', allData, layout);
+var config = {
+    showLink: true,
+    plotlyServerURL: "https://chart-studio.plotly.com",
+    linkText: 'Customize'
+};
+Plotly.newPlot('myGraph', allData, layout, config);
 
 const bucketLayout = {
     title: 'Life Sheet Buckets',
@@ -81,7 +86,12 @@ const allBucketData = [{
     },
     type: "bar"
 }]
-Plotly.newPlot('bucketGraph', allBucketData, bucketLayout);
+var config = {
+    showLink: true,
+    plotlyServerURL: "https://chart-studio.plotly.com",
+    linkText: 'Customize'
+};
+Plotly.newPlot('bucketGraph', allBucketData, bucketLayout, config);
 
 function loadKeys(callback) {
     httpGetAsync(`${host}/keys`, (data) => {
