@@ -1,5 +1,7 @@
 const host = 'http://127.0.0.1:8080';
 let keys = [];
+let yearsData = {}
+const allYearsToUse = [2016, 2017, 2018, 2019, 2020, 2021];
 
 function loadKeys(callback) {
     httpGetAsync(`${host}/keys`, (data) => {
@@ -17,16 +19,8 @@ function loadKeys(callback) {
     });
 }
 
-function getPieData(key, year) {
-    let url;
-    if (year == "All") {
-        url = `${host}/pie_data?key=${key}`
-    } else {
-        url = `${host}/pie_data?key=${key}&start_date=${year}-01&end_date=${year + 1}-01`
-    }
-    httpGetAsync(url, (data) => {
-        data = Object.values(data);
-        console.log(data)
+function renderPie(key) {
+    getPieData(key, "All", (data) => {
         values = []
         labels = []
 
@@ -47,7 +41,7 @@ function getPieData(key, year) {
         }];
 
         var layout = {
-            title: `${key} (${year})`
+            title: `${key}`
         }
         var config = {
             showLink: true,
@@ -55,31 +49,80 @@ function getPieData(key, year) {
             linkText: 'Customize'
         };
 
-        Plotly.newPlot(`pieGraph${year}`, allData, layout, config);
+        Plotly.newPlot(`pieGraphAll`, allData, layout, config);
+    });
+}
+
+function renderPieHistory(key) {
+    yearsData = {};
+    for (const index in allYearsToUse) {
+        const year = allYearsToUse[index];
+        getPieData(key, year, function(data) {
+            yearsData[year] = data;
+            if (Object.keys(yearsData).length == allYearsToUse.length) {
+                renderPieHistoryChart(yearsData, key);
+            }
+        })
+    }
+}
+
+function renderPieHistoryChart(yearsData, key) {
+    console.log(yearsData);
+    let traces = {}
+    for (const year in yearsData) {
+        let yearData = yearsData[year];
+        for (const i in yearData) {
+            let currentRow = yearData[i];
+            if (!traces[currentRow.value]) { traces[currentRow.value] = {} }
+            traces[currentRow.value][year] = currentRow.count
+        }
+    }
+
+    var data = []
+    for (let i in traces) {
+        let value = traces[i]
+        let yValues = []
+        for (const year in allYearsToUse) {
+            yValues.push(value[allYearsToUse[year]])
+        }
+        data.push({
+            x: allYearsToUse,
+            y: yValues,
+            name: i,
+            type: 'bar'
+        })
+    }
+    var layout = {
+        xaxis: { title: 'X axis' },
+        yaxis: { title: 'Y axis' },
+        barmode: 'relative',
+        title: key
+    };
+    Plotly.newPlot('pieGraphHistory', data, layout);
+}
+
+function getPieData(key, year, callback) {
+    let url;
+    if (year == "All") {
+        url = `${host}/pie_data?key=${key}`
+    } else {
+        url = `${host}/pie_data?key=${key}&start_date=${year}-01&end_date=${year + 1}-01`
+    }
+    httpGetAsync(url, (data) => {
+        data = Object.values(data);
+        console.log(data)
+        callback(data)
     })
 }
 
 function updateKeyForIndex(key) {
     document.getElementById(`keys-0`).value = key;
-    getPieData(key, 'All')
-        // setTimeout(function() { getPieData(key, 2021) }, 200);
-        // setTimeout(function() { getPieData(key, 2020) }, 400);
-        // setTimeout(function() { getPieData(key, 2019) }, 600);
-        // setTimeout(function() { getPieData(key, 2018) }, 700);
-        // setTimeout(function() { getPieData(key, 2017) }, 800);
-        // setTimeout(function() { getPieData(key, 2016) }, 1000);
-        // setTimeout(function() { getPieData(key, 2015) }, 1200);
+    reloadIndex();
 }
 
 function reloadIndex() {
-    getPieData(document.getElementById(`keys-0`).value, 'All');
-    // setTimeout(function() { getPieData(document.getElementById(`keys-0`).value, 2021) }, 200);
-    // setTimeout(function() { getPieData(document.getElementById(`keys-0`).value, 2020) }, 400);
-    // setTimeout(function() { getPieData(document.getElementById(`keys-0`).value, 2019) }, 500);
-    // setTimeout(function() { getPieData(document.getElementById(`keys-0`).value, 2018) }, 600);
-    // setTimeout(function() { getPieData(document.getElementById(`keys-0`).value, 2017) }, 800);
-    // setTimeout(function() { getPieData(document.getElementById(`keys-0`).value, 2016) }, 1000);
-    // setTimeout(function() { getPieData(document.getElementById(`keys-0`).value, 2015) }, 1200);
+    renderPie(document.getElementById(`keys-0`).value);
+    renderPieHistory(document.getElementById(`keys-0`).value);
 }
 
 function httpGetAsync(theUrl, callback) {

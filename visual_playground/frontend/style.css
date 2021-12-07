@@ -26,6 +26,13 @@
     margin: 0px;
 }
 
+#pieGraphHistory {
+    width: 100%;
+    height: 900px;
+    padding: 0;
+    margin: 0;
+}
+
 #keysTable>tbody>tr>th {
     padding: 15px;
     font-weight: 800;
