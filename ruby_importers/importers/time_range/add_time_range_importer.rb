@@ -6,6 +6,7 @@ module Importers
     def run(from:, to:, key:, value:, type:, question:)
       raise "invalid from to dates, check if they're in the right order" unless from < to
       import_id = SecureRandom.hex
+      threads = []
 
       (from..to).each do |date|
         if date > Date.today
@@ -13,15 +14,22 @@ module Importers
           next
         end
 
-        self.insert_row_for_date(
-          date: date,
-          key: key,
-          value: value,
-          type: type,
-          question: question,
-          source: "add_time_range",
-          import_id: import_id
-        )
+        if threads.count > 5
+          threads.each(&:join)
+          threads = []
+        end
+
+        threads << Thread.new do
+          self.insert_row_for_date(
+            date: date,
+            key: key,
+            value: value,
+            type: type,
+            question: question,
+            source: "add_time_range",
+            import_id: import_id
+          )
+        end
       end
     end
 
