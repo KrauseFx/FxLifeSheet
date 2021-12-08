@@ -26,49 +26,61 @@ module Importers
       end
       
       all_data.each do |matched_date, values|
-        insert_row_for_date(
-          key: "rescue_time_daily_computer_used", 
-          value: values[:total_minutes].round,
-          date: matched_date, 
-          type: "number",
-          source: "rescuetime", 
-          import_id: import_id
-        )
-
-        values[:applications].each do |application, seconds|
-          next if seconds / 60 < 1
+        all_threads << Thread.new do
           insert_row_for_date(
-            key: "rescue_time_application_#{prettify(application)}", 
-            value: (seconds / 60).round,
+            key: "rescue_time_daily_computer_used", 
+            value: values[:total_minutes].round,
             date: matched_date, 
             type: "number",
             source: "rescuetime", 
             import_id: import_id
           )
+        end
+        wait_for_threads
+
+        values[:applications].each do |application, seconds|
+          next if seconds / 60 < 1
+          all_threads << Thread.new do
+            insert_row_for_date(
+              key: "rescue_time_application_#{prettify(application)}", 
+              value: (seconds / 60).round,
+              date: matched_date, 
+              type: "number",
+              source: "rescuetime", 
+              import_id: import_id
+            )
+          end
+          wait_for_threads
         end
 
         values[:categories].each do |application, seconds|
           next if seconds / 60 < 1
-          insert_row_for_date(
-            key: "rescue_time_category_#{prettify(application)}", 
-            value: (seconds / 60).round,
-            date: matched_date, 
-            type: "number",
-            source: "rescuetime", 
-            import_id: import_id
-          )
+          all_threads << Thread.new do
+            insert_row_for_date(
+              key: "rescue_time_category_#{prettify(application)}", 
+              value: (seconds / 60).round,
+              date: matched_date, 
+              type: "number",
+              source: "rescuetime", 
+              import_id: import_id
+            )
+          end
+          wait_for_threads
         end
 
         values[:application_types].each do |application, seconds|
           next if seconds / 60 < 1
-          insert_row_for_date(
-            key: "rescue_time_application_types_#{prettify(application)}", 
-            value: (seconds / 60).round,
-            date: matched_date, 
-            type: "number",
-            source: "rescuetime", 
-            import_id: import_id
-          )
+          all_threads << Thread.new do
+            insert_row_for_date(
+              key: "rescue_time_application_types_#{prettify(application)}", 
+              value: (seconds / 60).round,
+              date: matched_date, 
+              type: "number",
+              source: "rescuetime", 
+              import_id: import_id
+            )
+          end
+          wait_for_threads
         end
       end
     end
@@ -76,6 +88,18 @@ module Importers
     private
     def import_id
       @_import_id ||= SecureRandom.hex
+    end
+
+    def all_threads
+      @all_threads ||= []
+    end
+
+    def wait_for_threads
+      puts "#{all_threads.count} threads running"
+      return if all_threads.count < 6
+      puts "Waiting for #{all_threads.count} threads to finish"
+      all_threads.each(&:join)
+      @all_threads = []
     end
 
     def prettify(str)
