@@ -28,6 +28,7 @@ module Importers
         category = "Gym" if category && category.include?("Gym") # since we also have "Gym / Fitness Center"
         location = venue["location"]
         timezone_offset = d["response"]["checkin"]["timeZoneOffset"]
+        location["city"] = "New York" if location["city"] == "Brooklyn"
 
         {
           "swarmCheckinCoordinatesLat" => l.fetch("lat"),
