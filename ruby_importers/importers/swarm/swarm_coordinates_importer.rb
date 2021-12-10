@@ -7,9 +7,22 @@ module Importers
       import_id = SecureRandom.hex
       all = []
 
-      swarm.checkins.each do |checkin|
+      most_recently_imported_swarm_checkin_timestamp = Time.at(raw_data.where(
+        key: "swarmCheckinCoordinatesLatLng",
+      ).order(:id).first[:timestamp] / 1000)
+
+      # We're doing reverse, so we start at the oldest, non-imported check-in first
+      # so that if the script gets interrupted, we can just run it again
+      swarm.checkins.reverse.each do |checkin|
         all_threads_for_this_checkin = []
         timestamp = Time.at(checkin["createdAt"])
+
+        if timestamp < most_recently_imported_swarm_checkin_timestamp
+          puts "Already imported checkins from #{most_recently_imported_swarm_checkin_timestamp}"
+          puts "If you want to re-import all Swarm check-ins, make sure to disable that code"
+          next
+        end
+
         d = swarm.fetch_checkin_detail(checkin)
         next if d.nil?
         venue = d["response"]["checkin"]["venue"]
@@ -18,11 +31,6 @@ module Importers
           l.fetch("lat"),
           l.fetch("lng")
         ]
-
-        # TODO: Update script to speed up importing new data
-        # the checkins.json file is sorted with the most recent checkins first
-        # so we can just stop importing once we hit an existing checkin, once 
-        # the initial import is complete
         
         category = Hash(venue["categories"].find { |a| a["primary"] == true })["name"]
         category = "Gym" if category && category.include?("Gym") # since we also have "Gym / Fitness Center"
