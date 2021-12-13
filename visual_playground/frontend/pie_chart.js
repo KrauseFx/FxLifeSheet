@@ -49,7 +49,12 @@ function renderPie(key) {
             linkText: 'Customize'
         };
 
-        Plotly.newPlot(`pieGraphAll`, allData, layout, config);
+        Plotly.newPlot(`pieGraphAll`, allData, layout, config).then(function(gd) {
+            Plotly.toImage(gd, { height: 900, width: 1000, format: "svg" }).then(function(base64) {
+                console.log(base64)
+                document.getElementById('svg-export-1').setAttribute("src", base64);
+            })
+        });
     });
 }
 
@@ -98,7 +103,12 @@ function renderPieHistoryChart(yearsData, key) {
         barmode: 'relative',
         title: key
     };
-    Plotly.newPlot('pieGraphHistory', data, layout);
+    Plotly.newPlot('pieGraphHistory', data, layout).then(function(gd) {
+        Plotly.toImage(gd, { height: 900, width: 1000, format: "svg" }).then(function(base64) {
+            console.log(base64)
+            document.getElementById('svg-export-2').setAttribute("src", base64);
+        })
+    });
 }
 
 function getPieData(key, year, callback) {
