@@ -9,19 +9,13 @@ module Importers
 
       most_recently_imported_swarm_checkin_timestamp = Time.at(raw_data.where(
         key: "swarmCheckinCoordinatesLatLng",
-      ).order(:id).first[:timestamp] / 1000)
+      ).order(:timestamp).last[:timestamp] / 1000)
 
       # We're doing reverse, so we start at the oldest, non-imported check-in first
       # so that if the script gets interrupted, we can just run it again
       swarm.checkins.reverse.each do |checkin|
         all_threads_for_this_checkin = []
         timestamp = Time.at(checkin["createdAt"])
-
-        if timestamp < most_recently_imported_swarm_checkin_timestamp
-          puts "Already imported checkins from #{most_recently_imported_swarm_checkin_timestamp}"
-          puts "If you want to re-import all Swarm check-ins, make sure to disable that code"
-          next
-        end
 
         d = swarm.fetch_checkin_detail(checkin)
         next if d.nil?
@@ -31,6 +25,13 @@ module Importers
           l.fetch("lat"),
           l.fetch("lng")
         ]
+
+        # This has to happen after the `all <<`
+        if timestamp < most_recently_imported_swarm_checkin_timestamp
+          puts "Already imported checkins from #{most_recently_imported_swarm_checkin_timestamp}"
+          puts "If you want to re-import all Swarm check-ins, make sure to disable that code"
+          next
+        end
         
         category = Hash(venue["categories"].find { |a| a["primary"] == true })["name"]
         category = "Gym" if category && category.include?("Gym") # since we also have "Gym / Fitness Center"
@@ -78,6 +79,14 @@ module Importers
         all_threads_for_this_checkin.each(&:join)
       end
       File.write("tracks.json", JSON.pretty_generate(all))    
+
+      # Now verify the total number of checkins matches
+      # the number of checkins in the database (this is a sanity check)
+
+      if (raw_data.where(key: "swarmCheckinCoordinatesLatLng").count - all.count).abs < 3 # 3 for now since we seem to miss 2 points
+        binding.pry
+        raise "Sanity check has failed..."
+      end
     end
 
     def swarm
