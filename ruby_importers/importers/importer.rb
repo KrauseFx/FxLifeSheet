@@ -62,7 +62,7 @@ module Importers
       if existing_entries.count == 1
         existing_entry = existing_entries.first
         if existing_entry[:source] == source && existing_entry[:value].to_s == value.to_s # to_s to work with nil, and numbers also
-          puts "Verified existing entry from import_id #{existing_entry[:importid]} is valid & matching..."
+          puts "#{date} #{key} Verified existing entry from import_id #{existing_entry[:importid]} is valid & matching..."
         elsif existing_entry[:source] == source
           # TODO: This means the value has changed, it will be fine to just update the entry probably
           binding.pry
@@ -113,7 +113,7 @@ module Importers
       if existing_entries.count == 1
         existing_entry = existing_entries.first
         if existing_entry[:source] == source && existing_entry[:value].to_s == value.to_s # to_s to work with nil, and numbers also
-          puts "Verified existing entry from import_id #{existing_entry[:importid]} is valid & matching..."
+          puts "#{matched_date} #{key} Verified existing entry from import_id #{existing_entry[:importid]} is valid & matching..."
         else
           # TODO: This means the value has changed, it will be fine to just update the entry probably
           binding.pry
