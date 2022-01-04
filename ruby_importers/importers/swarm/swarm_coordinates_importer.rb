@@ -83,7 +83,7 @@ module Importers
       # Now verify the total number of checkins matches
       # the number of checkins in the database (this is a sanity check)
 
-      if (raw_data.where(key: "swarmCheckinCoordinatesLatLng").count - all.count).abs < 3 # 3 for now since we seem to miss 2 points
+      if (raw_data.where(key: "swarmCheckinCoordinatesLatLng").count - all.count).abs > 3 # 3 for now since we seem to miss 2 points
         binding.pry
         raise "Sanity check has failed..."
       end
