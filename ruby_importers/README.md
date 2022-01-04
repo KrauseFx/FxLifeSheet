@@ -7,13 +7,8 @@ source ../.keys
 ## Use latest data from Heroku
 
 ```
-heroku pg:backups:download
+ruby ../clone_heroku_db.rb
 ```
-
-```
-pg_restore -c -d fxlifesheet latest.dump
-```
-
 
 ## Run the scripts below in the right order:
 
