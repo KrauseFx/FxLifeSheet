@@ -6,7 +6,10 @@ module Importers
     def import
       all = []
 
-      current_date = Date.new(2019, 01, 01)
+      current_date = (Time.at(raw_data.where(
+        key: "weatherTemperature",
+      ).order(:timestamp).last[:timestamp] / 1000) - 1 * 24 * 60 * 60).to_date
+
       previously_used_lat = nil
       previously_used_lng = nil
 
