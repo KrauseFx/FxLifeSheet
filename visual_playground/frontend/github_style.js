@@ -49,8 +49,8 @@ function getGitHubData(key, year) {
             histnorm: "count",
             autobinx: false,
             xbins: {
-                start: 1,
-                end: 52,
+                start: 0,
+                end: 53,
                 size: 1
             },
             autobiny: false,

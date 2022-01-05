@@ -124,8 +124,13 @@ class API
     raise "`start_date` must be in format '2019-04'" unless start_date.match(/\d\d\d\d\-\d\d/)
     start_timestamp = Date.strptime(start_date, "%Y-%m").strftime("%Q")
     matched = start_date.match(/(\d\d\d\d)\-(\d\d)/)
-    end_date = (matched[1].to_i + 1).to_s + "-" + matched[2]
-    end_timestamp = Date.strptime(end_date, "%Y-%m").strftime("%Q")
+    year_to_use = matched[1].to_i
+
+    end_date = (year_to_use + 1).to_s + "-" + matched[2]
+    end_date = Date.strptime(end_date, "%Y-%m") + 1 # plus 1 day, since otherwise the last day might be cut off
+    end_timestamp = end_date.strftime("%Q")
+
+    
 
     if key.start_with?("Swarm ")
       # This is only for Swarm check-ins, since we need to look for the `value`, not the key in those cases
@@ -138,14 +143,16 @@ class API
 
     # Excluding where matcheddate is nil, since we didn't run the backfill yet
     final_returns = results.exclude(matcheddate: nil).to_a.collect do |row|
+      week_of_the_year = row[:matcheddate].cweek
+      week_of_the_year -= 53 if week_of_the_year > 52
       {
         matchedDateDay: row[:matcheddate].day,
         matchedDateMonth: row[:matcheddate].month,
         matchedDateYear: row[:matcheddate].year,
         matchedDayOfWeek: day_of_week(row[:matcheddate]),
-        matchedWeekOfTheYear: row[:matcheddate].cweek,
+        matchedWeekOfTheYear: week_of_the_year,
       }.merge(row)
-    end.uniq { |row| row[:matcheddate] }
+    end.uniq { |row| row[:matcheddate] }.keep_if { |a| a[:matchedDateYear].to_i == year_to_use}
     # the `.uniq` takes care that we only have one entry per date, which only happens for a few days where
     # time zones got really messy
 
