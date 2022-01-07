@@ -66,6 +66,12 @@ function getGitHubData(key, year) {
             ]
         }];
 
+        let customMax = document.getElementById("maxValue")
+        if (customMax.value != "") {
+            allData[0].zmax = parseInt(customMax.value)
+            allData[0].zauto = false
+        }
+
         var layout = {
             title: `${key} (${year})`,
             yaxis: {
@@ -88,12 +94,20 @@ function updateKeyForIndex(key) {
     getGitHubData(key, 2021)
     setTimeout(function() { getGitHubData(key, 2020) }, 200);
     setTimeout(function() { getGitHubData(key, 2019) }, 400);
+    setTimeout(function() { getGitHubData(key, 2018) }, 600);
+    setTimeout(function() { getGitHubData(key, 2017) }, 800);
+    setTimeout(function() { getGitHubData(key, 2016) }, 1000);
+    setTimeout(function() { getGitHubData(key, 2015) }, 1200);
 }
 
 function reloadIndex() {
     getGitHubData(document.getElementById(`keys-0`).value, 2021)
     setTimeout(function() { getGitHubData(document.getElementById(`keys-0`).value, 2020) }, 200);
     setTimeout(function() { getGitHubData(document.getElementById(`keys-0`).value, 2019) }, 400);
+    setTimeout(function() { getGitHubData(document.getElementById(`keys-0`).value, 2018) }, 600);
+    setTimeout(function() { getGitHubData(document.getElementById(`keys-0`).value, 2017) }, 800);
+    setTimeout(function() { getGitHubData(document.getElementById(`keys-0`).value, 2016) }, 1000);
+    setTimeout(function() { getGitHubData(document.getElementById(`keys-0`).value, 2015) }, 1200);
 }
 
 function httpGetAsync(theUrl, callback) {
