@@ -103,7 +103,12 @@ function renderPieHistoryChart(yearsData, key) {
         barmode: 'relative',
         title: key
     };
-    Plotly.newPlot('pieGraphHistory', data, layout).then(function(gd) {
+    var config = {
+        showLink: true,
+        plotlyServerURL: "https://chart-studio.plotly.com",
+        linkText: 'Customize'
+    };
+    Plotly.newPlot('pieGraphHistory', data, layout, config).then(function(gd) {
         Plotly.toImage(gd, { height: 900, width: 1000, format: "svg" }).then(function(base64) {
             console.log(base64)
             document.getElementById('svg-export-2').setAttribute("src", base64);
