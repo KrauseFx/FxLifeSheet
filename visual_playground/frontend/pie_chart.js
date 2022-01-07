@@ -72,14 +72,22 @@ function renderPieHistory(key) {
 }
 
 function renderPieHistoryChart(yearsData, key) {
+    const minimumValueToRender = 26;
+
     console.log(yearsData);
     let traces = {}
+    let totalPerYear = {}
     for (const year in yearsData) {
         let yearData = yearsData[year];
         for (const i in yearData) {
             let currentRow = yearData[i];
-            if (!traces[currentRow.value]) { traces[currentRow.value] = {} }
-            traces[currentRow.value][year] = currentRow.count
+            if (currentRow.count > minimumValueToRender) { // to not pollute the graph with small values
+                if (!traces[currentRow.value]) { traces[currentRow.value] = {} }
+                traces[currentRow.value][year] = currentRow.count
+
+                if (!totalPerYear[year]) { totalPerYear[year] = 0 }
+                totalPerYear[year] += currentRow.count
+            }
         }
     }
 
@@ -88,20 +96,23 @@ function renderPieHistoryChart(yearsData, key) {
         let value = traces[i]
         let yValues = []
         for (const year in allYearsToUse) {
-            yValues.push(value[allYearsToUse[year]])
+            yValues.push(value[allYearsToUse[year]] / totalPerYear[allYearsToUse[year]].toFixed(2) * 100)
         }
         data.push({
             x: allYearsToUse,
             y: yValues,
             name: i,
-            type: 'bar'
+            type: 'bar',
+            textposition: 'inside',
+            text: i,
         })
     }
     var layout = {
-        xaxis: { title: 'X axis' },
-        yaxis: { title: 'Y axis' },
+        xaxis: { title: 'Year' },
+        yaxis: { title: 'Percentage of check-ins that year' },
         barmode: 'relative',
-        title: key
+        title: key,
+        colorway: ["#AA0DFE", "#3283FE", "#85660D", "#782AB6", "#565656", "#1C8356", "#16FF32", "#F7E1A0", "#E2E2E2", "#1CBE4F", "#C4451C", "#DEA0FD", "#FE00FA", "#325A9B", "#FEAF16", "#F8A19F", "#90AD1C", "#F6222E", "#1CFFCE", "#2ED9FF", "#B10DA1", "#C075A6", "#FC1CBF", "#B00068", "#FBE426", "#FA0087"]
     };
     var config = {
         showLink: true,
@@ -109,7 +120,7 @@ function renderPieHistoryChart(yearsData, key) {
         linkText: 'Customize'
     };
     Plotly.newPlot('pieGraphHistory', data, layout, config).then(function(gd) {
-        Plotly.toImage(gd, { height: 900, width: 1000, format: "svg" }).then(function(base64) {
+        Plotly.toImage(gd, { height: 650, width: 1000, format: "svg" }).then(function(base64) {
             console.log(base64)
             document.getElementById('svg-export-2').setAttribute("src", base64);
         })
