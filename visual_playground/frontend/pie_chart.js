@@ -9,10 +9,12 @@ function loadKeys(callback) {
         selects = document.getElementsByClassName('keys');
         for (let i = 0; i < selects.length; i++) {
             data.forEach((row) => {
-                const opt = document.createElement('option');
-                opt.value = row.key;
-                opt.innerHTML = `${row.key} (${row.count})`;
-                selects[i].appendChild(opt);
+                if (!row.key.startsWith('rescue_time') && !row.key.startsWith('Swarm')) {
+                    const opt = document.createElement('option');
+                    opt.value = row.key;
+                    opt.innerHTML = `${row.key} (${row.count})`;
+                    selects[i].appendChild(opt);
+                }
             });
         }
         callback(keys);
@@ -96,7 +98,8 @@ function renderPieHistoryChart(yearsData, key) {
         let value = traces[i]
         let yValues = []
         for (const year in allYearsToUse) {
-            yValues.push(value[allYearsToUse[year]] / totalPerYear[allYearsToUse[year]].toFixed(2) * 100)
+            const total = (totalPerYear[allYearsToUse[year]] || 0).toFixed(2);
+            yValues.push(value[allYearsToUse[year]] / total * 100)
         }
         data.push({
             x: allYearsToUse,
