@@ -109,7 +109,7 @@ function renderPieHistoryChart(yearsData, key) {
     }
     var layout = {
         xaxis: { title: 'Year' },
-        yaxis: { title: 'Percentage of check-ins that year' },
+        yaxis: { title: '' },
         barmode: 'relative',
         title: key,
         colorway: ["#AA0DFE", "#3283FE", "#85660D", "#782AB6", "#565656", "#1C8356", "#16FF32", "#F7E1A0", "#E2E2E2", "#1CBE4F", "#C4451C", "#DEA0FD", "#FE00FA", "#325A9B", "#FEAF16", "#F8A19F", "#90AD1C", "#F6222E", "#1CFFCE", "#2ED9FF", "#B10DA1", "#C075A6", "#FC1CBF", "#B00068", "#FBE426", "#FA0087"]
