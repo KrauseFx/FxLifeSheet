@@ -7,7 +7,7 @@
 
 ## Status of the project
 
-This is still a Work-in-Progress project. I'm using this for myself already, and things are working well. However there are still missing pieces, in particular the dashboard is currently hard-coded in Google Data Studio. I'll work on [finding an alternative](https://github.com/KrauseFx/FxLifeSheet/issues/34).
+I've been using this project successfully since May 2019, however it is difficult to setup and maintain. You can check out the first results on [https://krausefx.com/data](https://krausefx.com/data).
 
 ## Goal
 
@@ -258,8 +258,6 @@ Create a new Postgres database, and run the SQL queries defined in [importers/go
 <img src="screenshots/Database1.png" />
 <img src="screenshots/Database2.png" />
 
-### Google Data Studio
+### Data Visualization
 
-Right now, you'll need to setup Google Data studio to visualize your data. I created a [public report](https://datastudio.google.com/open/1xNRbyt_JicmYRw8DOB8DBuabaUyDhIAk) you can copy and connect with your data source. As data source, you'll need to select your Google Sheet and select `RawData` as the Sheet to use.
-
-The goal is to move away from Google Data Studio, see https://github.com/KrauseFx/FxLifeSheet/issues/34.
+To analyze the data, check out the `visual_playground` subfolder https://github.com/KrauseFx/FxLifeSheet/tree/master/visual_playground
