@@ -22,6 +22,8 @@ module Importers
           lat = telegram_lat[:value]
           lng = telegram_lng[:value]
 
+          # No need to call `store_lat_lng_used``
+          # As we already have the Telegram location
           pull_weather(lat: lat, lng: lng, matched_date: current_date)
           previously_used_lat = lat
           previously_used_lng = lng
@@ -37,6 +39,7 @@ module Importers
             lng = previously_used_lng
           end
 
+          store_lat_lng_used(lat: lat, lng: lng, matched_date: current_date)
           pull_weather(lat: lat, lng: lng, matched_date: current_date)
           previously_used_lat = lat
           previously_used_lng = lng
@@ -45,6 +48,36 @@ module Importers
       end
 
       # TODO: also add "yesterday" and "tomorrow" for weather
+    end
+
+    # Store the "final" lat/lng used for that day, which we can then use
+    # to fetch the city and country information for that day
+    # Every time we already have the Telegram location, we don't do anything
+    # if we don't have the Telegram location, we backfill based on the most
+    # recent swarm checkin
+    def store_lat_lng_used(lat:, lng:, matched_date:)
+      require 'pry'
+      binding.pry
+
+      insert_row_for_date(
+        key: "locationLat", 
+        value: lat,
+        date: matched_date,
+        type: "number",
+        question: "Please share your location, this is used to get your city, country, continent, currency, and weather details",
+        source: "backfill_weather", 
+        import_id: import_id
+      )
+
+      insert_row_for_date(
+        key: "locationLng", 
+        value: lng,
+        date: matched_date,
+        type: "number",
+        question: "Please share your location, this is used to get your city, country, continent, currency, and weather details",
+        source: "backfill_weather", 
+        import_id: import_id
+      )
     end
 
     def pull_weather(lat:, lng:, matched_date:)
