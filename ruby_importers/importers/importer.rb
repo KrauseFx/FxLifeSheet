@@ -100,6 +100,7 @@ module Importers
     end
 
     # e.g. precise Swarm check-in time
+    # or for backfilling the day of the week or month of the year
     def insert_row_for_timestamp(timestamp:, key:, type:, value:, question: nil, source:, import_id:, matched_date:)
       raise "invalid type #{type}" unless ["boolean", "range", "number", "text"].include?(type)
 

@@ -18,6 +18,8 @@ ruby ../clone_heroku_db.rb
 be ruby importers/tag_days/tag_days.rb
 ```
 
+This will also backfill the day of the week and the month of the year
+
 ### Step 2: Import historic location based on Swarm & Telegram
 
 ```

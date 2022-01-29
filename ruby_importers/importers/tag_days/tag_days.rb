@@ -84,6 +84,30 @@ module Importers
             elsif row[:matcheddate] != date
               raise "Something seems off here: #{row[:matcheddate]} != #{date}"
             end
+
+            # Insert the day of the week for this specific entry
+            insert_row_for_timestamp(
+              timestamp: Time.at(row[:timestamp] / 1000),
+              key: "dateDayOfTheWeek",
+              value: Date::DAYNAMES[date.wday],
+              question: "Day of the week",
+              type: "text",
+              import_id: import_id,
+              matched_date: date,
+              source: "tag_days"
+            )
+
+            # Insert the month of the year for this specific entry
+            insert_row_for_timestamp(
+              timestamp: Time.at(row[:timestamp] / 1000),
+              key: "dateMonthOfTheYear",
+              value: date.strftime("%B"),
+              question: "Month of the year",
+              type: "text",
+              import_id: import_id,
+              matched_date: date,
+              source: "tag_days"
+            )
           end
         end
       end
@@ -91,6 +115,10 @@ module Importers
 
     def all_dates
       @_all_dates ||= {}
+    end
+
+    def import_id
+      @_import_id ||= SecureRandom.hex
     end
   end
 end
