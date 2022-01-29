@@ -79,35 +79,35 @@ module Importers
         key_values.each do |date, matched_rows|
           matched_rows.each do |row|
             if row[:matcheddate].nil?
+              # Insert the day of the week for this specific entry
+              insert_row_for_timestamp(
+                timestamp: Time.at(row[:timestamp] / 1000),
+                key: "dateDayOfTheWeek",
+                value: Date::DAYNAMES[date.wday],
+                question: "Day of the week",
+                type: "text",
+                import_id: import_id,
+                matched_date: date,
+                source: "tag_days"
+              )
+
+              # Insert the month of the year for this specific entry
+              insert_row_for_timestamp(
+                timestamp: Time.at(row[:timestamp] / 1000),
+                key: "dateMonthOfTheYear",
+                value: date.strftime("%B"),
+                question: "Month of the year",
+                type: "text",
+                import_id: import_id,
+                matched_date: date,
+                source: "tag_days"
+              )
+              
               puts "updated date entry for key #{row[:key]} to use #{date}..."
               raw_data.where(id: row[:id]).update(matcheddate: date)
             elsif row[:matcheddate] != date
               raise "Something seems off here: #{row[:matcheddate]} != #{date}"
             end
-
-            # Insert the day of the week for this specific entry
-            insert_row_for_timestamp(
-              timestamp: Time.at(row[:timestamp] / 1000),
-              key: "dateDayOfTheWeek",
-              value: Date::DAYNAMES[date.wday],
-              question: "Day of the week",
-              type: "text",
-              import_id: import_id,
-              matched_date: date,
-              source: "tag_days"
-            )
-
-            # Insert the month of the year for this specific entry
-            insert_row_for_timestamp(
-              timestamp: Time.at(row[:timestamp] / 1000),
-              key: "dateMonthOfTheYear",
-              value: date.strftime("%B"),
-              question: "Month of the year",
-              type: "text",
-              import_id: import_id,
-              matched_date: date,
-              source: "tag_days"
-            )
           end
         end
       end
