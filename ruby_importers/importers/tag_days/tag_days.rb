@@ -77,32 +77,11 @@ module Importers
       # Now, update all the entries
       all_dates.each do |key, key_values|
         key_values.each do |date, matched_rows|
+          # Only once per day, we want to backfill the day of the week, season, month etc
+          backfill_day_info(timestamp: matched_rows.first[:timestamp] / 1000, date: date)
+          
           matched_rows.each do |row|
             if row[:matcheddate].nil?
-              # Insert the day of the week for this specific entry
-              insert_row_for_timestamp(
-                timestamp: Time.at(row[:timestamp] / 1000),
-                key: "dateDayOfTheWeek",
-                value: Date::DAYNAMES[date.wday],
-                question: "Day of the week",
-                type: "text",
-                import_id: import_id,
-                matched_date: date,
-                source: "tag_days"
-              )
-
-              # Insert the month of the year for this specific entry
-              insert_row_for_timestamp(
-                timestamp: Time.at(row[:timestamp] / 1000),
-                key: "dateMonthOfTheYear",
-                value: date.strftime("%B"),
-                question: "Month of the year",
-                type: "text",
-                import_id: import_id,
-                matched_date: date,
-                source: "tag_days"
-              )
-              
               puts "updated date entry for key #{row[:key]} to use #{date}..."
               raw_data.where(id: row[:id]).update(matcheddate: date)
             elsif row[:matcheddate] != date
@@ -111,6 +90,75 @@ module Importers
           end
         end
       end
+    end
+
+    def backfill_day_info(timestamp:, date:)
+      # Check if we already have an entry for that date
+      existing_entries = raw_data.where(matcheddate: date).where(Sequel.like(:key, 'date%')).count
+      if existing_entries > 4
+        binding.pry # TODO: manually delete entries from that day
+      elsif existing_entries == 4
+        puts "Already date entries for #{date}"
+        return
+      end
+
+      # Insert the day of the week for this specific entry
+      insert_row_for_timestamp(
+        timestamp: Time.at(timestamp),
+        key: "dateDayOfTheWeek",
+        value: Date::DAYNAMES[date.wday],
+        question: "Day of the week",
+        type: "text",
+        import_id: import_id,
+        matched_date: date,
+        source: "tag_days"
+      )
+
+      # Insert the month of the year for this specific entry
+      insert_row_for_timestamp(
+        timestamp: Time.at(timestamp),
+        key: "dateMonthOfTheYear",
+        value: date.strftime("%B"),
+        question: "Month of the year",
+        type: "text",
+        import_id: import_id,
+        matched_date: date,
+        source: "tag_days"
+      )
+
+      # Insert if it was weekend or not
+      insert_row_for_timestamp(
+        timestamp: Time.at(timestamp),
+        key: "dateIsWeekend",
+        value: date.wday == 0 || date.wday == 6,
+        question: "Was that day a weekend",
+        type: "boolean",
+        import_id: import_id,
+        matched_date: date,
+        source: "tag_days"
+      )
+
+      # Insert Season
+      day_hash = date.month * 100 + date.mday
+      season = case day_hash
+        when 1221..1231 then "Winter"
+        when 0..319 then "Winter"
+        when 320..620 then "Spring"
+        when 621..922 then "Summer"
+        when 923..1220 then "Fall"
+        else raise "Invalid"
+      end
+
+      insert_row_for_timestamp(
+        timestamp: Time.at(timestamp),
+        key: "dateSeason",
+        value: season,
+        question: "What season was that day?",
+        type: "text",
+        import_id: import_id,
+        matched_date: date,
+        source: "tag_days"
+      )
     end
 
     def all_dates
