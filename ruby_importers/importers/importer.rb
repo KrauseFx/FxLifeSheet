@@ -8,6 +8,12 @@ module Importers
   class Importer
     def database
       @_db ||= Sequel.connect(ENV.fetch("DATABASE_URL"))
+      if !@checked && @_db[:raw_data].exclude(key: "mood").where(matcheddate: nil).count > 0
+        puts "Be careful, we got at least 1 entry where matched_date isn't tagged, press enter to ignore"
+        gets
+        @checked = true
+      end
+      @_db
     end
 
     def raw_data
