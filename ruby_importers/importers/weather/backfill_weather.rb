@@ -6,6 +6,7 @@ module Importers
     def import
       all = []
 
+      # Start with the date on when we most recently ran this script
       current_date = (Time.at(raw_data.where(
         key: "weatherTemperature",
       ).order(:timestamp).last[:timestamp] / 1000) - 1 * 24 * 60 * 60).to_date
@@ -56,8 +57,7 @@ module Importers
     # if we don't have the Telegram location, we backfill based on the most
     # recent swarm checkin
     def store_lat_lng_used(lat:, lng:, matched_date:)
-      require 'pry'
-      binding.pry
+      puts "backfilling location for date #{matched_date}"
 
       insert_row_for_date(
         key: "locationLat", 
