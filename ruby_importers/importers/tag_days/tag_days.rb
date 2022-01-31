@@ -96,7 +96,12 @@ module Importers
       # Check if we already have an entry for that date
       existing_entries = raw_data.where(matcheddate: date).where(Sequel.like(:key, 'date%')).count
       if existing_entries > 4
-        binding.pry # TODO: manually delete entries from that day
+        # When you run into this, run the following query manually
+        # to find & delete all duplicate entries
+        # ```
+        #   select matcheddate, count(*) from raw_data where key like 'date%' group by matcheddate having count(*) > 4
+        # ```
+        binding.pry
       elsif existing_entries == 4
         puts "Already date entries for #{date}"
         return
