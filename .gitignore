@@ -18,3 +18,5 @@ checkins.json
 /ruby_importers/latest.dump
 /ruby_importers/tracks.json
 /ruby_importers/_weather_cache.json
+/ruby_importers/_location_info_cache.json
+/visual_playground/frontend/tracks_just_to_test.json
