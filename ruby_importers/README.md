@@ -53,3 +53,11 @@ be ruby importers/apple_health/apple_health.rb
 ```
 be ruby importers/rescuetime/rescuetime.rb
 ```
+
+### Location Info
+
+This also has to happen after the other scripts, this will download and store the address information based on the lat/lng values, including the city, country & continent.
+
+```
+be ruby importers/location_info/location_info.rb
+```
