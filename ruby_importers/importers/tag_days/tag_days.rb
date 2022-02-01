@@ -103,7 +103,7 @@ module Importers
         # ```
         binding.pry
       elsif existing_entries == 4
-        puts "Already date entries for #{date}"
+        puts "Already having date entries for #{date}"
         return
       end
 
