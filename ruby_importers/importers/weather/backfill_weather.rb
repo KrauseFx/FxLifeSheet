@@ -4,8 +4,6 @@ require 'net/http'
 module Importers
   class BackfillWeather < Importer
     def import
-      all = []
-
       # Start with the date on when we most recently ran this script
       current_date = (Time.at(raw_data.where(
         key: "weatherTemperature",
