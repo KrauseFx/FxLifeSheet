@@ -244,12 +244,8 @@ class API
   end
 end
 
-if __FILE__ == $0
-  # puts API.new.pie_data(
-  #   key: "swarmCheckinAddressCity",
-  # )
-
-  # Running this will generate a JSON file for all dates and the historic locations
+# Running this will generate a JSON file for all dates and the historic locations
+def generate_historic_locations
   current_date = Date.new(2019, 1, 1)
   output = {}
   while current_date < Date.today - 7
@@ -261,5 +257,18 @@ if __FILE__ == $0
 
   File.write("historic_locations.json", JSON.pretty_generate(output))
   puts "Successfully generated ./historic_locations.json"
-  binding.pry
+end
+
+if __FILE__ == $0
+  # puts API.new.pie_data(
+  #   key: "swarmCheckinAddressCity",
+  # )
+  puts API.new.bucket(
+    by: "relationshipStatus",
+    bucket_border: "Yori",
+    start_date: ENV["DEFAULT_MIN_DATE"].strip,
+    numeric: false
+  )
+
+  # generate_historic_locations  
 end
