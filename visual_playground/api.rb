@@ -1,6 +1,7 @@
 require "sequel"
 require "pry"
 require "date"
+require "json"
 
 class API
   def fetch(key:, group_by:, start_date:)
@@ -57,30 +58,36 @@ class API
     return raw_keys
   end
 
-  def bucket_options_list(by:, start_date:)
+  def bucket_options_list(by:, start_date:, numeric:)
     raise "`start_date` must be in format '2019-04'" unless start_date.match(/\d\d\d\d\-\d\d/)
     start_timestamp = Date.strptime(start_date, "%Y-%m").strftime("%Q")
 
+    numeric_string = numeric ? "::numeric" : ""
+    order_by = numeric ? "value" : "COUNT(*)"
     res = database.fetch("
-      SELECT value::numeric, count(*) 
+      SELECT value#{numeric_string}, COUNT(*) 
       FROM raw_data
       WHERE key=? AND timestamp > ?
       GROUP BY value
-      ORDER BY value
+      ORDER BY #{order_by}
     ", by, start_timestamp)
+
     return res.to_a.collect do |row|
-      row[:value] = row[:value].truncate(5).to_s('F').to_f # convert from BigFloat to float
+      if numeric
+        row[:value] = row[:value].truncate(5).to_s('F').to_f # convert from BigFloat to float
+      end
       row
     end.reverse # have on by default
   end
 
-  def bucket(by:, bucket_border:, start_date:)
+  def bucket(by:, bucket_border:, start_date:, numeric:)
     raise "`start_date` must be in format '2019-04'" unless start_date.match(/\d\d\d\d\-\d\d/)
     start_timestamp = Date.strptime(start_date, "%Y-%m").strftime("%Q")
     
+    numeric_string = numeric ? "::numeric > " : "="
     flat = database.fetch("
       SELECT
-          (rd.value::numeric > ?) AS bucket,
+          (rd.value#{numeric_string}?) AS bucket,
           nrd.key AS other_key,
           AVG(nrd.value::numeric) AS avg_value,
           COUNT(nrd.id) as count
@@ -263,12 +270,12 @@ if __FILE__ == $0
   # puts API.new.pie_data(
   #   key: "swarmCheckinAddressCity",
   # )
-  puts API.new.bucket(
+  puts JSON.pretty_generate(API.new.bucket(
     by: "relationshipStatus",
     bucket_border: "Yori",
     start_date: ENV["DEFAULT_MIN_DATE"].strip,
     numeric: false
-  )
+  ))
 
   # generate_historic_locations  
 end
