@@ -78,7 +78,7 @@ module Importers
       all_dates.each do |key, key_values|
         key_values.each do |date, matched_rows|
           # Only once per day, we want to backfill the day of the week, season, month etc
-          backfill_day_info(timestamp: matched_rows.first[:timestamp] / 1000, date: date)
+          backfill_day_info(timestamp: matched_rows.first[:timestamp] / 1000, date: date) if key == "alcoholIntake"
           
           matched_rows.each do |row|
             if row[:matcheddate].nil?
