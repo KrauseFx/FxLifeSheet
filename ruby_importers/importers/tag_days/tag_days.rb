@@ -135,7 +135,7 @@ module Importers
       insert_row_for_timestamp(
         timestamp: Time.at(timestamp),
         key: "dateIsWeekend",
-        value: date.wday == 0 || date.wday == 6,
+        value: (date.wday == 0 || date.wday == 6) ? 1 : 0,
         question: "Was that day a weekend",
         type: "boolean",
         import_id: import_id,
