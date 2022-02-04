@@ -63,17 +63,19 @@ module Importers
       continent = case country
         when "United States" then "North America"
         when "Argentina", "Mexico" then "North America"
-        when "Austria", "Norway", "Germany", "Croatia", "Italy", "France" then "Europe"
+        when "Austria", "Norway", "Germany", "Croatia", "Italy", "France", "Spain" then "Europe"
         when "Taiwan" then "Asia"
       end
       if continent.nil?
         binding.pry
         raise "Missing continent"
       end
+      city = Hash(address_components.find { |c| c["types"].include?("locality") })["long_name"]
+      city ||= Hash(location_info["results"][1]["address_components"].find { |c| c["types"].include?("locality") })["long_name"]
 
       {
         "Country" => country,
-        "City" => address_components.find { |c| c["types"].include?("locality") }["long_name"],
+        "City" => city,
         "County" => Hash(address_components.find { |c| c["types"].include?("administrative_area_level_2") })["long_name"],
         "FullAddress" => result["formatted_address"],
         "Continent" => continent,
