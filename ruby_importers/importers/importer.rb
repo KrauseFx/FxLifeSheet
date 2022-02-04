@@ -58,8 +58,9 @@ module Importers
     # You have to provide either a `date` or a `timestamp`
     # if you provide a `date`, we will look for the closed `alcoholIntake` entry, and use the same timestamp
     # if you provide a `timestamp`, we will use that exact time stamp
-
-    def insert_row_for_date(date:, key:, type:, value:, question: nil, source:, import_id:)
+    # `force_match` means we want to import only on that day, which usually happens anyway, unless there are
+    # days with no entries at all
+    def insert_row_for_date(date:, key:, type:, value:, question: nil, source:, import_id:, force_match: false)
       raise "invalid type #{type}" unless ["boolean", "range", "number", "text"].include?(type)
 
       # First, look if we have an existing row from a previous import
@@ -73,22 +74,25 @@ module Importers
           puts "#{date} #{key} Verified existing entry from import_id #{existing_entry[:importid]} is valid & matching..."
         elsif existing_entry[:source] == source
           # TODO: This means the value has changed, it will be fine to just update the entry probably
-          binding.pry
+          # binding.pry
         else
           # Different source/value
           binding.pry
         end
       elsif existing_entries.count > 1
-        binding.pry # TODO: how to handle
+        # binding.pry # TODO: how to handle
       else
         puts "Looking for match on #{date}..."
         if matching_entry = find_closest_row_for_date(date: date)
           puts "Found match: #{date}\t\t#{matching_entry[:month]}-#{matching_entry[:day]} #{matching_entry[:hour]}:#{matching_entry[:minute]}"
 
           new_entry = matching_entry.dup
-          # if new_entry[:matcheddate] != date
-          #   binding.pry
-          # end
+          if new_entry[:matcheddate] != date
+            if force_match
+              puts "No other entries on that day it seems, with `force_match` enabled"
+              return
+            end
+          end
           
           new_entry.delete(:id)
           new_entry[:key] = key

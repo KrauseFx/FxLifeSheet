@@ -64,7 +64,8 @@ module Importers
         type: "number",
         question: "Please share your location, this is used to get your city, country, continent, currency, and weather details",
         source: "backfill_weather", 
-        import_id: import_id
+        import_id: import_id,
+        force_match: true
       )
 
       insert_row_for_date(
@@ -74,7 +75,8 @@ module Importers
         type: "number",
         question: "Please share your location, this is used to get your city, country, continent, currency, and weather details",
         source: "backfill_weather", 
-        import_id: import_id
+        import_id: import_id,
+        force_match: true
       )
     end
 
