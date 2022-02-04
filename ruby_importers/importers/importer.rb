@@ -9,9 +9,11 @@ module Importers
     def database
       @_db ||= Sequel.connect(ENV.fetch("DATABASE_URL"))
       if !@checked && @_db[:raw_data].exclude(key: "mood").where(matcheddate: nil).count > 0
-        puts "Be careful, we got at least 1 entry where matched_date isn't tagged, press enter to ignore"
-        gets
-        @checked = true
+        if File.basename($0) != "tag_days.rb"
+          puts "Be careful, we got at least 1 entry where matched_date isn't tagged, press enter to ignore"
+          @checked = true
+          gets
+        end
       end
       @_db
     end
