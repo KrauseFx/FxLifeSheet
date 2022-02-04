@@ -197,7 +197,33 @@ class API
   end
 
   def denylisted_other_keys
-    ENV["DENYLISTED_OTHER_KEYS"].split(";")
+    ENV["DENYLISTED_OTHER_KEYS"].to_s.split(";")
+  end
+
+  # Returns slightly obfuscated lat/lng coordinates of the location
+  # I was at at a specific date
+  def where_at(date:)
+    result = raw_data.where(
+      matcheddate: date,
+      key: [
+        "locationLat",
+        "locationLng",
+        "locationInfoCity",
+        "locationInfoCountry",
+        "locationInfoContinent"
+      ]
+    ).order(:timestamp).limit(5)
+
+    lat = result.find { |row| row[:key] == "locationLat" }[:value].to_f.round(1)
+    lng = result.find { |row| row[:key] == "locationLng" }[:value].to_f.round(1)
+    city = result.find { |row| row[:key] == "locationInfoCity" }[:value]
+    raise "Missing `DENYLISTED_CITIES` value" if ENV["DENYLISTED_CITIES"].to_s.length == 0
+    city = "Redacted" if ENV["DENYLISTED_CITIES"].split(";").include?(city)
+    binding.pry if city == "Redacted"
+    country = result.find { |row| row[:key] == "locationInfoCountry" }[:value]
+    continent = result.find { |row| row[:key] == "locationInfoContinent" }[:value]
+
+    return { lat: lat, lng: lng, city: city, country: country, continent: continent }
   end
 
   private
@@ -219,12 +245,21 @@ class API
 end
 
 if __FILE__ == $0
-  # puts API.new.bucket(
-  #   by: "gym",
-  #   value: "steps",
-  #   start_date: ENV["DEFAULT_MIN_DATE"].strip
+  # puts API.new.pie_data(
+  #   key: "swarmCheckinAddressCity",
   # )
-  puts API.new.pie_data(
-    key: "swarmCheckinAddressCity",
-  )
+
+  # Running this will generate a JSON file for all dates and the historic locations
+  current_date = Date.new(2019, 1, 1)
+  output = {}
+  while current_date < Date.today - 7
+    puts "Fetching date details for #{current_date}"
+    output[current_date] = API.new.where_at(date: current_date)
+
+    current_date += 1
+  end
+
+  File.write("historic_locations.json", JSON.pretty_generate(output))
+  puts "Successfully generated ./historic_locations.json"
+  binding.pry
 end
