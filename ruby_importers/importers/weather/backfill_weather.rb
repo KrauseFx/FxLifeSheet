@@ -117,8 +117,8 @@ module Importers
         "TemperatureMin" => "mint",
         "Precipitation" => "precip",
         "PrecipitationCover" => "precipcover",
-        "SnowDepth" => "snowdepth",
-        "Snow" => "snow",
+        # "SnowDepth" => "snowdepth",
+        # "Snow" => "snow", # Snow doesn't seem to work as expected
         "Visibility" => "visibility",
         "SolarEnergy" => "solarenergy",
         "Humidity" => "humidity",
