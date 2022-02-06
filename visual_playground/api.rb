@@ -106,6 +106,7 @@ class API
     flat.each do |row|
       next if row[:avg_value].nil? # some rows can be nil
       next if row[:other_key].start_with?("swarmCheckinCoordinatesL")
+      next if row[:other_key].start_with?("swarmCheckinTimezone")
       next if row[:other_key].start_with?("locationL") # Telegram locations
       next if denylisted_other_keys.include?(row[:other_key])
       next if row[:other_key].start_with?("measurement") # Measurements from Faron
