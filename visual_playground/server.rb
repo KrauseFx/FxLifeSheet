@@ -53,7 +53,8 @@ get "/bucket_options_list" do
 
   JSON.pretty_generate(api.bucket_options_list(
     by: params.fetch("by"),
-    start_date: params.fetch("start_date", ENV["DEFAULT_MIN_DATE"].strip)
+    start_date: params.fetch("start_date", ENV["DEFAULT_MIN_DATE"].strip),
+    numeric: params.fetch("numeric", "true") == "true"
   ))
 end
 
@@ -63,6 +64,7 @@ get "/bucket" do
   JSON.pretty_generate(api.bucket(
     by: params.fetch("by"),
     bucket_border: params.fetch("bucketBorder"),
-    start_date: params.fetch("start_date", ENV["DEFAULT_MIN_DATE"].strip)
+    start_date: params.fetch("start_date", ENV["DEFAULT_MIN_DATE"].strip),
+    numeric: params.fetch("numeric", "true") == "true"
   ))
 end

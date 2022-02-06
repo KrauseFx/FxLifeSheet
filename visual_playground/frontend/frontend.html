@@ -84,6 +84,12 @@
             <select class="bucket-by-option" id="all-values" onchange="document.getElementById('bucketValue').value = document.getElementById('all-values').value; updateBucket()"></select>
             <input type="button" value="Generate" onclick="updateBucket()" />
         </p>
+        <p>
+            <b>Bucket everything that is exactly</b>
+            <input type="text" id="bucketValueExactly" placeholder="Bucket Value" />
+            <select class="bucket-by-option" id="all-values-exactly" onchange="document.getElementById('bucketValueExactly').value = document.getElementById('all-values-exactly').value; updateBucket()"></select>
+            <input type="button" value="Generate" onclick="updateBucket()" />
+        </p>
         <div id='bucketGraph' />
     </form>
 </body>

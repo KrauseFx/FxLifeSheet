@@ -162,6 +162,8 @@ let currentBucketData = null;
 function updateBucket() {
     bucket = document.getElementById("bucket-key").value
     bucketBorder = document.getElementById('bucketValue').value
+    bucketBorderExactly = document.getElementById('bucketValueExactly').value
+
     httpGetAsync(`${host}/bucket_options_list?by=${bucket}`, (data) => {
         document.getElementById("max-value").innerHTML = `${data[0].value} (${data[0].count})`;
         document.getElementById("min-value").innerHTML = `${data[data.length - 1].value} (${data[data.length - 1].count})`;
@@ -180,11 +182,36 @@ function updateBucket() {
         select.selectedIndex = 0
         updateBucketByOption();
     })
-    httpGetAsync(`${host}/bucket?by=${bucket}&bucketBorder=${bucketBorder}`, (data) => {
-        currentBucketData = data;
-        console.log(data)
+    httpGetAsync(`${host}/bucket_options_list?by=${bucket}&numeric=false`, (data) => {
+        select = document.getElementById('all-values-exactly');
+        select.innerHTML = ""
+        const opt = document.createElement('option');
+        opt.innerHTML = "All values"
+        select.appendChild(opt);
+
+        data.forEach((row) => {
+            const opt = document.createElement('option');
+            opt.value = row.value;
+            opt.innerHTML = `${row.value} (${row.count})`;
+            select.appendChild(opt);
+        });
+        select.selectedIndex = 0
         updateBucketByOption();
-    });
+    })
+
+    if (bucketBorder != "") {
+        httpGetAsync(`${host}/bucket?by=${bucket}&bucketBorder=${bucketBorder}`, (data) => {
+            currentBucketData = data;
+            console.log(data)
+            updateBucketByOption();
+        });
+    } else if (bucketBorderExactly != "") {
+        httpGetAsync(`${host}/bucket?by=${bucket}&bucketBorder=${bucketBorderExactly}&numeric=false`, (data) => {
+            currentBucketData = data;
+            console.log(data)
+            updateBucketByOption();
+        });
+    }
 }
 
 function updateBucketByOption() {
@@ -219,7 +246,11 @@ function updateBucketByOption() {
     allBucketData[0]["y"] = dataToRender.map(({ diff }) => diff);
     console.log(allBucketData)
 
-    bucketLayout["title"] = `${bucket} being above ${document.getElementById('bucketValue').value} had the following effects on that day in %`
+    if (document.getElementById('bucketValue').value != "") {
+        bucketLayout["title"] = `${bucket} being above ${document.getElementById('bucketValue').value} had the following effects on that day in %`
+    } else {
+        bucketLayout["title"] = `${bucket} being ${document.getElementById('bucketValueExactly').value} had the following effects on that day in % compared to other values`
+    }
     Plotly.redraw('bucketGraph');
 }
 
