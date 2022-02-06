@@ -17,7 +17,7 @@ module Importers
         if telegram_lat && telegram_lng
           pull_location_info(lat: telegram_lat[:value], lng: telegram_lng[:value], matched_date: current_date)
         else
-          unless [Date.new(2021, 03, 06), Date.new(2021, 06, 28)].include?(current_date)
+          unless [Date.new(2021, 03, 06), Date.new(2021, 06, 28), Date.new(2021, 6, 29), Date.new(2019, 8, 2), Date.new(2019, 10, 11)].include?(current_date)
             binding.pry
             # TODO: Once we ran `backfill_weather.rb` this shouldn't be an issue anymore
             # raise "This should not happen, make sure to run the other scripts also"
@@ -61,9 +61,9 @@ module Importers
       address_components = result["address_components"]
       country = address_components.find { |c| c["types"].include?("country") }["long_name"]
       continent = case country
-        when "United States" then "North America"
+        when "United States", "Canada" then "North America"
         when "Argentina", "Mexico" then "North America"
-        when "Austria", "Norway", "Germany", "Croatia", "Italy", "France", "Spain" then "Europe"
+        when "Austria", "Norway", "Germany", "Croatia", "Italy", "France", "Spain", "United Kingdom", "Iceland", "Vatican City" then "Europe"
         when "Taiwan" then "Asia"
       end
       if continent.nil?
