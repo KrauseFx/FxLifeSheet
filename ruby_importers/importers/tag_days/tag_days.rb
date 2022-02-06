@@ -6,14 +6,26 @@ module Importers
       puts "Starting tagging days..."
       raw_data.each do |row|
         next if row[:key].start_with?("swarm") # those are always already tagged during import
-        next if row[:key] == "mood" # TODO: this will be separate
 
         timestamp_to_use = row[:timestamp] / 1000.0
         timestamp_date = Time.at(timestamp_to_use)
 
-        # Go down from e.g. 2:34am to 23:59, which is the date this entry is for
-        while timestamp_date.hour < 21
-          timestamp_to_use -= 60
+        if row[:key] != "mood" # mood is handled seperately
+          # Go down from e.g. 2:34am to 23:59, which is the date this entry is for
+          while timestamp_date.hour < 21
+            timestamp_to_use -= 60
+            timestamp_date = Time.at(timestamp_to_use)
+          end
+        else
+          # Tracking the mood is easier, we basically just use the date is was generated
+          # However we do want to consider the time zone roughly, so we do something simple to solve that
+          # The assumption is that roughly, when I'm in Europe, the date of the `timestamp` is pretty accurate (GMT)
+          # However, when I'm on the East Coast, or West Coast, I want to subtract 6-9 hours to get the local date(time)
+          lng_that_day = raw_data.where(key: "locationLng", matcheddate: timestamp_date).first[:value].to_f
+          is_in_america = lng_that_day < -26 # -26 being East of Iceland
+          is_on_west_coast = lng_that_day < -100
+          timestamp_to_use -= 60 * 60 * 6 if is_in_america
+          timestamp_to_use -= 60 * 60 * 3 if is_on_west_coast
           timestamp_date = Time.at(timestamp_to_use)
         end
 
