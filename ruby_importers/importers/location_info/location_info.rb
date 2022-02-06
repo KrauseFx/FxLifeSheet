@@ -12,7 +12,7 @@ module Importers
         telegram_lat = raw_data.where(key: "locationLat").where(matcheddate: current_date).first
         telegram_lng = raw_data.where(key: "locationLng").where(matcheddate: current_date).first
 
-        all_locations << [telegram_lat, telegram_lng]
+        all_locations << [telegram_lat[:value], telegram_lng[:value]]
 
         if telegram_lat && telegram_lng
           pull_location_info(lat: telegram_lat[:value], lng: telegram_lng[:value], matched_date: current_date)
@@ -26,7 +26,7 @@ module Importers
         current_date += 1
       end
 
-      File.write("tracks_per_day.json", JSON.pretty_generate(all_locations))
+      File.write("location_info_per_day.json", JSON.pretty_generate(all_locations))
     end
 
     def pull_location_info(lat:, lng:, matched_date:)
