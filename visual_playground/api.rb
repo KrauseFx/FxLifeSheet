@@ -105,11 +105,14 @@ class API
     structured = {}
     flat.each do |row|
       next if row[:avg_value].nil? # some rows can be nil
+      next if row[:other_key].start_with?("rescue_time_application_")
       next if row[:other_key].start_with?("swarmCheckinCoordinatesL")
       next if row[:other_key].start_with?("swarmCheckinTimezone")
       next if row[:other_key].start_with?("locationL") # Telegram locations
       next if denylisted_other_keys.include?(row[:other_key])
       next if row[:other_key].start_with?("measurement") # Measurements from Faron
+      next if row[:other_key].start_with?("learnedSpanish") # Measurements from Faron
+      next if row[:other_key].start_with?("practicedSpeaking") # Measurements from Faron
 
       structured[row[:other_key]] ||= {}
       structured[row[:other_key]][row[:bucket]] = {
@@ -252,16 +255,26 @@ end
 
 # Running this will generate a JSON file for all dates and the historic locations
 def generate_historic_locations
+  api = API.new
   current_date = Date.new(2019, 1, 1)
   output = {}
+  coordinates_only = []
   while current_date < Date.today - 7
     puts "Fetching date details for #{current_date}"
-    output[current_date] = API.new.where_at(date: current_date)
+    result = api.where_at(date: current_date)
+    if result
+      output[current_date] = result
+      coordinates_only << [
+        output[current_date][:lat],
+        output[current_date][:lng]
+      ]
+    end
 
     current_date += 1
   end
 
   File.write("historic_locations.json", JSON.pretty_generate(output))
+  File.write("historic_locations_coordinates_only.json", JSON.pretty_generate(coordinates_only))
   puts "Successfully generated ./historic_locations.json"
 end
 
