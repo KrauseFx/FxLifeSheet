@@ -63,7 +63,7 @@ module Importers
       continent = case country
         when "United States", "Canada" then "North America"
         when "Argentina", "Mexico" then "North America"
-        when "Austria", "Norway", "Germany", "Croatia", "Italy", "France", "Spain", "United Kingdom", "Iceland", "Vatican City" then "Europe"
+        when "Austria", "Norway", "Slovenia", "Germany", "Croatia", "Italy", "France", "Spain", "United Kingdom", "Iceland", "Vatican City", "Turkey" then "Europe"
         when "Taiwan" then "Asia"
       end
       if continent.nil?

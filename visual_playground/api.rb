@@ -138,8 +138,6 @@ class API
     end_date = Date.strptime(end_date, "%Y-%m") + 1 # plus 1 day, since otherwise the last day might be cut off
     end_timestamp = end_date.strftime("%Q")
 
-    
-
     if key.start_with?("Swarm ")
       # This is only for Swarm check-ins, since we need to look for the `value`, not the key in those cases
       key = key.gsub("Swarm ", "")
@@ -271,12 +269,12 @@ if __FILE__ == $0
   # puts API.new.pie_data(
   #   key: "swarmCheckinAddressCity",
   # )
-  puts JSON.pretty_generate(API.new.bucket(
-    by: "relationshipStatus",
-    bucket_border: "Yori",
-    start_date: ENV["DEFAULT_MIN_DATE"].strip,
-    numeric: false
-  ))
+  # puts JSON.pretty_generate(API.new.bucket(
+  #   by: "livingSituation",
+  #   bucket_border: "Nomad",
+  #   start_date: ENV["DEFAULT_MIN_DATE"].strip,
+  #   numeric: false
+  # ))
 
-  # generate_historic_locations  
+  generate_historic_locations  
 end
