@@ -93,21 +93,21 @@ function updateKeyForIndex(key) {
     document.getElementById(`keys-0`).value = key;
     getGitHubData(key, 2021)
     setTimeout(function() { getGitHubData(key, 2020) }, 200);
-    setTimeout(function() { getGitHubData(key, 2019) }, 400);
-    setTimeout(function() { getGitHubData(key, 2018) }, 600);
-    setTimeout(function() { getGitHubData(key, 2017) }, 800);
-    setTimeout(function() { getGitHubData(key, 2016) }, 1000);
-    setTimeout(function() { getGitHubData(key, 2015) }, 1200);
+    setTimeout(function() { getGitHubData(key, 2019) }, 600);
+    setTimeout(function() { getGitHubData(key, 2018) }, 900);
+    setTimeout(function() { getGitHubData(key, 2017) }, 1300);
+    setTimeout(function() { getGitHubData(key, 2016) }, 1600);
+    setTimeout(function() { getGitHubData(key, 2015) }, 1900);
 }
 
 function reloadIndex() {
     getGitHubData(document.getElementById(`keys-0`).value, 2021)
     setTimeout(function() { getGitHubData(document.getElementById(`keys-0`).value, 2020) }, 200);
-    setTimeout(function() { getGitHubData(document.getElementById(`keys-0`).value, 2019) }, 400);
-    setTimeout(function() { getGitHubData(document.getElementById(`keys-0`).value, 2018) }, 600);
-    setTimeout(function() { getGitHubData(document.getElementById(`keys-0`).value, 2017) }, 800);
-    setTimeout(function() { getGitHubData(document.getElementById(`keys-0`).value, 2016) }, 1000);
-    setTimeout(function() { getGitHubData(document.getElementById(`keys-0`).value, 2015) }, 1200);
+    setTimeout(function() { getGitHubData(document.getElementById(`keys-0`).value, 2019) }, 600);
+    setTimeout(function() { getGitHubData(document.getElementById(`keys-0`).value, 2018) }, 900);
+    setTimeout(function() { getGitHubData(document.getElementById(`keys-0`).value, 2017) }, 1300);
+    setTimeout(function() { getGitHubData(document.getElementById(`keys-0`).value, 2016) }, 1600);
+    setTimeout(function() { getGitHubData(document.getElementById(`keys-0`).value, 2015) }, 1900);
 }
 
 function httpGetAsync(theUrl, callback) {
