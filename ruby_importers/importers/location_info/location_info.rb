@@ -12,9 +12,9 @@ module Importers
         telegram_lat = raw_data.where(key: "locationLat").where(matcheddate: current_date).first
         telegram_lng = raw_data.where(key: "locationLng").where(matcheddate: current_date).first
 
-        all_locations << [telegram_lat[:value], telegram_lng[:value]]
-
+        
         if telegram_lat && telegram_lng
+          all_locations << [telegram_lat[:value], telegram_lng[:value]]
           pull_location_info(lat: telegram_lat[:value], lng: telegram_lng[:value], matched_date: current_date)
         else
           unless [Date.new(2021, 03, 06), Date.new(2021, 06, 28), Date.new(2021, 6, 29), Date.new(2019, 8, 2), Date.new(2019, 10, 11)].include?(current_date)
