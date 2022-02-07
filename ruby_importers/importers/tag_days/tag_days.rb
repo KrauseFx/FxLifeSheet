@@ -17,16 +17,21 @@ module Importers
             timestamp_date = Time.at(timestamp_to_use)
           end
         else
+          next unless row[:matcheddate].nil? # otherwise those loops are very slow due to fetching the location
           # Tracking the mood is easier, we basically just use the date is was generated
           # However we do want to consider the time zone roughly, so we do something simple to solve that
           # The assumption is that roughly, when I'm in Europe, the date of the `timestamp` is pretty accurate (GMT)
           # However, when I'm on the East Coast, or West Coast, I want to subtract 6-9 hours to get the local date(time)
-          lng_that_day = raw_data.where(key: "locationLng", matcheddate: timestamp_date).first[:value].to_f
-          is_in_america = lng_that_day < -26 # -26 being East of Iceland
-          is_on_west_coast = lng_that_day < -100
-          timestamp_to_use -= 60 * 60 * 6 if is_in_america
-          timestamp_to_use -= 60 * 60 * 3 if is_on_west_coast
-          timestamp_date = Time.at(timestamp_to_use)
+          begin
+            lng_that_day = raw_data.where(key: "locationLng", matcheddate: timestamp_date).first[:value].to_f
+            is_in_america = lng_that_day < -26 # -26 being East of Iceland
+            is_on_west_coast = lng_that_day < -100
+            timestamp_to_use -= 60 * 60 * 6 if is_in_america
+            timestamp_to_use -= 60 * 60 * 3 if is_on_west_coast
+            timestamp_date = Time.at(timestamp_to_use)
+          rescue => ex
+            puts "No location for that specific day to offset the time zone for this mood entry..."
+          end
         end
 
         all_dates[row[:key]] ||= {}
