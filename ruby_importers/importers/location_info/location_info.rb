@@ -64,7 +64,7 @@ module Importers
         when "United States", "Canada" then "North America"
         when "Argentina", "Mexico" then "North America"
         when "Austria", "Norway", "Slovenia", "Germany", "Croatia", "Italy", "France", "Spain", "United Kingdom", "Iceland", "Vatican City", "Turkey" then "Europe"
-        when "Taiwan" then "Asia"
+        when "Taiwan", "Vietnam", "Thailand", "Hong Kong", "Japan", "South Korea" then "Asia"
       end
       if continent.nil?
         binding.pry
