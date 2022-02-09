@@ -11,10 +11,12 @@
 <body>
     <div id="nyc" style="width: 900px;height:900px;"></div>
     <div id="vienna" style="width: 900px;height:900px;"></div>
+    <div id="san-francisco" style="width: 900px;height:900px;"></div>
     <div id="world" style="width: 900px;height:900px;"></div>
 
     <script type="text/javascript">
         var ROOT_PATH = 'http://127.0.0.1:8000/tracks_just_to_test.json';
+        // var ROOT_PATH = 'http://127.0.0.1:8000/historic_locations_coordinates_only.json';
         var app = {};
         var points = [];
 
@@ -287,6 +289,23 @@
             });
             maps.push(map)
 
+            map = new google.maps.Map(document.getElementById("san-francisco"), {
+                ...defaultConfig,
+                ... {
+                    center: {
+                        lat: 37.773972,
+                        lng: -122.431297
+                    }
+                }
+            });
+            heatmap = new google.maps.visualization.HeatmapLayer({...heatmapConfig,
+                ... {
+                    map: map,
+                    gradient: zoomGradient
+                }
+            });
+            maps.push(map)
+
             map = new google.maps.Map(document.getElementById("world"), {
                 ...defaultConfig,
                 ... {
@@ -322,19 +341,24 @@
         }
     </script>
     <style type="text/css">
+        #world {
+            position: absolute;
+        }
+        
         #nyc {
             position: absolute;
+            left: 910px;
         }
         
         #vienna {
             position: absolute;
-            left: 920px;
+            top: 910px;
         }
         
-        #world {
+        #san-francisco {
             position: absolute;
-            top: 920px;
-            left: 450px;
+            top: 910px;
+            left: 910px;
         }
     </style>
 </body>
