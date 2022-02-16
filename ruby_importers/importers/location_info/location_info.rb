@@ -4,14 +4,13 @@ require 'net/http'
 module Importers
   class BackfillLocationInfo < Importer
     def import
-      current_date = Date.new(2020, 11, 27)
+      current_date = Date.new(2019, 1, 1)
       all_locations = []
 
       while current_date < Date.today - 2 # same as `backfill_weather.rb`
         puts "Location info for #{current_date}..."
         telegram_lat = raw_data.where(key: "locationLat").where(matcheddate: current_date).first
         telegram_lng = raw_data.where(key: "locationLng").where(matcheddate: current_date).first
-
         
         if telegram_lat && telegram_lng
           all_locations << [telegram_lat[:value], telegram_lng[:value]]
