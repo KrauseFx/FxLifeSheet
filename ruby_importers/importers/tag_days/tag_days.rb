@@ -112,14 +112,15 @@ module Importers
     def backfill_day_info(timestamp:, date:)
       # Check if we already have an entry for that date
       existing_entries = raw_data.where(matcheddate: date).where(Sequel.like(:key, 'date%')).count
-      if existing_entries > 4
+      if existing_entries > 8
         # When you run into this, run the following query manually
         # to find & delete all duplicate entries
         # ```
         #   select matcheddate, count(*) from raw_data where key like 'date%' group by matcheddate having count(*) > 4
         # ```
         binding.pry
-      elsif existing_entries == 4
+        return
+      elsif existing_entries == 8
         puts "Already having date entries for #{date}"
         return
       end
@@ -177,6 +178,48 @@ module Importers
         value: season,
         question: "What season was that day?",
         type: "text",
+        import_id: import_id,
+        matched_date: date,
+        source: "tag_days"
+      )
+
+      # Seasons as boolean
+      insert_row_for_timestamp(
+        timestamp: Time.at(timestamp),
+        key: "dateSeasonIsSummer",
+        value: season == "Summer" ? 1 : 0,
+        question: "Was that day summer",
+        type: "boolean",
+        import_id: import_id,
+        matched_date: date,
+        source: "tag_days"
+      )
+      insert_row_for_timestamp(
+        timestamp: Time.at(timestamp),
+        key: "dateSeasonIsWinter",
+        value: season == "Winter" ? 1 : 0,
+        question: "Was that day Winter",
+        type: "boolean",
+        import_id: import_id,
+        matched_date: date,
+        source: "tag_days"
+      )
+      insert_row_for_timestamp(
+        timestamp: Time.at(timestamp),
+        key: "dateSeasonIsSpring",
+        value: season == "Spring" ? 1 : 0,
+        question: "Was that day Spring",
+        type: "boolean",
+        import_id: import_id,
+        matched_date: date,
+        source: "tag_days"
+      )
+      insert_row_for_timestamp(
+        timestamp: Time.at(timestamp),
+        key: "dateSeasonIsFall",
+        value: season == "Fall" ? 1 : 0,
+        question: "Was that day Fall",
+        type: "boolean",
         import_id: import_id,
         matched_date: date,
         source: "tag_days"
