@@ -26,8 +26,8 @@ function renderPie(key) {
         values = []
         labels = []
 
-        for (var i = 0; i < data.length; i++) {
-            let currentRow = data[i]
+        for (var i = 0; i < data.year.length; i++) {
+            let currentRow = data.year[i]
             values.push(currentRow.count);
             labels.push(currentRow.value);
         }
@@ -80,7 +80,7 @@ function renderPieHistoryChart(yearsData, key) {
     let traces = {}
     let totalPerYear = {}
     for (const year in yearsData) {
-        let yearData = yearsData[year];
+        let yearData = yearsData[year].year;
         for (const i in yearData) {
             let currentRow = yearData[i];
             if (currentRow.count > minimumValueToRender) { // to not pollute the graph with small values
@@ -138,7 +138,6 @@ function getPieData(key, year, callback) {
         url = `${host}/pie_data?key=${key}&start_date=${year}-01&end_date=${year + 1}-01`
     }
     httpGetAsync(url, (data) => {
-        data = Object.values(data);
         console.log(data)
         callback(data)
     })

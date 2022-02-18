@@ -193,18 +193,30 @@ class API
     puts "Start: #{start_date}"
     puts "End: #{end_date}"
     if start_date.nil? && end_date.nil?
-      results = database.fetch("SELECT value, COUNT(*) FROM raw_data WHERE key=? GROUP BY value ORDER BY count DESC", key)
+      return {
+        year: database.fetch("SELECT value, COUNT(*) FROM raw_data WHERE key=? GROUP BY value ORDER BY count DESC", key).to_a
+      }
     elsif start_date && end_date
       raise "`start_date` must be in format '2019-04'" unless start_date.match(/\d\d\d\d\-\d\d/)
       raise "`end_date` must be in format '2019-04'" unless end_date.match(/\d\d\d\d\-\d\d/)
       start_timestamp = Date.strptime(start_date, "%Y-%m").strftime("%Q")
       end_timestamp = Date.strptime(end_date, "%Y-%m").strftime("%Q")
 
-      results = database.fetch("SELECT value, COUNT(*) FROM raw_data WHERE key=? AND timestamp >= ? AND timestamp <= ? GROUP BY value ORDER BY count DESC", key, start_timestamp, end_timestamp)
+      return {
+        year: database.fetch("SELECT value, COUNT(*) FROM raw_data WHERE key=? AND timestamp >= ? AND timestamp <= ? GROUP BY value ORDER BY count DESC", key, start_timestamp, end_timestamp).to_a,
+        months: (0...12).collect do |i|
+          month_start = Date.strptime(start_date, "%Y-%m").next_month(i).strftime("%Q")
+          month_end = Date.strptime(start_date, "%Y-%m").next_month(i + 1).strftime("%Q")
+          puts "from #{Date.strptime(start_date, "%Y-%m").next_month(i)} to #{Date.strptime(start_date, "%Y-%m").next_month(i + 1)}"
+          [
+            (i + 1), # the current month as key
+            database.fetch("SELECT value, COUNT(*) FROM raw_data WHERE key=? AND timestamp >= ? AND timestamp <= ? GROUP BY value ORDER BY count DESC", key, month_start, month_end).to_a
+          ]
+        end.to_h
+      }
     else
       raise "Something went wrong, we need both a start- and an end date"
     end
-    return results.to_a
   end
 
   def denylisted_other_keys
