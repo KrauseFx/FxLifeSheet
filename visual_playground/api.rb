@@ -111,8 +111,10 @@ class API
       next if row[:other_key].start_with?("locationL") # Telegram locations
       next if denylisted_other_keys.include?(row[:other_key])
       next if row[:other_key].start_with?("measurement") # Measurements from Faron
-      next if row[:other_key].start_with?("learnedSpanish") # Measurements from Faron
-      next if row[:other_key].start_with?("practicedSpeaking") # Measurements from Faron
+      next if row[:other_key].start_with?("learnedSpanish")
+      next if row[:other_key].start_with?("practicedSpeaking")
+      next if row[:other_key].start_with?("dateSeasonIs") # not useful
+      next if row[:other_key] == "rescue_time_category_Uncategorized"
 
       structured[row[:other_key]] ||= {}
       structured[row[:other_key]][row[:bucket]] = {
