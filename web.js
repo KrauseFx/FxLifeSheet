@@ -88,7 +88,7 @@ postgres.client.query({
     }
     lastFetchedData["totalAmountOfEntries"] = {
         time: moment().format(),
-        value: res.rows[0]["count"]
+        value: Number(res.rows[0]["count"])
     };
 });
 http
