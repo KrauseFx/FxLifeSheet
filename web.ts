@@ -96,6 +96,24 @@ postgres.client.query(
     };
   }
 );
+// One-off query to get the total amount of entries
+postgres.client.query(
+  {
+    text: "SELECT COUNT(*) FROM raw_data"
+  },
+  (err, res) => {
+    console.log(res);
+    if (err) {
+      console.error(err);
+      return;
+    }
+
+    lastFetchedData["totalAmountOfEntries"] = {
+      time: moment().format(),
+      value: res.rows[0]["count"]
+    };
+  }
+);
 
 http
   .createServer(function(req, res) {

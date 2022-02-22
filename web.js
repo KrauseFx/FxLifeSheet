@@ -78,6 +78,19 @@ postgres.client.query({
         value: Math.round(hoursComputerUsed)
     };
 });
+postgres.client.query({
+    text: "SELECT COUNT(*) FROM raw_data"
+}, function (err, res) {
+    console.log(res);
+    if (err) {
+        console.error(err);
+        return;
+    }
+    lastFetchedData["totalAmountOfEntries"] = {
+        time: moment().format(),
+        value: res.rows[0]["count"]
+    };
+});
 http
     .createServer(function (req, res) {
     res.writeHead(200, { "Content-Type": "application/json" });
