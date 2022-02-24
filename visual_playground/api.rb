@@ -270,18 +270,25 @@ end
 # Running this will generate a JSON file for all dates and the historic locations
 def generate_historic_locations
   api = API.new
-  current_date = Date.new(2019, 1, 1)
+  current_date = Date.new(2019, 04, 12)
   output = {}
   coordinates_only = []
-  while current_date < Date.today - 7
+  csv = []
+  while current_date <= Date.new(2021, 12, 31) # Date.today - 7
     puts "Fetching date details for #{current_date}"
     result = api.where_at(date: current_date)
     if result
       output[current_date] = result
       coordinates_only << [
-        output[current_date][:lat],
-        output[current_date][:lng]
+        result[:lat],
+        result[:lng]
       ]
+      csv << [
+        result[:lat],
+        result[:lng],
+        current_date.strftime("%Y-%m-%d") + " - " + result[:city],
+        "#FFFF00"
+      ].join(",")
     end
 
     current_date += 1
@@ -289,6 +296,7 @@ def generate_historic_locations
 
   File.write("historic_locations.json", JSON.pretty_generate(output))
   File.write("historic_locations_coordinates_only.json", JSON.pretty_generate(coordinates_only))
+  File.write("historic_locations.csv", csv.join("\n"))
   puts "Successfully generated ./historic_locations.json"
 end
 
