@@ -6,6 +6,7 @@ module Importers
     def import
       import_id = SecureRandom.hex
       all = []
+      csv = []
 
       most_recently_imported_swarm_checkin_timestamp = Time.at(raw_data.where(
         key: "swarmCheckinCoordinatesLatLng",
@@ -25,6 +26,11 @@ module Importers
           l.fetch("lat"),
           l.fetch("lng")
         ]
+        csv << [
+          l.fetch("lat"),
+          l.fetch("lng"),
+          timestamp.strftime("%Y-%m-%d")
+        ].join(",")
 
         # This has to happen after the `all <<`
         if timestamp < most_recently_imported_swarm_checkin_timestamp
@@ -78,7 +84,8 @@ module Importers
         puts "Waiting for threads to be complete..."
         all_threads_for_this_checkin.each(&:join)
       end
-      File.write("tracks.json", JSON.pretty_generate(all))    
+      File.write("tracks.json", JSON.pretty_generate(all))
+      File.write("maps.co.csv", csv.join("\n"))    
 
       # Now verify the total number of checkins matches
       # the number of checkins in the database (this is a sanity check)
