@@ -74,35 +74,64 @@ function renderPieHistory(key) {
 }
 
 function renderPieHistoryChart(yearsData, key) {
-    const minimumValueToRender = 26;
+    let minimumValueToRender = 26;
+
+    // let groupByMonth = true;
+    let groupByMonth = false;
 
     console.log(yearsData);
     let traces = {}
     let totalPerYear = {}
-    for (const year in yearsData) {
-        let yearData = yearsData[year].year;
-        for (const i in yearData) {
-            let currentRow = yearData[i];
-            if (currentRow.count > minimumValueToRender) { // to not pollute the graph with small values
-                if (!traces[currentRow.value]) { traces[currentRow.value] = {} }
-                traces[currentRow.value][year] = currentRow.count
 
-                if (!totalPerYear[year]) { totalPerYear[year] = 0 }
-                totalPerYear[year] += currentRow.count
+    if (groupByMonth) {
+        minimumValueToRender = 4;
+    }
+
+    for (const year in yearsData) {
+        if (groupByMonth) {
+            let monthsData = yearsData[year].months;
+            for (const m in monthsData) {
+                let monthDetails = monthsData[m];
+                for (const i in monthDetails) {
+                    let currentRow = monthDetails[i];
+                    if (currentRow.count > minimumValueToRender) { // to not pollute the graph with small values
+                        if (!traces[currentRow.value]) { traces[currentRow.value] = {} }
+
+                        const key = year + "-" + m
+                        traces[currentRow.value][key] = currentRow.count
+
+                        if (!totalPerYear[key]) { totalPerYear[key] = 0 }
+                        totalPerYear[key] += currentRow.count
+                    }
+                }
+            }
+        } else {
+            let yearData = yearsData[year].year;
+            for (const i in yearData) {
+                let currentRow = yearData[i];
+                if (currentRow.count > minimumValueToRender) { // to not pollute the graph with small values
+                    if (!traces[currentRow.value]) { traces[currentRow.value] = {} }
+                    traces[currentRow.value][year] = currentRow.count
+
+                    if (!totalPerYear[year]) { totalPerYear[year] = 0 }
+                    totalPerYear[year] += currentRow.count
+                }
             }
         }
     }
+
 
     var data = []
     for (let i in traces) {
         let value = traces[i]
         let yValues = []
-        for (const year in allYearsToUse) {
-            const total = (totalPerYear[allYearsToUse[year]] || 0).toFixed(2);
-            yValues.push(value[allYearsToUse[year]] / total * 100)
+            // for (const year in allYearsToUse) {
+        for (const key in totalPerYear) {
+            const total = (totalPerYear[key] || 0).toFixed(2);
+            yValues.push(value[key] / total * 100)
         }
         data.push({
-            x: allYearsToUse,
+            x: Object.keys(totalPerYear),
             y: yValues,
             name: i,
             type: 'bar',
@@ -111,7 +140,7 @@ function renderPieHistoryChart(yearsData, key) {
         })
     }
     var layout = {
-        xaxis: { title: 'Year' },
+        xaxis: { title: 'Year', dtick: 1 },
         yaxis: { title: '' },
         barmode: 'relative',
         title: key,
