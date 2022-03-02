@@ -76,16 +76,14 @@ function renderPieHistory(key) {
 function renderPieHistoryChart(yearsData, key) {
     let minimumValueToRender = 26;
 
-    // let groupByMonth = true;
-    let groupByMonth = false;
+    let groupByMonth = true;
+    // let groupByMonth = false;
 
     console.log(yearsData);
     let traces = {}
     let totalPerYear = {}
 
-    if (groupByMonth) {
-        minimumValueToRender = 4;
-    }
+    minimumValueToRender = parseInt(document.getElementById("min-entries").value);
 
     for (const year in yearsData) {
         if (groupByMonth) {
@@ -120,12 +118,10 @@ function renderPieHistoryChart(yearsData, key) {
         }
     }
 
-
     var data = []
     for (let i in traces) {
         let value = traces[i]
         let yValues = []
-            // for (const year in allYearsToUse) {
         for (const key in totalPerYear) {
             const total = (totalPerYear[key] || 0).toFixed(2);
             yValues.push(value[key] / total * 100)
@@ -139,6 +135,7 @@ function renderPieHistoryChart(yearsData, key) {
             text: i,
         })
     }
+
     var layout = {
         xaxis: { title: 'Year', dtick: 1 },
         yaxis: { title: '' },
