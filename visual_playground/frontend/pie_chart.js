@@ -181,7 +181,7 @@ function renderPieHistoryChart(yearsData, key, groupByMonth, nodeId) {
 
         let colorToUse = null;
         if (colors) {
-            colorToUse = invertedColors ? colors[numberOfValues - 1 - i] : colors[i]
+            colorToUse = invertedColors ? colors[numberOfValues - i] : colors[i]
         }
 
         data.push({
@@ -230,7 +230,7 @@ function renderPieHistoryChart(yearsData, key, groupByMonth, nodeId) {
         linkText: 'Customize'
     };
     Plotly.newPlot(nodeId, data, layout, config).then(function(gd) {
-        Plotly.toImage(gd, { height: 650, width: 1000, format: "svg" }).then(function(base64) {
+        Plotly.toImage(gd, { height: 800, width: 1300, format: "svg" }).then(function(base64) {
             document.getElementById('svg-export-' + nodeId).setAttribute("src", base64);
         })
     });
