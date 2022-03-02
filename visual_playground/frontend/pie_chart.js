@@ -3,6 +3,44 @@ let keys = [];
 let yearsData = {}
 const allYearsToUse = [2016, 2017, 2018, 2019, 2020, 2021];
 
+const binaryColors = {
+    "0": "#b2e0ac",
+    "1": "#00461c"
+}
+const threeColors = {
+    "0": "#d4eece",
+    "1": "#238b45",
+    "2": "#00461c"
+}
+const fourColors = {
+    "0": "#d4eece",
+    "1": "#56b567",
+    "2": "#077331",
+    "3": "#00461c"
+}
+const rangeColors = {
+    "0": "#d4eece",
+    "1": "#86cc85",
+    "2": "#56b567",
+    "3": "#238b45",
+    "4": "#077331",
+    "5": "#00461c"
+}
+
+function colorsForNumber(number) {
+    if (number == 2) {
+        return binaryColors;
+    } else if (number == 3) {
+        return threeColors;
+    } else if (number == 4) {
+        return fourColors;
+    } else if (number == 5 || number == 6) {
+        return rangeColors;
+    } else {
+        return null; // Let Plotly decide (e.g. Cities)
+    }
+}
+
 function loadKeys(callback) {
     httpGetAsync(`${host}/keys`, (data) => {
         keys = data;
@@ -73,19 +111,6 @@ function renderPieHistory(key) {
     }
 }
 
-const binaryColors = {
-    "0": "#b2e0ac",
-    "1": "#00461c"
-}
-const rangeColors = {
-    "0": "#d4eece",
-    "1": "#86cc85",
-    "2": "#56b567",
-    "3": "#238b45",
-    "4": "#077331",
-    "5": "#00461c"
-}
-
 function renderPieHistoryChart(yearsData, key, groupByMonth, nodeId) {
     let minimumValueToRender = 26;
 
@@ -99,6 +124,9 @@ function renderPieHistoryChart(yearsData, key, groupByMonth, nodeId) {
         if (groupByMonth) {
             let monthsData = yearsData[year].months;
             for (const m in monthsData) {
+                if (m == "4" && year == "2019") {
+                    continue; // Since this is only a half-month for my data
+                }
                 let monthDetails = monthsData[m];
                 for (const i in monthDetails) {
                     let currentRow = monthDetails[i];
@@ -131,13 +159,7 @@ function renderPieHistoryChart(yearsData, key, groupByMonth, nodeId) {
     // Use different color schemes for binary inputs vs numeric inputs
     let colors = null;
     const numberOfValues = Object.keys(traces).length
-    if (numberOfValues == 2) {
-        colors = binaryColors
-    } else if (numberOfValues == 6) {
-        colors = rangeColors
-    } else {
-        // Let Plotly decide on the colors (e.g. cities)
-    }
+    colors = colorsForNumber(numberOfValues)
     const invertedColors = document.getElementById("toggle-colors").checked;
 
     var data = []
@@ -149,11 +171,10 @@ function renderPieHistoryChart(yearsData, key, groupByMonth, nodeId) {
             yValues.push(value[key] / total * 100)
         }
 
-        const colorToUse = colors ? (!invertedColors ? colors[i] : (
-            numberOfValues == 2 ?
-            colors[1 - i] :
-            colors[5 - i]
-        )) : null;
+        let colorToUse = null;
+        if (colors) {
+            colorToUse = invertedColors ? colors[numberOfValues - 1 - i] : colors[i]
+        }
 
         data.push({
             x: Object.keys(totalPerYear),
@@ -168,7 +189,7 @@ function renderPieHistoryChart(yearsData, key, groupByMonth, nodeId) {
         })
     }
 
-    if (invertedColors) {
+    if (document.getElementById("toggle-order").checked) {
         data = data.reverse()
     }
 

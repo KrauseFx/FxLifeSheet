@@ -19,11 +19,14 @@
         </table>        
       </span>
     </form>
-    <div class="pieGraph" id='pieGraphAll' />
+    <div class="pieGraph" style="height: 600px" id='pieGraphAll' />
     <div id='pieGraphHistory' />
     <input type="text" min="0" max="100" value="0" id="min-entries" onchange="reloadIndex()" />
     <div id='pieGraphHistoryMonths' />
-    <input type="text" min="0" max="100" value="0" id="min-entries" onchange="reloadIndex()" /><br /> Invert colors: <input type="checkbox" id="toggle-colors" onchange="reloadIndex()" />
+
+    <br /> Invert colors: <input type="checkbox" id="toggle-colors" onchange="reloadIndex()" />
+    <br /> Invert order: <input type="checkbox" id="toggle-order" onchange="reloadIndex()" />
+
     <br />
     <hr />
     <img id="svg-export-1" src="">
