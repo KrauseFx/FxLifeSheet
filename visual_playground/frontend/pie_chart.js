@@ -61,6 +61,7 @@ function loadKeys(callback) {
 
 function renderPie(key) {
     getPieData(key, "All", (data) => {
+        const invertedColors = document.getElementById("toggle-colors").checked;
         values = []
         labels = []
 
@@ -69,8 +70,12 @@ function renderPie(key) {
             values.push(currentRow.count);
             labels.push(currentRow.value);
         }
-        console.log(values)
-        console.log(labels)
+
+        let colors = Object.values(colorsForNumber(values.length));
+        if (invertedColors) {
+            colors = colors.reverse();
+        }
+
         let allData = [{
             values: values,
             labels: labels,
@@ -78,6 +83,9 @@ function renderPie(key) {
             hole: 0.7,
             textposition: 'inside',
             textinfo: "label+percent",
+            marker: {
+                colors: colors
+            }
         }];
 
         var layout = {
