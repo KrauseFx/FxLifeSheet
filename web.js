@@ -91,6 +91,68 @@ postgres.client.query({
         value: Number(res.rows[0]["count"])
     };
 });
+interval = 15 * 60 * 1000;
+var keysStartingWith = ["rescue_time", "swarm", "weather", "dailySteps"];
+function loadKeysCountData(key) {
+    var keyPlusHash = key + "%";
+    var query = "SELECT COUNT(*) AS value FROM raw_data WHERE key LIKE $1";
+    console.log(query);
+    postgres.client.query({
+        text: query,
+        values: [keyPlusHash]
+    }, function (err, res) {
+        console.log(res);
+        if (err) {
+            console.error(err);
+            return;
+        }
+        var lastRow = res.rows[0];
+        if (lastRow != null) {
+            lastFetchedData[key] = {
+                time: moment().format(),
+                value: Number(lastRow.value)
+            };
+        }
+    });
+}
+var _loop_2 = function (i) {
+    var key = keysStartingWith[i];
+    setInterval(function () {
+        loadKeysCountData(key);
+    }, interval);
+    loadKeysCountData(key);
+    lastFetchedData[key] = {
+        time: null,
+        value: null
+    };
+};
+for (var i = 0; i < keysStartingWith.length; i++) {
+    _loop_2(i);
+}
+postgres.client.query({
+    text: "SELECT COUNT(*) AS value FROM raw_data WHERE source = 'tag_days' OR source = 'add_time_range'"
+}, function (err, res) {
+    lastFetchedData["timeRanges"] = {
+        time: moment().format(),
+        value: Number(res.rows[0].value)
+    };
+});
+setTimeout(function () {
+    postgres.client.query({
+        text: "SELECT COUNT(*) AS value FROM raw_data"
+    }, function (err, res) {
+        var manually = Number(res.rows[0].value) -
+            lastFetchedData["timeRanges"].value -
+            lastFetchedData["rescue_time"].value -
+            lastFetchedData["swarm"].value -
+            lastFetchedData["weather"].value -
+            lastFetchedData["dailySteps"].value;
+        lastFetchedData["manuallyEntered"] = {
+            time: moment().format(),
+            value: manually
+        };
+    });
+}, 3000);
 http
     .createServer(function (req, res) {
     res.writeHead(200, { "Content-Type": "application/json" });

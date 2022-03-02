@@ -96,6 +96,7 @@ postgres.client.query(
     };
   }
 );
+
 // One-off query to get the total amount of entries
 postgres.client.query(
   {
@@ -114,6 +115,86 @@ postgres.client.query(
     };
   }
 );
+
+// Periodically refresh the total amount of entries
+interval = 15 * 60 * 1000;
+const keysStartingWith = ["rescue_time", "swarm", "weather", "dailySteps"];
+function loadKeysCountData(key) {
+  const keyPlusHash = key + "%";
+  const query = "SELECT COUNT(*) AS value FROM raw_data WHERE key LIKE $1";
+
+  console.log(query);
+  postgres.client.query(
+    {
+      text: query,
+      values: [keyPlusHash]
+    },
+    (err, res) => {
+      console.log(res);
+      if (err) {
+        console.error(err);
+        return;
+      }
+
+      let lastRow = res.rows[0];
+      if (lastRow != null) {
+        lastFetchedData[key] = {
+          time: moment().format(),
+          value: Number(lastRow.value)
+        };
+      }
+    }
+  );
+}
+
+for (let i = 0; i < keysStartingWith.length; i++) {
+  let key = keysStartingWith[i];
+  setInterval(function() {
+    loadKeysCountData(key);
+  }, interval);
+
+  loadKeysCountData(key);
+
+  lastFetchedData[key] = {
+    time: null,
+    value: null
+  };
+}
+
+// One Off to fetch manually entered, and time ranges
+postgres.client.query(
+  {
+    text:
+      "SELECT COUNT(*) AS value FROM raw_data WHERE source = 'tag_days' OR source = 'add_time_range'"
+  },
+  (err, res) => {
+    lastFetchedData["timeRanges"] = {
+      time: moment().format(),
+      value: Number(res.rows[0].value)
+    };
+  }
+);
+
+setTimeout(function() {
+  postgres.client.query(
+    {
+      text: "SELECT COUNT(*) AS value FROM raw_data"
+    },
+    (err, res) => {
+      const manually =
+        Number(res.rows[0].value) -
+        lastFetchedData["timeRanges"].value -
+        lastFetchedData["rescue_time"].value -
+        lastFetchedData["swarm"].value -
+        lastFetchedData["weather"].value -
+        lastFetchedData["dailySteps"].value;
+      lastFetchedData["manuallyEntered"] = {
+        time: moment().format(),
+        value: manually
+      };
+    }
+  );
+}, 3000);
 
 http
   .createServer(function(req, res) {
