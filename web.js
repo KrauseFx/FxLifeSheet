@@ -152,7 +152,7 @@ setTimeout(function () {
             value: manually
         };
     });
-}, 3000);
+}, 5000);
 http
     .createServer(function (req, res) {
     res.writeHead(200, { "Content-Type": "application/json" });
