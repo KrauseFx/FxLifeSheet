@@ -67,17 +67,15 @@ function renderPieHistory(key) {
         getPieData(key, year, function(data) {
             yearsData[year] = data;
             if (Object.keys(yearsData).length == allYearsToUse.length) {
-                renderPieHistoryChart(yearsData, key);
+                renderPieHistoryChart(yearsData, key, false, "pieGraphHistory");
+                renderPieHistoryChart(yearsData, key, true, "pieGraphHistoryMonths");
             }
         })
     }
 }
 
-function renderPieHistoryChart(yearsData, key) {
+function renderPieHistoryChart(yearsData, key, groupByMonth, nodeId) {
     let minimumValueToRender = 26;
-
-    let groupByMonth = true;
-    // let groupByMonth = false;
 
     console.log(yearsData);
     let traces = {}
@@ -137,8 +135,24 @@ function renderPieHistoryChart(yearsData, key) {
     }
 
     var layout = {
-        xaxis: { title: 'Year', dtick: 1 },
-        yaxis: { title: '' },
+        xaxis: groupByMonth ? {
+            title: '',
+            dtick: 'auto',
+            ticklabelstep: 'auto',
+            tickangle: 90,
+            nticks: 42,
+            dtick: 'M1',
+            tickprefix: '  ' // for some padding
+        } : {
+            title: 'Year',
+            dtick: 1
+        },
+        yaxis: {
+            title: '',
+            ticksuffix: "%",
+            showTickSuffix: 'all',
+            showticksuffix: 'all',
+        },
         barmode: 'relative',
         title: key,
         colorway: ["#AA0DFE", "#3283FE", "#85660D", "#782AB6", "#565656", "#1C8356", "#16FF32", "#F7E1A0", "#E2E2E2", "#1CBE4F", "#C4451C", "#DEA0FD", "#FE00FA", "#325A9B", "#FEAF16", "#F8A19F", "#90AD1C", "#F6222E", "#1CFFCE", "#2ED9FF", "#B10DA1", "#C075A6", "#FC1CBF", "#B00068", "#FBE426", "#FA0087"]
@@ -148,10 +162,10 @@ function renderPieHistoryChart(yearsData, key) {
         plotlyServerURL: "https://chart-studio.plotly.com",
         linkText: 'Customize'
     };
-    Plotly.newPlot('pieGraphHistory', data, layout, config).then(function(gd) {
+    Plotly.newPlot(nodeId, data, layout, config).then(function(gd) {
         Plotly.toImage(gd, { height: 650, width: 1000, format: "svg" }).then(function(base64) {
             console.log(base64)
-            document.getElementById('svg-export-2').setAttribute("src", base64);
+            document.getElementById('svg-export-' + nodeId).setAttribute("src", base64);
         })
     });
 }
