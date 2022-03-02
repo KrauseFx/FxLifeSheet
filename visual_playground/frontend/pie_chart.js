@@ -73,6 +73,19 @@ function renderPieHistory(key) {
     }
 }
 
+const binaryColors = {
+    "0": "#b2e0ac",
+    "1": "#00461c"
+}
+const rangeColors = {
+    "0": "#d4eece",
+    "1": "#86cc85",
+    "2": "#56b567",
+    "3": "#238b45",
+    "4": "#077331",
+    "5": "#00461c"
+}
+
 function renderPieHistoryChart(yearsData, key, groupByMonth, nodeId) {
     let minimumValueToRender = 26;
 
@@ -115,6 +128,18 @@ function renderPieHistoryChart(yearsData, key, groupByMonth, nodeId) {
         }
     }
 
+    // Use different color schemes for binary inputs vs numeric inputs
+    let colors = null;
+    const numberOfValues = Object.keys(traces).length
+    if (numberOfValues == 2) {
+        colors = binaryColors
+    } else if (numberOfValues == 6) {
+        colors = rangeColors
+    } else {
+        // Let Plotly decide on the colors (e.g. cities)
+    }
+    const invertedColors = document.getElementById("toggle-colors").checked;
+
     var data = []
     for (let i in traces) {
         let value = traces[i]
@@ -123,6 +148,13 @@ function renderPieHistoryChart(yearsData, key, groupByMonth, nodeId) {
             const total = (totalPerYear[key] || 0).toFixed(2);
             yValues.push(value[key] / total * 100)
         }
+
+        const colorToUse = colors ? (!invertedColors ? colors[i] : (
+            numberOfValues == 2 ?
+            colors[1 - i] :
+            colors[5 - i]
+        )) : null;
+
         data.push({
             x: Object.keys(totalPerYear),
             y: yValues,
@@ -130,9 +162,16 @@ function renderPieHistoryChart(yearsData, key, groupByMonth, nodeId) {
             type: 'bar',
             textposition: 'inside',
             text: i,
+            marker: (colorToUse ? {
+                color: colorToUse,
+            } : {})
         })
-
     }
+
+    if (invertedColors) {
+        data = data.reverse()
+    }
+
     var layout = {
         xaxis: groupByMonth ? {
             title: '',
@@ -203,5 +242,5 @@ function httpGetAsync(theUrl, callback) {
 }
 
 loadKeys(() => {
-    updateKeyForIndex('swarmCheckinAddressCity');
+    updateKeyForIndex('alcoholIntake');
 });
