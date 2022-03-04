@@ -71,7 +71,8 @@ function renderPie(key) {
             labels.push(currentRow.value);
         }
 
-        let colors = Object.values(colorsForNumber(values.length));
+        let colors = colorsForNumber(values.length);
+        if (colors) { colors = Object.values(colors); }
         if (invertedColors) {
             colors = colors.reverse();
         }
