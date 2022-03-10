@@ -47,7 +47,7 @@ function loadKeys(callback) {
         selects = document.getElementsByClassName('keys');
         for (let i = 0; i < selects.length; i++) {
             data.forEach((row) => {
-                if (!row.key.startsWith('rescue_time') && !row.key.startsWith('Swarm')) {
+                if (row.key && !row.key.startsWith('rescue_time') && !row.key.startsWith('Swarm')) {
                     const opt = document.createElement('option');
                     opt.value = row.key;
                     opt.innerHTML = `${row.key} (${row.count})`;
