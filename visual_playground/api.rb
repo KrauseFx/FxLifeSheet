@@ -105,6 +105,7 @@ class API
     structured = {}
     flat.each do |row|
       next if row[:avg_value].nil? # some rows can be nil
+      next if row[:other_key].nil?
       next if row[:other_key].start_with?("rescue_time_application_")
       next if row[:other_key].start_with?("swarmCheckinCoordinatesL")
       next if row[:other_key].start_with?("swarmCheckinTimezone")
