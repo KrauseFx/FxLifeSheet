@@ -53,7 +53,9 @@ class API
     raw_keys = raw_data.group_and_count(:key).order_by(:count).reverse.to_a
 
     # Also, manually add the Swarm categories
-    raw_keys += database[:all_swarm_checkin_categories].to_a.collect { |row| {key: "Swarm #{row[:category]}", count: row[:count]} }
+    if database.table_exists?(:all_swarm_checkin_categories)
+      raw_keys += database[:all_swarm_checkin_categories].to_a.collect { |row| {key: "Swarm #{row[:category]}", count: row[:count]} }
+    end
 
     return raw_keys
   end
