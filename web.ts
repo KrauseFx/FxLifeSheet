@@ -76,7 +76,8 @@ for (let i = 0; i < keys.length; i++) {
 // One-off total computer usage
 postgres.client.query(
   {
-    text: "SELECT SUM(value::int) FROM raw_data WHERE key = 'dailyComputerUse'"
+    text:
+      "SELECT SUM(value::int) FROM raw_data WHERE key = 'rescue_time_daily_computer_used'"
   },
   (err, res) => {
     console.log(res);

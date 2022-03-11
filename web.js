@@ -63,7 +63,7 @@ for (var i = 0; i < keys.length; i++) {
     _loop_1(i);
 }
 postgres.client.query({
-    text: "SELECT SUM(value::int) FROM raw_data WHERE key = 'dailyComputerUse'"
+    text: "SELECT SUM(value::int) FROM raw_data WHERE key = 'rescue_time_daily_computer_used'"
 }, function (err, res) {
     console.log(res);
     if (err) {
