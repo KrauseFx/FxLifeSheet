@@ -120,11 +120,11 @@ var _loop_2 = function (i) {
     setInterval(function () {
         loadKeysCountData(key);
     }, interval);
-    loadKeysCountData(key);
     lastFetchedData[key] = {
         time: null,
         value: null
     };
+    loadKeysCountData(key);
 };
 for (var i = 0; i < keysStartingWith.length; i++) {
     _loop_2(i);
@@ -137,7 +137,7 @@ postgres.client.query({
         value: Number(res.rows[0].value)
     };
 });
-setTimeout(function () {
+setInterval(function () {
     postgres.client.query({
         text: "SELECT COUNT(*) AS value FROM raw_data"
     }, function (err, res) {
@@ -152,7 +152,7 @@ setTimeout(function () {
             value: manually
         };
     });
-}, 5000);
+}, 10000);
 http
     .createServer(function (req, res) {
     res.writeHead(200, { "Content-Type": "application/json" });

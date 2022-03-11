@@ -154,12 +154,11 @@ for (let i = 0; i < keysStartingWith.length; i++) {
     loadKeysCountData(key);
   }, interval);
 
-  loadKeysCountData(key);
-
   lastFetchedData[key] = {
     time: null,
     value: null
   };
+  loadKeysCountData(key);
 }
 
 // One Off to fetch manually entered, and time ranges
@@ -176,7 +175,7 @@ postgres.client.query(
   }
 );
 
-setTimeout(function() {
+setInterval(function() {
   postgres.client.query(
     {
       text: "SELECT COUNT(*) AS value FROM raw_data"
@@ -195,7 +194,7 @@ setTimeout(function() {
       };
     }
   );
-}, 5000);
+}, 10000);
 
 http
   .createServer(function(req, res) {
