@@ -1,7 +1,7 @@
 const host = 'http://127.0.0.1:8080';
 let keys = [];
 let yearsData = {}
-const allYearsToUse = [2016, 2017, 2018, 2019, 2020, 2021];
+const allYearsToUse = [2016, 2017, 2018, 2019, 2020, 2021, 2022];
 
 const binaryColors = {
     "0": "#b2e0ac",
@@ -133,9 +133,9 @@ function renderPieHistoryChart(yearsData, key, groupByMonth, nodeId) {
         if (groupByMonth) {
             let monthsData = yearsData[year].months;
             for (const m in monthsData) {
-                if (m == "4" && year == "2019") {
-                    continue; // Since this is only a half-month for my data
-                }
+                // if (m == "4" && year == "2019" && key != 'mood') {
+                //     continue; // Since this is only a half-month for my data
+                // }
                 let monthDetails = monthsData[m];
                 for (const i in monthDetails) {
                     let currentRow = monthDetails[i];
