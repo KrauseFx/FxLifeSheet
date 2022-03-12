@@ -313,48 +313,6 @@ function saveLastRun(command) {
 }
 function initBot() {
     console.log("Launching up Telegram bot...");
-    bot.on(["document"], function (ctx) {
-        var fileId = ctx.update.message.document.file_id;
-        console.log("Received a file of ID " + fileId);
-        ctx.telegram.getFileLink(fileId).then(function (link) {
-            console.log(link);
-            needle.get(link, function (error, response, body) {
-                if (error) {
-                    console.error(error);
-                    return;
-                }
-                body = body.toString();
-                console.log(body);
-                var sep = ";";
-                var dateFormat = "DD.MM.YYYY";
-                var lines = body.split("\n");
-                var header = lines[0].split(sep);
-                var counter = 0;
-                for (var i = 1; i < lines.length; i++) {
-                    var line = lines[i].split(sep);
-                    if (line.length > 2) {
-                        var date = moment(line[0].trim(), dateFormat);
-                        for (var j = 1; j < line.length; j++) {
-                            var value = line[j].trim();
-                            var key = header[j].trim();
-                            console.log(key + " for " + date.format() + " = " + value);
-                            if (value.length > 0) {
-                                insertNewValue(value, null, key, "number", date);
-                                counter++;
-                                if (counter % 100 == 0) {
-                                    ctx.reply("Importing entry number " + counter);
-                                }
-                            }
-                        }
-                    }
-                    else {
-                        ctx.reply("The CSV file must use ; as a separator, must have at least 2 columns, with the first column being the date formatted DD.MM.YYYY, and all other columns using the key as the first row");
-                    }
-                }
-                ctx.reply("✅ Succesfully imported " + counter + " rows");
-            });
-        });
-    });
     bot.hears(/^([^\/].*)$/, function (ctx) {
         parseUserInput(ctx);
     });
@@ -431,38 +389,6 @@ function initBot() {
         insertNewValue(lat, ctx, "locationLat", "number");
         insertNewValue(lng, ctx, "locationLng", "number");
         triggerNextQuestionFromQueue(ctx);
-        return;
-        var url = "https://api.opencagedata.com/geocode/v1/json?q=" +
-            lat +
-            "+" +
-            lng +
-            "&key=" +
-            process.env.OPEN_CAGE_API_KEY;
-        needle.get(url, function (error, response, body) {
-            if (error) {
-                console.error(error);
-                return;
-            }
-            var result = body["results"][0];
-            insertNewValue(result["components"]["country"], ctx, "locationCountry", "text");
-            insertNewValue(result["components"]["country_code"], ctx, "locationCountryCode", "text");
-            insertNewValue(result["formatted"], ctx, "locationAddress", "text");
-            insertNewValue(result["components"]["continent"], ctx, "locationContinent", "text");
-            insertNewValue(result["annotations"]["currency"]["name"], ctx, "locationCurrency", "text");
-            insertNewValue(result["annotations"]["timezone"]["short_name"], ctx, "timezone", "text");
-            var city = result["components"]["city"] || result["components"]["state"];
-            insertNewValue(city, ctx, "locationCity", "text");
-        });
-        var today;
-        var fromDate;
-        if (moment().hours() < 18) {
-            today = moment().subtract("1", "day");
-            fromDate = moment().subtract("2", "day");
-        }
-        else {
-            today = moment();
-            fromDate = moment().subtract("1", "day");
-        }
     });
     bot.hears(/\/(\w+)/, function (ctx) {
         if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
@@ -492,37 +418,6 @@ function initBot() {
         }
     });
     bot.start(function (ctx) { return ctx.reply("Welcome to FxLifeSheet"); });
-    bot.on(["voice", "video_note"], function (ctx) {
-        if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
-            return;
-        }
-        var message = ctx.message || ctx.update.channel_post;
-        var voice = message.voice || message.document || message.audio || message.video_note;
-        var fileId = voice.file_id;
-        var transcribingMessageId = null;
-        console.log("Received voice with file ID '" + fileId + "'");
-        ctx
-            .reply("🦄 Received message, transcribing now...", Extra.inReplyTo(ctx.message.message_id))
-            .then(function (_a) {
-            var message_id = _a.message_id;
-            transcribingMessageId = message_id;
-        });
-        var transcribeURL = "https://bubbles-transcribe.herokuapp.com/transcribe";
-        transcribeURL += "?file_id=" + fileId;
-        transcribeURL += "&language=en-US";
-        transcribeURL += "&telegram_token=" + process.env.TELEGRAM_BOT_TOKEN;
-        needle.get(transcribeURL, function (error, response, body) {
-            if (error) {
-                console.error(error);
-                ctx.reply("Error: " + error, Extra.inReplyTo(ctx.message.message_id));
-            }
-            var text = JSON.parse(body)["text"];
-            ctx.telegram.editMessageText(ctx.update.message.chat.id, transcribingMessageId, null, text);
-            if (text != null && text.length > 5) {
-                parseUserInput(ctx, text);
-            }
-        });
-    });
     bot.help(function (ctx) {
         return ctx.reply("No in-bot help right now, for now please visit https://github.com/KrauseFx/FxLifeSheet");
     });

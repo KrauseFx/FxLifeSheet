@@ -437,65 +437,6 @@ function saveLastRun(command) {
 function initBot() {
   console.log("Launching up Telegram bot...");
 
-  bot.on(["document"], ctx => {
-    // This is used to import other historic data
-    let fileId = ctx.update.message.document.file_id;
-    console.log("Received a file of ID " + fileId);
-
-    // Format:
-    //
-    // Date;withingsFatMass;withingsLeanBodyMass;withingsMuscleMass
-    // 28.05.2019;   6.9   ;   74.6  ,   71.1
-    // 27.05.2019;   7.5   ;   74.1  ,   70.6
-    // ....
-
-    ctx.telegram.getFileLink(fileId).then(link => {
-      console.log(link);
-      needle.get(link, function(error, response, body) {
-        if (error) {
-          console.error(error);
-          return;
-        }
-
-        body = body.toString(); // needed for some reason
-        console.log(body);
-        let sep = ";";
-        let dateFormat = "DD.MM.YYYY";
-
-        let lines = body.split("\n");
-
-        let header = lines[0].split(sep);
-        let counter = 0;
-        for (let i = 1; i < lines.length; i++) {
-          let line = lines[i].split(sep);
-          if (line.length > 2) {
-            let date = moment(line[0].trim(), dateFormat);
-            for (let j = 1; j < line.length; j++) {
-              let value = line[j].trim();
-              let key = header[j].trim();
-              console.log(key + " for " + date.format() + " = " + value);
-
-              if (value.length > 0) {
-                insertNewValue(value, null, key, "number", date);
-                counter++;
-
-                if (counter % 100 == 0) {
-                  ctx.reply("Importing entry number " + counter);
-                }
-              }
-            }
-          } else {
-            ctx.reply(
-              "The CSV file must use ; as a separator, must have at least 2 columns, with the first column being the date formatted DD.MM.YYYY, and all other columns using the key as the first row"
-            );
-          }
-        }
-
-        ctx.reply("✅ Succesfully imported " + counter + " rows");
-      });
-    });
-  });
-
   // parse numeric/text inputs
   // `^([^\/].*)$` matches everything that doens't start with /
   // This will enable us to get any user inputs, including longer texts
@@ -603,139 +544,6 @@ function initBot() {
     insertNewValue(lat, ctx, "locationLat", "number");
     insertNewValue(lng, ctx, "locationLng", "number");
     triggerNextQuestionFromQueue(ctx);
-    return; // since the rest doens't currently work
-
-    let url =
-      "https://api.opencagedata.com/geocode/v1/json?q=" +
-      lat +
-      "+" +
-      lng +
-      "&key=" +
-      process.env.OPEN_CAGE_API_KEY;
-
-    needle.get(url, function(error, response, body) {
-      if (error) {
-        console.error(error);
-        return;
-      }
-      let result = body["results"][0];
-
-      // we have some custom handling of the data here, as we get
-      // so much useful data, that we want to insert more rows here
-      insertNewValue(
-        result["components"]["country"],
-        ctx,
-        "locationCountry",
-        "text"
-      );
-      insertNewValue(
-        result["components"]["country_code"],
-        ctx,
-        "locationCountryCode",
-        "text"
-      );
-      insertNewValue(result["formatted"], ctx, "locationAddress", "text");
-      insertNewValue(
-        result["components"]["continent"],
-        ctx,
-        "locationContinent",
-        "text"
-      );
-      insertNewValue(
-        result["annotations"]["currency"]["name"],
-        ctx,
-        "locationCurrency",
-        "text"
-      );
-      insertNewValue(
-        result["annotations"]["timezone"]["short_name"],
-        ctx,
-        "timezone",
-        "text"
-      );
-
-      let city = result["components"]["city"] || result["components"]["state"]; // vienna is not a city according to their API
-      insertNewValue(city, ctx, "locationCity", "text");
-    });
-
-    let today;
-    let fromDate;
-    if (moment().hours() < 18) {
-      // this is being run after midnight,
-      // as I have the tendency to stay up until later
-      // we will fetch the weather from yesterday
-      today = moment().subtract("1", "day");
-      fromDate = moment().subtract("2", "day");
-    } else {
-      today = moment();
-      fromDate = moment().subtract("1", "day");
-    }
-
-    // let weatherURL =
-    //   "http://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/weatherdata/history";
-    // let query = {
-    //   location: lat + "," + lng,
-    //   aggregateHours: "24",
-    //   unitGroup: "metric",
-    //   shortColumnNames: "false",
-    //   key: process.env.WEATHER_API_KEY,
-    //   contentType: "json",
-    //   startDateTime: fromDate.format("YYYY-MM-DD") + "T00:00:00",
-    //   endDateTime: today.format("YYYY-MM-DD") + "T00:00:00"
-    // };
-    // console.log(query);
-
-    // needle.request("get", weatherURL, query, function(error, response, body) {
-    //   if (error) {
-    //     console.error(error);
-    //     return;
-    //   }
-    //   console.log(body);
-
-    //   let result = Object.values(body["locations"])[0]["values"];
-    //   console.log(result);
-
-    //   if (result.length != 2) {
-    //     console.error(
-    //       "Something is wrong here... should only have today and the day before"
-    //     );
-    //   }
-
-    //   let currentDay = result[1];
-    //   let y = result[0];
-
-    //   // https://www.visualcrossing.com/weather-data-documentation
-
-    //   // Today
-    //   insertNewValue(currentDay["temp"], ctx, "weatherCelsius", "number");
-    //   insertNewValue(currentDay["maxt"], ctx, "weatherCelsiusMax", "number");
-    //   insertNewValue(currentDay["mint"], ctx, "weatherCelsiusMin", "number");
-    //   insertNewValue(currentDay["precip"], ctx, "weatherRain", "number");
-    //   insertNewValue(
-    //     currentDay["precipcover"],
-    //     ctx,
-    //     "weatherRainPercentageOfDay",
-    //     "number"
-    //   );
-    //   insertNewValue(currentDay["humidity"], ctx, "weatherHumidity", "number");
-    //   insertNewValue(currentDay["snowdepth"], ctx, "weatherSnow", "number");
-
-    //   // Yesterday
-    //   insertNewValue(y["temp"], ctx, "weatherYesterdayCelsius", "number");
-    //   insertNewValue(y["maxt"], ctx, "weatherYesterdayCelsiusMax", "number");
-    //   insertNewValue(y["mint"], ctx, "weatherYesterdayCelsiusMin", "number");
-    //   insertNewValue(y["precip"], ctx, "weatherYesterdayRain", "number");
-    //   insertNewValue(
-    //     y["precipcover"],
-    //     ctx,
-    //     "weatherYesterdayRainPercentageOfDay",
-    //     "number"
-    //   );
-    //   insertNewValue(y["humidity"], ctx, "weatherYesterdayHumidity", "number");
-    //   insertNewValue(y["snowdepth"], ctx, "weatherYesterdaySnow", "number");
-
-    //   triggerNextQuestionFromQueue(ctx);
-    // });
   });
 
   // parse commands to start a survey
@@ -779,50 +587,50 @@ function initBot() {
   });
 
   bot.start(ctx => ctx.reply("Welcome to FxLifeSheet"));
-  bot.on(["voice", "video_note"], ctx => {
-    if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
-      return;
-    }
-    let message = ctx.message || ctx.update.channel_post;
-    let voice =
-      message.voice || message.document || message.audio || message.video_note;
-    let fileId = voice.file_id;
-    let transcribingMessageId = null;
+  // bot.on(["voice", "video_note"], ctx => {
+  //   if (ctx.update.message.from.username != process.env.TELEGRAM_USER_ID) {
+  //     return;
+  //   }
+  //   let message = ctx.message || ctx.update.channel_post;
+  //   let voice =
+  //     message.voice || message.document || message.audio || message.video_note;
+  //   let fileId = voice.file_id;
+  //   let transcribingMessageId = null;
 
-    console.log("Received voice with file ID '" + fileId + "'");
-    ctx
-      .reply(
-        "🦄 Received message, transcribing now...",
-        Extra.inReplyTo(ctx.message.message_id)
-      )
-      .then(({ message_id }) => {
-        transcribingMessageId = message_id;
-      });
+  //   console.log("Received voice with file ID '" + fileId + "'");
+  //   ctx
+  //     .reply(
+  //       "🦄 Received message, transcribing now...",
+  //       Extra.inReplyTo(ctx.message.message_id)
+  //     )
+  //     .then(({ message_id }) => {
+  //       transcribingMessageId = message_id;
+  //     });
 
-    let transcribeURL = "https://bubbles-transcribe.herokuapp.com/transcribe";
-    transcribeURL += "?file_id=" + fileId;
-    transcribeURL += "&language=en-US";
-    transcribeURL += "&telegram_token=" + process.env.TELEGRAM_BOT_TOKEN;
+  //   let transcribeURL = "https://bubbles-transcribe.herokuapp.com/transcribe";
+  //   transcribeURL += "?file_id=" + fileId;
+  //   transcribeURL += "&language=en-US";
+  //   transcribeURL += "&telegram_token=" + process.env.TELEGRAM_BOT_TOKEN;
 
-    needle.get(transcribeURL, function(error, response, body) {
-      if (error) {
-        console.error(error);
-        ctx.reply("Error: " + error, Extra.inReplyTo(ctx.message.message_id));
-      }
-      let text = JSON.parse(body)["text"];
+  //   needle.get(transcribeURL, function(error, response, body) {
+  //     if (error) {
+  //       console.error(error);
+  //       ctx.reply("Error: " + error, Extra.inReplyTo(ctx.message.message_id));
+  //     }
+  //     let text = JSON.parse(body)["text"];
 
-      ctx.telegram.editMessageText(
-        ctx.update.message.chat.id,
-        transcribingMessageId,
-        null,
-        text
-      );
+  //     ctx.telegram.editMessageText(
+  //       ctx.update.message.chat.id,
+  //       transcribingMessageId,
+  //       null,
+  //       text
+  //     );
 
-      if (text != null && text.length > 5) {
-        parseUserInput(ctx, text);
-      }
-    });
-  });
+  //     if (text != null && text.length > 5) {
+  //       parseUserInput(ctx, text);
+  //     }
+  //   });
+  // });
 
   bot.help(ctx =>
     ctx.reply(
