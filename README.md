@@ -2,16 +2,15 @@
 
 [![Twitter: @KrauseFx](https://img.shields.io/badge/contact-@KrauseFx-blue.svg?style=flat)](https://twitter.com/KrauseFx)
 
-<img src="screenshots/Dashboard1.png" />
-<img src="screenshots/Dashboard2.png" />
+---
 
-## Status of the project
+### See the outcome on [whereisfelix.today?](https://whereisfelix.today/)
 
-I've been using this project successfully since May 2019, however it is difficult to setup and maintain. You can check out the first results on [https://krausefx.com/data](https://krausefx.com/data).
+---
 
 ## Goal
 
-To track all my relevant quantified data in a central place, in which I fully own the data
+To track all my relevant quantified data in a central place, where I fully own the data, and can visualize to fit my needs.
 
 ### Sub goals
 
@@ -23,7 +22,7 @@ As every person is so vastly different, and cares about different metrics in the
 - Keep myself accountable
 - Focus on fitness, overall well-being, and self-improvements
 - Easy input, that make it "fun" to track the data
-- Clear separation between data input and analyzing data, as one has to work day to day while on-the-go, the other one requires a full desktop
+- Clear separation between data input, data storage and analyzing data. Data input has to work day to day while on-the-go, while analyzing data requires a full desktop
 
 ### Questions to answer
 
@@ -74,9 +73,9 @@ There are many questions that can be answered using this data, here are some mai
 
 - The user is in random time zones at random times and switches often, therefore the bot can't know about your daily schedule. This puts a lot of focus on averages, as it doesn't matter if a value was entered at 11pm that day, or 8am the next one, the numbers will even out, as only daily, weekly and monthly averages are considered when rendering graphs.
 
-This repo contains a simple Telegram bot that has a limited amount of responsibilities.
+This repo contains the Telegram bot that is responsible for collecting the data.
 
-There are 2 ways to input data: by the user telling the bot to ask for all the values, and by a regular interval of the bot asking you (similar to the [mood bot](https://github.com/krausefx/mood))
+There are 2 ways to input data: by the user telling the bot to ask for all the values, and by a regular interval of the bot asking you (similar to the deprecated [mood bot](https://github.com/krausefx/mood))
 
 ### Configuration
 
@@ -106,6 +105,7 @@ This will trigger the morning questions, like:
 
 - Sleep duration
 - Sleep quality
+- Body weight
 
 #### Evening
 
@@ -121,7 +121,7 @@ This will trigger the end-of-day questions like
   - Feel stressed?
   - Caffeine intake?
   - How healthy do you feel today?
-  - Number of steps according to Apple Health
+  - Number of steps
 - Productivity related
   - Did I solve actual programming/technical problems?
 - Social
@@ -151,21 +151,6 @@ This will trigger questions that take longer to reply, so they're only done week
     - g of Protein
     - g of Fat
   - Body measurements
-    - Band
-      - Chest (covers lats, eben gemessen, engaged)
-      - Right Arm (engaged, lift up)
-      - Left Arm (engaged, lift up)
-      - 2" above (relaxed, 3 fingers above belly)
-      - Belly
-      - 2" below (relaxed, 3 fingers above belly)
-      - Hip (right above, include butt in measurement)
-      - Right Thigh (widest part of legs)
-      - Left Thigh (widest part of legs)
-    - Fat caliper
-      - Fat caliper avg left/right biceps
-      - Fat caliper right above belly button, von oben
-      - Fat caliper avg right next to belly button, von oben
-  - Current weight (weekly, as weight is measured in mfp anyway)
   - Overall training adherence
   - Note: Comments on fitness
 - Productivity
@@ -185,17 +170,6 @@ This will trigger questions that take longer to reply, so they're only done week
   - Do you feel like you're missing out on things?
   - Played computer games by myself
   - Played computer games with friends or family?
-
-### Reminders
-
-There should be something built-in to remind the user to run the `/week` and the other commands if they didn't in a given time.
-
-e.g. if a `/sleeping` task is defined to be `/daily`, it would remind the user 25h after the previous entry. The user may then choose to ignore it or run the command whenever the want. The key is that the user always has to manually trigger the inputs, as we never want to ask them at a wrong time, or have an overlap of multiple "surveys"
-
-## Ideas
-
-- For each question, add replies depending on the response, similar to what the [mood bot](https://github.com/krausefx/mood) is already doing, e.g.
-  - Question "Do you feel like you're missing out on things?", user replies with "Yes, feeling sad", bot replies with "Okay, now think about 3 actions you can take to solve this, and implemnent at least one"
 
 ## Telegram
 
@@ -238,9 +212,6 @@ export TELEGRAM_CHAT_ID=""
 export DATABASE_URL=""
 
 export LIFESHEET_JSON_URL=""
-
-export OPEN_CAGE_API_KEY=""
-export WEATHER_API_KEY=""
 ```
 
 ### Scheduler
@@ -253,7 +224,7 @@ npm run reminder
 
 ### Postgres
 
-Create a new Postgres database, and run the SQL queries defined in [importers/google-sheets-db/create_tables.sql](importers/google-sheets-db/create_tables.sql)
+Create a new Postgres database, and run the SQL queries defined in [db/create_tables.sql](db/create_tables.sql)
 
 <img src="screenshots/Database1.png" />
 <img src="screenshots/Database2.png" />
@@ -261,3 +232,11 @@ Create a new Postgres database, and run the SQL queries defined in [importers/go
 ### Data Visualization
 
 To analyze the data, check out the `visual_playground` subfolder https://github.com/KrauseFx/FxLifeSheet/tree/master/visual_playground
+
+## Origins
+
+The original implementation abused Google Sheets as a database, and I used Google Data Studio to visualize the data. Both implementations ended up not working pretty quickly.
+
+<img src="screenshots/Dashboard1.png" />
+<img src="screenshots/Dashboard2.png" />
+
