@@ -1,5 +1,7 @@
 # Visual Playground Life Sheet
 
+All the code to visualize the FxLifeSheet data using [Plotly JS](https://plotly.com/javascript/)
+
 ## Dependencies
 
 ```sh
@@ -26,12 +28,10 @@ bundle exec ruby server.rb
 ## Run frontend
 
 ```sh
-python -m SimpleHTTPServer
+cd frontend && python -m SimpleHTTPServer
 ```
 
-and open 
-
-[http://127.0.0.1:8000/frontend.html](http://127.0.0.1:8000/frontend.html)
+and open [http://127.0.0.1:8000/frontend.html](http://127.0.0.1:8000/frontend.html)
 
 ## Examples
 
