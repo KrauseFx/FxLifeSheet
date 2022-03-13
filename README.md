@@ -4,25 +4,39 @@
 
 ---
 
-### See the outcome on [whereisfelix.today?](https://whereisfelix.today/)
+### See the outcome on [whereisfelix.today](https://whereisfelix.today/)
+
+<!--  TODO Insert screenshots here -->
 
 ---
 
-## Goal
+## Goals
 
-To track all my relevant quantified data in a central place, where I fully own the data, and can visualize to fit my needs.
+**To answer questions about my life, like**
 
-### Sub goals
+- How does living in different cities affect other factors like fitness, productivity and happiness?
+- How does sleep affect my day, my fitness level, and happiness?
+- How does the weather, and the different seasons affect my life?
+- Are there any trends over the last few years?
+- How does computer time, work and hours in meetings affect my personal life?
 
-As every person is so vastly different, and cares about different metrics in their life, this solution has to be highly customizable.
+**Key decisions for this project:**
 
-- Fully own the data in a usable format
-- Easily add/remove data I track at any time
-- Generate useful reports
-- Keep myself accountable
-- Focus on fitness, overall well-being, and self-improvements
-- Easy input, that make it "fun" to track the data
-- Clear separation between data input, data storage and analyzing data. Data input has to work day to day while on-the-go, while analyzing data requires a full desktop
+- Use a single database, owned and hosted by me, with all the data I've collected over the years
+- Be able to [easily add and remove questions](https://github.com/KrauseFx/FxLifeSheet/blob/master/lifesheet.json) on the fly, as I learn what's beneficial to track
+- Full control of how the data is visualized
+- Works well for frequent flyers with mixed time zones
+- 100% fully open source, MIT licensed and self-hosted
+
+---
+
+### This repo contains
+
+- The [Telegram bot](https://github.com/KrauseFx/FxLifeSheet/blob/master/worker.ts) for entering data manually
+- The [data visualization](https://github.com/KrauseFx/FxLifeSheet/tree/master/visual_playground), check out the results on [whereisfelix.today](https://whereisfelix.today)
+- The [database info](https://github.com/KrauseFx/FxLifeSheet/blob/master/db/create_tables.sql)
+
+---
 
 ### Questions to answer
 
