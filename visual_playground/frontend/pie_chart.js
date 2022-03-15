@@ -191,7 +191,7 @@ function renderPieHistoryChart(yearsData, key, groupByMonth, nodeId) {
             name: i,
             type: 'bar',
             textposition: 'inside',
-            text: i,
+            text: (numberOfValues > 6) ? i : null, // those graphs look nicer without the number
             marker: (colorToUse ? {
                 color: colorToUse,
             } : {})
