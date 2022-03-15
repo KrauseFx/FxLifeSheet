@@ -182,7 +182,7 @@ function renderPieHistoryChart(yearsData, key, groupByMonth, nodeId) {
 
         let colorToUse = null;
         if (colors) {
-            colorToUse = invertedColors ? colors[numberOfValues - i] : colors[i]
+            colorToUse = invertedColors ? colors[numberOfValues - 1 - i] : colors[i]
         }
 
         data.push({
