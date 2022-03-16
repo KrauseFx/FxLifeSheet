@@ -616,7 +616,7 @@
             },
             {
                 "key": "openTrelloTasks",
-                "question": "How many open todos do you currently have? Take from https://whereisfelix.today",
+                "question": "How many open todos do you currently have? Take from https://howisFelix.today",
                 "type": "number"
             },
             {

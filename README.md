@@ -4,9 +4,11 @@
 
 ---
 
-### See the outcome on [whereisfelix.today](https://whereisfelix.today/)
+### See the outcome on [howisFelix.today](https://howisFelix.today/)
 
 <!--  TODO Insert screenshots here -->
+
+
 
 ---
 
@@ -33,7 +35,7 @@
 ### This repo contains
 
 - The [Telegram bot](https://github.com/KrauseFx/FxLifeSheet/blob/master/worker.ts) for entering data manually
-- The [data visualization](https://github.com/KrauseFx/FxLifeSheet/tree/master/visual_playground), check out the results on [whereisfelix.today](https://whereisfelix.today)
+- The [data visualization](https://github.com/KrauseFx/FxLifeSheet/tree/master/visual_playground), check out the results on [howisFelix.today](https://howisFelix.today)
 - The [database info](https://github.com/KrauseFx/FxLifeSheet/blob/master/db/create_tables.sql)
 
 ---
@@ -169,7 +171,7 @@ This will trigger questions that take longer to reply, so they're only done week
   - Note: Comments on fitness
 - Productivity
   - Overall happiness with life progress of the week, do I go into the right direction?
-  - Number of open Trello tasks (from [whereisfelix.today](https://whereisfelix.today))
+  - Number of open Trello tasks (from [howisFelix.today](https://howisFelix.today))
   - Number of emails in Inbox less than 5?
   - Average daily hours on computer
   - Average daily iOS screen time (minus MyFitnessPal and Strong app)
