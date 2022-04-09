@@ -8,7 +8,7 @@
         "reminder": "node reminder.js"
     },
     "dependencies": {
-        "moment": "^2.24.0",
+        "moment": "^2.29.2",
         "needle": "^2.3.3",
         "pg": "^8.7.1",
         "prettier": "^1.19.1",
