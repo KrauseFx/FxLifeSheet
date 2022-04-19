@@ -200,7 +200,6 @@ function updateOverviewTable() {
   const keysForDashboard = [
     "mood",
     "sleepDurationWithings",
-    "dailySteps",
     "gym",
     "macroAdherence",
     "minutesRead",
@@ -228,10 +227,10 @@ function updateOverviewTable() {
 
   for (let i = 0; i < keysForDashboard.length; i++) {
     let key = keysForDashboard[i];
-    queryToUse += `(SELECT AVG(value::numeric) FROM raw_data WHERE timestamp > ${weekTimestamp} AND key='${key}') as ${key}Week,`;
-    queryToUse += `(SELECT AVG(value::numeric) FROM raw_data WHERE timestamp > ${monthTimestamp} AND key='${key}') as ${key}Month,`;
-    queryToUse += `(SELECT AVG(value::numeric) FROM raw_data WHERE timestamp > ${quarterTimestamp} AND key='${key}') as ${key}Quarter,`;
-    queryToUse += `(SELECT AVG(value::numeric) FROM raw_data WHERE timestamp > ${yearTimestamp} AND key='${key}') as ${key}Year`;
+    queryToUse += `(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE timestamp > ${weekTimestamp} AND key='${key}') as ${key}Week,`;
+    queryToUse += `(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE timestamp > ${monthTimestamp} AND key='${key}') as ${key}Month,`;
+    queryToUse += `(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE timestamp > ${quarterTimestamp} AND key='${key}') as ${key}Quarter,`;
+    queryToUse += `(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE timestamp > ${yearTimestamp} AND key='${key}') as ${key}Year`;
 
     if (i != keysForDashboard.length - 1) {
       queryToUse += ",";
