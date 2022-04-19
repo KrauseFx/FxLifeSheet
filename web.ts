@@ -196,6 +196,63 @@ setInterval(function() {
   );
 }, 10000);
 
+function updateOverviewTable() {
+  const keysForDashboard = [
+    "mood",
+    "sleepDurationWithings",
+    "dailySteps",
+    "gym",
+    "macroAdherence",
+    "minutesRead",
+    "weight",
+    "veggies",
+    "meditated"
+  ];
+  let queryToUse = "SELECT";
+  const weekTimestamp =
+    moment()
+      .subtract(7, "days")
+      .unix() * 1000;
+  const monthTimestamp =
+    moment()
+      .subtract(30, "days")
+      .unix() * 1000;
+  const quarterTimestamp =
+    moment()
+      .subtract(90, "days")
+      .unix() * 1000;
+  const yearTimestamp =
+    moment()
+      .subtract(365, "days")
+      .unix() * 1000;
+
+  for (let i = 0; i < keysForDashboard.length; i++) {
+    let key = keysForDashboard[i];
+    queryToUse += `(SELECT AVG(value::numeric) FROM raw_data WHERE timestamp > ${weekTimestamp} AND key='${key}') as ${key}Week,`;
+    queryToUse += `(SELECT AVG(value::numeric) FROM raw_data WHERE timestamp > ${monthTimestamp} AND key='${key}') as ${key}Month,`;
+    queryToUse += `(SELECT AVG(value::numeric) FROM raw_data WHERE timestamp > ${quarterTimestamp} AND key='${key}') as ${key}Quarter,`;
+    queryToUse += `(SELECT AVG(value::numeric) FROM raw_data WHERE timestamp > ${yearTimestamp} AND key='${key}') as ${key}Year`;
+
+    if (i != keysForDashboard.length - 1) {
+      queryToUse += ",";
+    }
+  }
+  console.log(queryToUse);
+  postgres.client.query(
+    {
+      text: queryToUse
+    },
+    (err, res) => {
+      lastFetchedData["overviewTable"] = {
+        time: moment().format(),
+        value: res.rows[0]
+      };
+    }
+  );
+}
+setInterval(updateOverviewTable, 5 * 60 * 1000);
+updateOverviewTable();
+
 http
   .createServer(function(req, res) {
     res.writeHead(200, { "Content-Type": "application/json" });
