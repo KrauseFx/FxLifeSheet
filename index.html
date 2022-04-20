@@ -16,10 +16,53 @@
     function updateData() {
         getRequest("https://where-is-felix-today-backend.herokuapp.com/api.json", function(data) {
             const overviewTable = JSON.parse(data)["otherFxLifeData"]["overviewTable"]["value"];
-            const keys = ["weight", "gym", "minutesread", "sleepdurationwithings", "macroadherence", "veggies", "meditated"];
+            const keys = [{
+                "name": "weight",
+                "unit": "kg",
+                "rounding": 2,
+                "good": "up",
+                "percentage": false
+            }, {
+                "name": "gym",
+                "unit": "",
+                "rounding": 0,
+                "good": "up",
+                "percentage": true
+            }, {
+                "name": "minutesread",
+                "unit": "",
+                "rounding": 1,
+                "good": "up",
+                "percentage": false
+            }, {
+                "name": "sleepdurationwithings",
+                "unit": "",
+                "rounding": 1,
+                "good": "up",
+                "percentage": false
+            }, {
+                "name": "macroadherence",
+                "unit": "",
+                "rounding": 1,
+                "good": "up",
+                "percentage": false
+            }, {
+                "name": "veggies",
+                "unit": "",
+                "rounding": 0,
+                "good": "up",
+                "percentage": true
+            }, {
+                "name": "meditated",
+                "unit": "",
+                "rounding": 1,
+                "good": "up",
+                "percentage": false
+            }];
             const rows = ["week", "month", "quarter", "year"]
             for (var i = 0; i < keys.length; i++) {
-                const key = keys[i];
+                const keyData = keys[i];
+                const key = keyData["name"]
                 const value = overviewTable[key];
                 const container = document.getElementById("table-container");
                 const table = document.createElement("table");
@@ -42,7 +85,18 @@
                     td.innerHTML = rows[j];
                     tr.appendChild(td);
                     const td2 = document.createElement("td");
-                    td2.innerHTML = overviewTable[key + rows[j]];
+                    let calculatedValue = overviewTable[key + rows[j]]
+                    let suffix = "";
+                    if (keyData["percentage"]) {
+                        calculatedValue *= 100
+                        suffix = "% of days"
+                    }
+                    calculatedValue = Math.round(calculatedValue * Math.pow(10, keyData["rounding"])) / Math.pow(10, keyData["rounding"]);
+
+                    if (keyData["unit"]) {
+                        suffix = " " + keyData["unit"];
+                    }
+                    td2.innerHTML = calculatedValue + suffix;
                     tr.appendChild(td2);
                     tbody.appendChild(tr);
                 }
@@ -102,7 +156,7 @@
     .metrics-table {
         border: none;
         width: 250px;
-        margin: 20px;
+        margin: 10px;
         display: inline;
     }
     
@@ -115,6 +169,7 @@
     .metrics-table tr {
         line-height: 16px;
         font-size: 88%;
+        width: 100%;
     }
     
     .metrics-table tr .ago-subtle {
