@@ -166,16 +166,16 @@ function updateOverviewTable() {
     ];
     var queryToUse = "SELECT";
     var weekTimestamp = moment()
-        .subtract(7, "days")
+        .subtract(7 + 1, "days")
         .unix() * 1000;
     var monthTimestamp = moment()
-        .subtract(30, "days")
+        .subtract(30 + 1, "days")
         .unix() * 1000;
     var quarterTimestamp = moment()
-        .subtract(90, "days")
+        .subtract(90 + 1, "days")
         .unix() * 1000;
     var yearTimestamp = moment()
-        .subtract(365, "days")
+        .subtract(365 + 1, "days")
         .unix() * 1000;
     for (var i = 0; i < keysForDashboard.length; i++) {
         var key = keysForDashboard[i];
