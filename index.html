@@ -18,43 +18,43 @@
             const overviewTable = JSON.parse(data)["otherFxLifeData"]["overviewTable"]["value"];
             const keys = [{
                 "name": "weight",
+                "customTitle": "Weight",
                 "unit": "kg",
                 "rounding": 2,
-                "good": "up",
+                "good": "down",
                 "percentage": false
             }, {
                 "name": "gym",
+                "customTitle": "Gym",
                 "unit": "",
                 "rounding": 0,
                 "good": "up",
                 "percentage": true
             }, {
                 "name": "minutesread",
-                "unit": "",
+                "customTitle": "Books Read",
+                "unit": "minutes",
                 "rounding": 1,
                 "good": "up",
                 "percentage": false
             }, {
                 "name": "sleepdurationwithings",
-                "unit": "",
-                "rounding": 1,
-                "good": "up",
-                "percentage": false
-            }, {
-                "name": "macroadherence",
-                "unit": "",
+                "customTitle": "Sleep Duration",
+                "unit": "hours",
                 "rounding": 1,
                 "good": "up",
                 "percentage": false
             }, {
                 "name": "veggies",
+                "customTitle": "Ate Vegetables",
                 "unit": "",
                 "rounding": 0,
                 "good": "up",
                 "percentage": true
             }, {
                 "name": "meditated",
-                "unit": "",
+                "customTitle": "Meditated",
+                "unit": "minutes",
                 "rounding": 1,
                 "good": "up",
                 "percentage": false
@@ -73,19 +73,48 @@
                 const thead = document.createElement("thead");
                 const tr = document.createElement("tr");
                 const th = document.createElement("th");
-                th.innerHTML = key;
+                th.innerHTML = keyData["customTitle"];
                 th.colSpan = "2"
                 tr.appendChild(th);
                 thead.appendChild(tr);
                 table.appendChild(thead);
                 const tbody = document.createElement("tbody");
+
+                // Calculate the minimum and maximum value of each metric
+                let minValue = null;
+                let maxValue = null;
+                for (var j = 0; j < rows.length; j++) {
+                    let calculatedValue = overviewTable[key + rows[j]]
+                    if (calculatedValue != null) {
+                        if (minValue == null || calculatedValue < minValue) {
+                            minValue = calculatedValue;
+                        }
+                        if (maxValue == null || calculatedValue > maxValue) {
+                            maxValue = calculatedValue;
+                        }
+                    }
+                }
+
                 for (var j = 0; j < rows.length; j++) {
                     const tr = document.createElement("tr");
                     const td = document.createElement("td");
-                    td.innerHTML = rows[j];
+                    td.innerHTML = rows[j].charAt(0).toUpperCase() + rows[j].slice(1); // capitalize
                     tr.appendChild(td);
                     const td2 = document.createElement("td");
                     let calculatedValue = overviewTable[key + rows[j]]
+                    if (calculatedValue == maxValue) {
+                        if (keyData["good"] == "up") {
+                            td2.setAttribute("class", "best-value");
+                        } else {
+                            td2.setAttribute("class", "worst-value");
+                        }
+                    } else if (calculatedValue == minValue) {
+                        if (keyData["good"] == "up") {
+                            td2.setAttribute("class", "worst-value");
+                        } else {
+                            td2.setAttribute("class", "best-value");
+                        }
+                    }
                     let suffix = "";
                     if (keyData["percentage"]) {
                         calculatedValue *= 100
@@ -178,6 +207,16 @@
     
     .metrics-table tr .highlighted {
         padding: 4px;
+    }
+    
+    .best-value {
+        color: green;
+        border: 1px solid green !important;
+    }
+    
+    .worst-value {
+        color: red;
+        border: 1px solid red !important;
     }
     
     @media screen and (max-width: 800px) {
