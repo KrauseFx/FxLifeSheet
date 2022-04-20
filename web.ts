@@ -205,7 +205,12 @@ function updateOverviewTable() {
     "minutesRead",
     "weight",
     "veggies",
-    "meditated"
+    "meditated",
+    "healthy",
+    "headache",
+    "hoursDriving",
+    "alcoholIntake",
+    "withingsSleepingHR"
   ];
   let queryToUse = "SELECT";
   // Subtract an additional day, as inputs happen a day delayed

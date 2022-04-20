@@ -162,7 +162,12 @@ function updateOverviewTable() {
         "minutesRead",
         "weight",
         "veggies",
-        "meditated"
+        "meditated",
+        "healthy",
+        "headache",
+        "hoursDriving",
+        "alcoholIntake",
+        "withingsSleepingHR"
     ];
     var queryToUse = "SELECT";
     var weekTimestamp = moment()
