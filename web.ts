@@ -216,19 +216,19 @@ function updateOverviewTable() {
   // Subtract an additional day, as inputs happen a day delayed
   const weekTimestamp =
     moment()
-      .subtract(7 + 1, "days")
+      .subtract(7, "days")
       .unix() * 1000;
   const monthTimestamp =
     moment()
-      .subtract(30 + 1, "days")
+      .subtract(30, "days")
       .unix() * 1000;
   const quarterTimestamp =
     moment()
-      .subtract(90 + 1, "days")
+      .subtract(90, "days")
       .unix() * 1000;
   const yearTimestamp =
     moment()
-      .subtract(365 + 1, "days")
+      .subtract(365, "days")
       .unix() * 1000;
 
   for (let i = 0; i < keysForDashboard.length; i++) {
