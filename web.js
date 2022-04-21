@@ -187,7 +187,11 @@ function updateOverviewTable() {
         queryToUse += "(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE timestamp > " + weekTimestamp + " AND key='" + key + "') as " + key + "Week,";
         queryToUse += "(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE timestamp > " + monthTimestamp + " AND key='" + key + "') as " + key + "Month,";
         queryToUse += "(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE timestamp > " + quarterTimestamp + " AND key='" + key + "') as " + key + "Quarter,";
-        queryToUse += "(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE timestamp > " + yearTimestamp + " AND key='" + key + "') as " + key + "Year";
+        queryToUse += "(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE timestamp > " + yearTimestamp + " AND key='" + key + "') as " + key + "Year,";
+        queryToUse += "(SELECT COUNT(value::numeric) FROM raw_data WHERE timestamp > " + weekTimestamp + " AND key='" + key + "') as " + key + "WeekCount,";
+        queryToUse += "(SELECT COUNT(value::numeric) FROM raw_data WHERE timestamp > " + monthTimestamp + " AND key='" + key + "') as " + key + "MonthCount,";
+        queryToUse += "(SELECT COUNT(value::numeric) FROM raw_data WHERE timestamp > " + quarterTimestamp + " AND key='" + key + "') as " + key + "QuarterCount,";
+        queryToUse += "(SELECT COUNT(value::numeric) FROM raw_data WHERE timestamp > " + yearTimestamp + " AND key='" + key + "') as " + key + "YearCount";
         if (i != keysForDashboard.length - 1) {
             queryToUse += ",";
         }
