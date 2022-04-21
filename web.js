@@ -210,11 +210,6 @@ setInterval(updateOverviewTable, 5 * 60 * 1000);
 updateOverviewTable();
 http
     .createServer(function (req, res) {
-    if (req.url.indexOf("c0add870-32dc-4243-b8df-7ae71d5922d2") == -1) {
-        res.writeHead(403, { "Content-Type": "text/plain" });
-        res.end("Forbidden");
-        return;
-    }
     res.writeHead(200, {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*",
