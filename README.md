@@ -6,22 +6,22 @@
 
 ### See the outcome on [howisFelix.today](https://howisFelix.today/)
 
-<img src="https://raw.githubusercontent.com/KrauseFx/whereisfelix.today/master/screenshots/Desktop-1.png" />
+<img src="https://raw.githubusercontent.com/KrauseFx/howisFelix.today/master/screenshots/Desktop-1.png" />
 
-<h3 align=center>See the resulting work on <a href="https://whereisfelix.today/">whereisfelix.today</a>
+<h3 align=center>See the resulting work on <a href="https://howisFelix.today/">howisFelix.today</a>
 <p />
  
   
 <table>
   <tr>
     <td>
-      <img src="https://raw.githubusercontent.com/KrauseFx/whereisfelix.today/master/screenshots/iPhone-1.png" />
+      <img src="https://raw.githubusercontent.com/KrauseFx/howisFelix.today/master/screenshots/iPhone-1.png" />
     </td>
     <td>
-      <img src="https://raw.githubusercontent.com/KrauseFx/whereisfelix.today/master/screenshots/iPhone-2.png" />
+      <img src="https://raw.githubusercontent.com/KrauseFx/howisFelix.today/master/screenshots/iPhone-2.png" />
     </td>
     <td>
-      <img src="https://raw.githubusercontent.com/KrauseFx/whereisfelix.today/master/screenshots/iPhone-3.png" />
+      <img src="https://raw.githubusercontent.com/KrauseFx/howisFelix.today/master/screenshots/iPhone-3.png" />
     </td>
   </tr>
 </table>
