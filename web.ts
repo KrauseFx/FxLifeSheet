@@ -229,6 +229,7 @@ function updateOverviewTable() {
     moment()
       .subtract(365, "days")
       .unix() * 1000;
+  const athTimestamp = moment("2019-04-12").unix() * 1000;
 
   for (let i = 0; i < keysForDashboard.length; i++) {
     let key = keysForDashboard[i];
@@ -236,12 +237,12 @@ function updateOverviewTable() {
     queryToUse += `(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE timestamp > ${monthTimestamp} AND key='${key}') as ${key}Month,`;
     queryToUse += `(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE timestamp > ${quarterTimestamp} AND key='${key}') as ${key}Quarter,`;
     queryToUse += `(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE timestamp > ${yearTimestamp} AND key='${key}') as ${key}Year,`;
-    queryToUse += `(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE key='${key}') as ${key}AllTime,`;
+    queryToUse += `(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE timestamp > ${athTimestamp} AND key='${key}') as ${key}AllTime,`;
     queryToUse += `(SELECT COUNT(value::numeric) FROM raw_data WHERE timestamp > ${weekTimestamp} AND key='${key}') as ${key}WeekCount,`;
     queryToUse += `(SELECT COUNT(value::numeric) FROM raw_data WHERE timestamp > ${monthTimestamp} AND key='${key}') as ${key}MonthCount,`;
     queryToUse += `(SELECT COUNT(value::numeric) FROM raw_data WHERE timestamp > ${quarterTimestamp} AND key='${key}') as ${key}QuarterCount,`;
     queryToUse += `(SELECT COUNT(value::numeric) FROM raw_data WHERE timestamp > ${yearTimestamp} AND key='${key}') as ${key}YearCount,`;
-    queryToUse += `(SELECT COUNT(value::numeric) FROM raw_data WHERE key='${key}') as ${key}AllTimeCount`;
+    queryToUse += `(SELECT COUNT(value::numeric) FROM raw_data WHERE timestamp > ${athTimestamp} AND key='${key}') as ${key}AllTimeCount`;
 
     if (i != keysForDashboard.length - 1) {
       queryToUse += ",";
