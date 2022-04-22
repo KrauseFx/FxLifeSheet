@@ -229,10 +229,14 @@ function updateOverviewTable() {
     moment()
       .subtract(365, "days")
       .unix() * 1000;
-  const athTimestamp = moment("2019-04-12").unix() * 1000;
 
   for (let i = 0; i < keysForDashboard.length; i++) {
+    let athTimestamp = moment("2019-04-12").unix() * 1000;
+
     let key = keysForDashboard[i];
+    if (key == "mood") {
+      athTimestamp = moment("2018-02-01").unix() * 1000;
+    }
     queryToUse += `(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE timestamp > ${weekTimestamp} AND key='${key}') as ${key}Week,`;
     queryToUse += `(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE timestamp > ${monthTimestamp} AND key='${key}') as ${key}Month,`;
     queryToUse += `(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE timestamp > ${quarterTimestamp} AND key='${key}') as ${key}Quarter,`;

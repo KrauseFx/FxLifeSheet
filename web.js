@@ -182,9 +182,12 @@ function updateOverviewTable() {
     var yearTimestamp = moment()
         .subtract(365, "days")
         .unix() * 1000;
-    var athTimestamp = moment("2019-04-12").unix() * 1000;
     for (var i = 0; i < keysForDashboard.length; i++) {
+        var athTimestamp = moment("2019-04-12").unix() * 1000;
         var key = keysForDashboard[i];
+        if (key == "mood") {
+            athTimestamp = moment("2018-02-01").unix() * 1000;
+        }
         queryToUse += "(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE timestamp > " + weekTimestamp + " AND key='" + key + "') as " + key + "Week,";
         queryToUse += "(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE timestamp > " + monthTimestamp + " AND key='" + key + "') as " + key + "Month,";
         queryToUse += "(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE timestamp > " + quarterTimestamp + " AND key='" + key + "') as " + key + "Quarter,";
