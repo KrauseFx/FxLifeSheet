@@ -169,6 +169,7 @@
                         suffix = " " + keyData["unit"];
                     }
                     td2.innerHTML = calculatedValue + suffix;
+                    td.innerHTML += " (" + overviewTable[key + rows[j] + "count"] + ")";
                     tr.appendChild(td2);
                     tbody.appendChild(tr);
                 }
