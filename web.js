@@ -192,7 +192,7 @@ function updateOverviewTable() {
         queryToUse += "(SELECT COUNT(value::numeric) FROM raw_data WHERE timestamp > " + weekTimestamp + " AND key='" + key + "') as " + key + "WeekCount,";
         queryToUse += "(SELECT COUNT(value::numeric) FROM raw_data WHERE timestamp > " + monthTimestamp + " AND key='" + key + "') as " + key + "MonthCount,";
         queryToUse += "(SELECT COUNT(value::numeric) FROM raw_data WHERE timestamp > " + quarterTimestamp + " AND key='" + key + "') as " + key + "QuarterCount,";
-        queryToUse += "(SELECT COUNT(value::numeric) FROM raw_data WHERE timestamp > " + yearTimestamp + " AND key='" + key + "') as " + key + "YearCount";
+        queryToUse += "(SELECT COUNT(value::numeric) FROM raw_data WHERE timestamp > " + yearTimestamp + " AND key='" + key + "') as " + key + "YearCount,";
         queryToUse += "(SELECT COUNT(value::numeric) FROM raw_data WHERE key='" + key + "') as " + key + "AllTimeCount";
         if (i != keysForDashboard.length - 1) {
             queryToUse += ",";
