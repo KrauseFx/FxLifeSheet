@@ -1,4 +1,4 @@
-<div id="table-container">
+<div id="table-container-averages">
 </div>
 
 <script type="text/javascript">
@@ -32,7 +32,7 @@
                 "percentage": false
             }, {
                 "name": "gym",
-                "customTitle": "Gym",
+                "customTitle": "Gym visits",
                 "unit": "",
                 "rounding": 0,
                 "good": "up",
@@ -114,7 +114,7 @@
                 const keyData = keys[i];
                 const key = keyData["name"]
                 const value = overviewTable[key];
-                const container = document.getElementById("table-container");
+                const container = document.getElementById("table-container-averages");
                 const table = document.createElement("table");
                 table.setAttribute("cellspacing", 0)
                 table.setAttribute("cellpadding", 0)
@@ -170,7 +170,7 @@
                         calculatedValue *= 100
                         suffix = "% of days"
                     }
-                    calculatedValue = Math.round(calculatedValue * Math.pow(10, keyData["rounding"])) / Math.pow(10, keyData["rounding"]);
+                    calculatedValue = roundNumberExactly(calculatedValue, keyData["rounding"]);
 
                     if (keyData["unit"]) {
                         suffix = " " + keyData["unit"];
@@ -186,6 +186,11 @@
         })
     }
     updateData();
+
+    // Round the given number, exact number of decimal places
+    function roundNumberExactly(number, decimals) {
+        return (Math.round(number * Math.pow(10, decimals)) / Math.pow(10, decimals)).toFixed(decimals);
+    }
 </script>
 
 <style type="text/css">
@@ -198,7 +203,7 @@
         background-color: #f7f7f7;
     }
     
-    thead th {
+    #table-container-averages thead th {
         font-weight: bold;
         text-align: center;
     }
@@ -226,18 +231,20 @@
         font-size: 88%;
     }
     
-    #table-container {
-        margin-top: 20px;
+    #table-container-averages {
+        margin-top: -20px;
         margin-left: auto;
         margin-right: auto;
-        text-align: left;
+        text-align: center;
     }
     
     .metrics-table {
         border: none;
-        width: 250px;
-        margin: 10px;
-        display: inline;
+        width: auto;
+        margin: 5px;
+        margin-right: 15px;
+        margin-left: 15px;
+        display: inline-block;
     }
     
     .metrics-table>*>tr>td:first-child {
@@ -262,12 +269,12 @@
     
     .best-value {
         color: green;
-        border: 1px solid green !important;
+        border-right: 1px solid green !important;
     }
     
     .worst-value {
         color: red;
-        border: 1px solid red !important;
+        border-right: 1px solid red !important;
     }
     
     @media screen and (max-width: 800px) {
