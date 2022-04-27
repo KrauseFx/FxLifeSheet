@@ -17,6 +17,13 @@
         getRequest("https://where-is-felix-today-backend.herokuapp.com/api.json", function(data) {
             const overviewTable = JSON.parse(data)["otherFxLifeData"]["overviewTable"]["value"];
             const keys = [{
+                "name": "mood",
+                "customTitle": "mood",
+                "unit": "",
+                "rounding": 2,
+                "good": "up",
+                "percentage": false
+            }, {
                 "name": "weight",
                 "customTitle": "Weight",
                 "unit": "lbs",
