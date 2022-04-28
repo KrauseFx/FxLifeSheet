@@ -167,7 +167,8 @@ function updateOverviewTable() {
         "headache",
         "hoursDriving",
         "alcoholIntake",
-        "withingsSleepingHR"
+        "withingsSleepingHR",
+        "watchedTVHours"
     ];
     var queryToUse = "SELECT";
     var weekTimestamp = moment()

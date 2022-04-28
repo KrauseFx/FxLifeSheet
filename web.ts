@@ -210,7 +210,8 @@ function updateOverviewTable() {
     "headache",
     "hoursDriving",
     "alcoholIntake",
-    "withingsSleepingHR"
+    "withingsSleepingHR",
+    "watchedTVHours"
   ];
   let queryToUse = "SELECT";
   const weekTimestamp =
