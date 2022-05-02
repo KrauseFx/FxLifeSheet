@@ -11,6 +11,9 @@ var currentlyAskedQuestionObject = null;
 var currentlyAskedQuestionMessageId = null;
 var currentlyAskedQuestionQueue = [];
 initBot();
+function roundNumberExactly(number, decimals) {
+    return (Math.round(number * Math.pow(10, decimals)) / Math.pow(10, decimals)).toFixed(decimals);
+}
 function getButtonText(number) {
     var emojiNumber = {
         "0": "0️⃣",
@@ -93,6 +96,46 @@ function printGraph(key, ctx, numberOfRecentValuesToPrint, additionalValue, skip
                 url: url
             });
         }
+        var queryToUse = "SELECT";
+        var weekTimestamp = moment()
+            .subtract(7, "days")
+            .unix() * 1000;
+        var monthTimestamp = moment()
+            .subtract(30, "days")
+            .unix() * 1000;
+        var quarterTimestamp = moment()
+            .subtract(90, "days")
+            .unix() * 1000;
+        var yearTimestamp = moment()
+            .subtract(365, "days")
+            .unix() * 1000;
+        var athTimestamp = moment("2019-04-12").unix() * 1000;
+        if (key == "mood") {
+            athTimestamp = moment("2018-02-01").unix() * 1000;
+        }
+        queryToUse += "(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE timestamp > " + weekTimestamp + " AND key='" + key + "') as " + key + "Week,";
+        queryToUse += "(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE timestamp > " + monthTimestamp + " AND key='" + key + "') as " + key + "Month,";
+        queryToUse += "(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE timestamp > " + quarterTimestamp + " AND key='" + key + "') as " + key + "Quarter,";
+        queryToUse += "(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE timestamp > " + yearTimestamp + " AND key='" + key + "') as " + key + "Year,";
+        queryToUse += "(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE timestamp > " + athTimestamp + " AND key='" + key + "') as " + key + "AllTime,";
+        queryToUse += "(SELECT COUNT(value::numeric) FROM raw_data WHERE timestamp > " + weekTimestamp + " AND key='" + key + "') as " + key + "WeekCount,";
+        queryToUse += "(SELECT COUNT(value::numeric) FROM raw_data WHERE timestamp > " + monthTimestamp + " AND key='" + key + "') as " + key + "MonthCount,";
+        queryToUse += "(SELECT COUNT(value::numeric) FROM raw_data WHERE timestamp > " + quarterTimestamp + " AND key='" + key + "') as " + key + "QuarterCount,";
+        queryToUse += "(SELECT COUNT(value::numeric) FROM raw_data WHERE timestamp > " + yearTimestamp + " AND key='" + key + "') as " + key + "YearCount,";
+        queryToUse += "(SELECT COUNT(value::numeric) FROM raw_data WHERE timestamp > " + athTimestamp + " AND key='" + key + "') as " + key + "AllTimeCount";
+        console.log(queryToUse);
+        postgres.client.query({
+            text: queryToUse
+        }, function (err, res) {
+            var rows = ["week", "month", "quarter", "year", "alltime"];
+            var c = res.rows[0];
+            console.log(c);
+            var finalText = [];
+            for (var i = 0; i < rows.length; i++) {
+                finalText.push(roundNumberExactly(c[key + rows[i]], 2) + " - " + rows[i]);
+            }
+            ctx.reply(finalText.join("\n"));
+        });
     });
 }
 function triggerNextQuestionFromQueue(ctx) {
