@@ -130,7 +130,7 @@ function printGraph(key, ctx, numberOfRecentValuesToPrint, additionalValue, skip
             var rows = ["week", "month", "quarter", "year", "alltime"];
             var c = res.rows[0];
             console.log(c);
-            var finalText = [];
+            var finalText = ["Moving averages for " + key];
             for (var i = 0; i < rows.length; i++) {
                 finalText.push(roundNumberExactly(c[key + rows[i]], 2) + " - " + rows[i]);
             }

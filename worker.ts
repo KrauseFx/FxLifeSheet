@@ -181,12 +181,8 @@ function printGraph(
           const rows = ["week", "month", "quarter", "year", "alltime"];
           let c = res.rows[0];
           console.log(c);
-          let finalText = [];
+          let finalText = ["Moving averages for " + key];
           for (let i = 0; i < rows.length; i++) {
-            // let spaces = "";
-            // for (let j = 0; j < "alltime".length - rows[i].length; j++) {
-            //   spaces += "  ";
-            // }
             finalText.push(
               roundNumberExactly(c[key + rows[i]], 2) + " - " + rows[i]
             );
