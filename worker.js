@@ -132,7 +132,9 @@ function printGraph(key, ctx, numberOfRecentValuesToPrint, additionalValue, skip
             console.log(c);
             var finalText = ["Moving averages for " + key];
             for (var i = 0; i < rows.length; i++) {
-                finalText.push(roundNumberExactly(c[key + rows[i]], 2) + " - " + rows[i]);
+                finalText.push(roundNumberExactly(c[key.toLowerCase() + rows[i]], 2) +
+                    " - " +
+                    rows[i]);
             }
             ctx.reply(finalText.join("\n"));
         });

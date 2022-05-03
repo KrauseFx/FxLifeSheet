@@ -184,7 +184,9 @@ function printGraph(
           let finalText = ["Moving averages for " + key];
           for (let i = 0; i < rows.length; i++) {
             finalText.push(
-              roundNumberExactly(c[key + rows[i]], 2) + " - " + rows[i]
+              roundNumberExactly(c[key.toLowerCase() + rows[i]], 2) +
+                " - " +
+                rows[i]
             );
           }
           ctx.reply(finalText.join("\n"));
