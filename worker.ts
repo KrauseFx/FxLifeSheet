@@ -109,7 +109,7 @@ function printGraph(
       }
 
       // Print the raw values
-      if (numberOfRecentValuesToPrint > 0) {
+      if (numberOfRecentValuesToPrint > 2) {
         ctx.reply(
           rawText.join("\n") + "\nMinimum: " + minimum + "\nMaximum: " + maximum
         );
@@ -439,7 +439,7 @@ function parseUserInput(ctx, text = null) {
     currentlyAskedQuestionObject.type == "boolean"
   ) {
     // To show potential streaks and the history
-    printGraph(currentlyAskedQuestionObject.key, ctx, 0, parsedUserValue, true);
+    printGraph(currentlyAskedQuestionObject.key, ctx, 2, parsedUserValue, true);
   }
 
   console.log(

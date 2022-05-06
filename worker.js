@@ -75,7 +75,7 @@ function printGraph(key, ctx, numberOfRecentValuesToPrint, additionalValue, skip
                 ": " +
                 Number(additionalValue).toFixed(2));
         }
-        if (numberOfRecentValuesToPrint > 0) {
+        if (numberOfRecentValuesToPrint > 2) {
             ctx.reply(rawText.join("\n") + "\nMinimum: " + minimum + "\nMaximum: " + maximum);
         }
         if (!skipImage) {
@@ -323,7 +323,7 @@ function parseUserInput(ctx, text) {
     if (currentlyAskedQuestionObject.type == "number" ||
         currentlyAskedQuestionObject.type == "range" ||
         currentlyAskedQuestionObject.type == "boolean") {
-        printGraph(currentlyAskedQuestionObject.key, ctx, 0, parsedUserValue, true);
+        printGraph(currentlyAskedQuestionObject.key, ctx, 2, parsedUserValue, true);
     }
     console.log("Got a new value: " +
         parsedUserValue +
