@@ -439,7 +439,7 @@ function parseUserInput(ctx, text = null) {
     currentlyAskedQuestionObject.type == "boolean"
   ) {
     // To show potential streaks and the history
-    printGraph(currentlyAskedQuestionObject.key, ctx, 5, parsedUserValue, true);
+    printGraph(currentlyAskedQuestionObject.key, ctx, 0, parsedUserValue, true);
   }
 
   console.log(

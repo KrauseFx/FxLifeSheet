@@ -323,7 +323,7 @@ function parseUserInput(ctx, text) {
     if (currentlyAskedQuestionObject.type == "number" ||
         currentlyAskedQuestionObject.type == "range" ||
         currentlyAskedQuestionObject.type == "boolean") {
-        printGraph(currentlyAskedQuestionObject.key, ctx, 5, parsedUserValue, true);
+        printGraph(currentlyAskedQuestionObject.key, ctx, 0, parsedUserValue, true);
     }
     console.log("Got a new value: " +
         parsedUserValue +
