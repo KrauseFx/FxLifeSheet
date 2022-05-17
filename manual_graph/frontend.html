@@ -1,0 +1,115 @@
+<html>
+
+<head>
+    <script src="https://cdn.plot.ly/plotly-2.12.1.min.js"></script>
+    <meta charset="utf-8">
+</head>
+
+<body>
+    <input type="text" placeholder="key" value="mood" id="keySelector" onkeydown="keyDown(this)" />
+    <input type="button" value="Get Data" id="keyButton" />
+    <div id='myGraph' />
+</body>
+
+<script type="text/javascript">
+    document.getElementById("keyButton").onclick = function() {
+        getData(document.getElementById("keySelector").value)
+    }
+
+    function keyDown(el) {
+        if (event.key === 'Enter') {
+            getData(document.getElementById("keySelector").value)
+        }
+    }
+
+    function getData(key) {
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                renderKey(JSON.parse(xhr.responseText), key);
+            }
+        }
+        xhr.open("GET", "http://127.0.0.1:8080?key=" + key, true);
+        xhr.send();
+    }
+
+    function renderKey(data, key) {
+        var trace1 = {
+            x: Object.keys(data),
+            y: Object.values(data).map(function(v) {
+                return v["day"]
+            }),
+            mode: 'markers',
+            marker: {
+                color: 'rgb(219, 64, 82)',
+                size: 4
+            },
+            name: 'Values'
+        };
+
+        var trace5 = {
+            x: Object.keys(data),
+            y: Object.values(data).map(function(v) {
+                return v["week"]
+            }),
+            mode: 'lines',
+            line: {
+                color: 'rgba(100, 200, 191)',
+                width: 2
+            },
+            name: 'Weekly'
+        };
+
+
+        var trace2 = {
+            x: Object.keys(data),
+            y: Object.values(data).map(function(v) {
+                return v["month"]
+            }),
+            mode: 'lines',
+            line: {
+                color: 'rgb(55, 128, 191)',
+                width: 4
+            },
+            name: 'Monthly'
+        };
+
+        var trace3 = {
+            x: Object.keys(data),
+            y: Object.values(data).map(function(v) {
+                return v["quarter"]
+            }),
+            mode: 'lines',
+            line: {
+                color: 'rgb(128, 0, 128)',
+                width: 2
+            },
+            name: "Quarter"
+        };
+
+        var trace4 = {
+            x: Object.keys(data),
+            y: Object.values(data).map(function(v) {
+                return v["year"]
+            }),
+            mode: 'lines',
+            line: {
+                color: 'rgb(128, 0, 128)',
+                width: 0.5
+            },
+            name: "Year"
+        };
+
+
+        var traces = [trace1, trace5, trace2, trace3, trace4];
+
+        var layout = {
+            title: key + ' over time'
+        };
+
+        Plotly.newPlot('myGraph', traces, layout);
+    }
+    getData("mood");
+</script>
+
+</html>
