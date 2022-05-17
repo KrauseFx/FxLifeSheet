@@ -6,31 +6,46 @@
 </head>
 
 <body>
-    <input type="text" placeholder="key" value="mood" id="keySelector" onkeydown="keyDown(this)" />
+    <select class="keys" id="keys" onchange="getData()" />
+    <input type="text" value="2022-05-12" id="start-date" onkeydown="keyDown(this)" />
+    <!-- 2019-04-17 -->
     <input type="button" value="Get Data" id="keyButton" />
     <div id='myGraph' />
 </body>
 
 <script type="text/javascript">
     document.getElementById("keyButton").onclick = function() {
-        getData(document.getElementById("keySelector").value)
+        getData();
     }
 
     function keyDown(el) {
         if (event.key === 'Enter') {
-            getData(document.getElementById("keySelector").value)
+            getData();
         }
     }
 
-    function getData(key) {
-        var xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState == 4 && xhr.status == 200) {
-                renderKey(JSON.parse(xhr.responseText), key);
+    function getData() {
+        let key = document.getElementById("keys").selectedOptions[0].value;
+        let startDate = document.getElementById("start-date").value
+        let url = "http://127.0.0.1:8080?key=" + key + "&start_date=" + startDate
+        httpGetAsync(url, (data) => {
+            renderKey(data, key);
+        })
+    }
+
+    function loadKeys() {
+        httpGetAsync("http://127.0.0.1:8080/keys", (data) => {
+            keys = data;
+            selects = document.getElementsByClassName('keys');
+            for (let i = 0; i < selects.length; i++) {
+                data.forEach((row) => {
+                    const opt = document.createElement('option');
+                    opt.value = row.key;
+                    opt.innerHTML = `${row.key} (${row.count})`;
+                    selects[i].appendChild(opt);
+                });
             }
-        }
-        xhr.open("GET", "http://127.0.0.1:8080?key=" + key, true);
-        xhr.send();
+        });
     }
 
     function renderKey(data, key) {
@@ -109,7 +124,26 @@
 
         Plotly.newPlot('myGraph', traces, layout);
     }
-    getData("mood");
+
+    function httpGetAsync(theUrl, callback) {
+        const xmlHttp = new XMLHttpRequest();
+        xmlHttp.onreadystatechange = function() {
+            if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+                callback(JSON.parse(xmlHttp.responseText));
+            }
+        };
+        xmlHttp.open('GET', theUrl, true);
+        xmlHttp.send(null);
+    }
+
+    loadKeys();
 </script>
+
+<style type="text/css">
+    #keys {
+        height: 40px;
+        margin: 10px;
+    }
+</style>
 
 </html>

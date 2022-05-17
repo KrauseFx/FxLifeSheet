@@ -4,17 +4,20 @@ require "sequel"
 require "pry"
 
 class Server
-  def fetch(key:)
-    return cache[key] if cache.key?(key)
+  def fetch(key:, start_date:)
+    cache_key = "#{key}-#{start_date}"
+    return cache[cache_key] if cache.key?(cache_key)
+    raise "Invalid start date" unless start_date.match(/\d{4}-\d{2}-\d{2}/)
 
-    date = Date.new(2020, 1, 1)
+    date = Date.new(start_date.split("-")[0].to_i, start_date.split("-")[1].to_i, start_date.split("-")[2].to_i)
     result = {}
     while date < Date.today - 1
       date += 1
       puts "fetch data for #{date}"
       result[date] = process_date(date, key)
     end
-    cache[key] = result
+    cache[cache_key] = result
+    store_cache_to_disk
     return result
   end
 
@@ -50,7 +53,15 @@ class Server
   end
 
   def cache
-    @_cache ||= {}
+    @_cache ||= File.exist?(cache_path) ? JSON.parse(File.read(cache_path)) : {}
+  end
+
+  def store_cache_to_disk
+    File.write(cache_path, cache.to_json)
+  end
+
+  def cache_path
+    "_cache.json"
   end
 end
 
@@ -62,6 +73,19 @@ get '/' do
   content_type 'application/json'
   response['Access-Control-Allow-Origin'] = '*'
 
-  server.fetch(key: params.fetch("key")).to_json
+  server.fetch(
+    key: params.fetch("key"),
+    start_date: params.fetch("start_date"),
+  ).to_json
+end
+
+get "/keys" do
+  content_type 'application/json'
+  response['Access-Control-Allow-Origin'] = '*'
+
+  raw_keys = server.raw_data.group_and_count(:key).order_by(:count).reverse.to_a
+  raw_keys = raw_keys.keep_if { |k| !k[:key].start_with?("rescue_time_") }
+
+  raw_keys.to_json
 end
 
