@@ -4,6 +4,10 @@ require "sequel"
 require "pry"
 
 class Server
+  def initialize
+    @semaphore = Mutex.new
+  end
+
   def fetch(key:, start_date:)
     raise "Invalid start date" unless start_date.match(/\d{4}-\d{2}-\d{2}/)
 
@@ -11,7 +15,7 @@ class Server
     result = {}
     while date < Date.today - 1
       date += 1
-      puts "fetch data for #{date}"
+      puts "fetch data for #{date} for key #{key}"
       result[date] = process_date(date, key)
     end
     
@@ -42,8 +46,7 @@ class Server
     query += "(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE timestamp > #{all_time_timestamp} AND timestamp <= #{eod_timestamp} AND key='#{key}') as all_time"
 
     res = db[query].to_a.first.collect { |k, v| [k, v ? v.to_f : nil] }.to_h # convert BigFloat
-    cache[cache_key] = res
-    store_cache_to_disk
+    store_cache_to_disk(cache_key, res)
     return res
   end
 
@@ -59,8 +62,12 @@ class Server
     @_cache ||= File.exist?(cache_path) ? JSON.parse(File.read(cache_path)) : {}
   end
 
-  def store_cache_to_disk
-    File.write(cache_path, cache.to_json)
+  def store_cache_to_disk(cache_key, res)
+    @semaphore.synchronize do
+      cache = JSON.parse(File.read(cache_path))
+      cache[cache_key] = res
+      File.write(cache_path, cache.to_json)
+    end
   end
 
   def cache_path
