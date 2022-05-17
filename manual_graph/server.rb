@@ -5,8 +5,6 @@ require "pry"
 
 class Server
   def fetch(key:, start_date:)
-    cache_key = "#{key}-#{start_date}"
-    return cache[cache_key] if cache.key?(cache_key)
     raise "Invalid start date" unless start_date.match(/\d{4}-\d{2}-\d{2}/)
 
     date = Date.new(start_date.split("-")[0].to_i, start_date.split("-")[1].to_i, start_date.split("-")[2].to_i)
@@ -16,12 +14,14 @@ class Server
       puts "fetch data for #{date}"
       result[date] = process_date(date, key)
     end
-    cache[cache_key] = result
-    store_cache_to_disk
+    
     return result
   end
 
   def process_date(date, key)
+    cache_key = "#{date}_#{key}"
+    return cache[cache_key] if cache.key?(cache_key)
+
     raise "invalid key" unless key.match(/^[[:alpha:][:blank:]]+$/)
     # Find the timestamp of the end of a given day
     eod_timestamp = (date + 1).to_time.to_i * 1000
@@ -41,7 +41,10 @@ class Server
     query += "(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE timestamp > #{year_timestamp} AND timestamp <= #{eod_timestamp} AND key='#{key}') as year,"
     query += "(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE timestamp > #{all_time_timestamp} AND timestamp <= #{eod_timestamp} AND key='#{key}') as all_time"
 
-    return db[query].to_a.first.collect { |k, v| [k, v ? v.to_f : nil] }.to_h # convert BigFloat
+    res = db[query].to_a.first.collect { |k, v| [k, v ? v.to_f : nil] }.to_h # convert BigFloat
+    cache[cache_key] = res
+    store_cache_to_disk
+    return res
   end
 
   def db
