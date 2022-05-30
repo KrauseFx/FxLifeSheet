@@ -26,7 +26,7 @@ class Server
     cache_key = "#{date}_#{key}"
     return cache[cache_key] if cache.key?(cache_key)
 
-    raise "invalid key" unless key.match(/^[[:alpha:][:blank:]]+$/)
+    # raise "invalid key" unless key.match(/^[[:alpha:][:blank:]]+$/)
     # Find the timestamp of the end of a given day
     eod_timestamp = (date + 1).to_time.to_i * 1000
 

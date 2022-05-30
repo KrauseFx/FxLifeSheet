@@ -8,5 +8,5 @@ bundle exec ruby server.rb
 ```
 
 ```
-open index.html
+open frontend.html
 ```
