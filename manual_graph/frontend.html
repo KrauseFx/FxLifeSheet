@@ -121,7 +121,12 @@
             title: key + ' over time'
         };
 
-        Plotly.newPlot('myGraph', traces, layout);
+        var config = {
+            showLink: true,
+            plotlyServerURL: "https://chart-studio.plotly.com",
+            linkText: 'Customize'
+        };
+        Plotly.newPlot('myGraph', traces, layout, config);
     }
 
     function httpGetAsync(theUrl, callback) {
