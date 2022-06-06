@@ -46,6 +46,14 @@ be ruby importers/weather/backfill_weather.rb
 be ruby importers/apple_health/apple_health.rb
 ```
 
+### Instapipe
+
+Set `INSTAPIPE_DATABASE_URL` from `.keys` and run
+
+```
+be ruby importers/instapipe/instapipe.rb
+```
+
 ### RescueTime
 
 1. Copy the latest archive from [https://www.rescuetime.com/accounts/your-data](https://www.rescuetime.com/accounts/your-data) to `./importers/rescuetime`, unzipped (the `rescuetime-activity-history.csv` file)
