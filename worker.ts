@@ -162,16 +162,20 @@ function printGraph(
         if (key == "mood") {
           athTimestamp = moment("2018-02-01").unix() * 1000;
         }
+        // After values
         queryToUse += `(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE timestamp > ${weekTimestamp} AND key='${key}') as ${key}Week,`;
         queryToUse += `(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE timestamp > ${monthTimestamp} AND key='${key}') as ${key}Month,`;
         queryToUse += `(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE timestamp > ${quarterTimestamp} AND key='${key}') as ${key}Quarter,`;
         queryToUse += `(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE timestamp > ${yearTimestamp} AND key='${key}') as ${key}Year,`;
         queryToUse += `(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE timestamp > ${athTimestamp} AND key='${key}') as ${key}AllTime,`;
-        queryToUse += `(SELECT COUNT(value::numeric) FROM raw_data WHERE timestamp > ${weekTimestamp} AND key='${key}') as ${key}WeekCount,`;
-        queryToUse += `(SELECT COUNT(value::numeric) FROM raw_data WHERE timestamp > ${monthTimestamp} AND key='${key}') as ${key}MonthCount,`;
-        queryToUse += `(SELECT COUNT(value::numeric) FROM raw_data WHERE timestamp > ${quarterTimestamp} AND key='${key}') as ${key}QuarterCount,`;
-        queryToUse += `(SELECT COUNT(value::numeric) FROM raw_data WHERE timestamp > ${yearTimestamp} AND key='${key}') as ${key}YearCount,`;
-        queryToUse += `(SELECT COUNT(value::numeric) FROM raw_data WHERE timestamp > ${athTimestamp} AND key='${key}') as ${key}AllTimeCount`;
+
+        // Before values
+        queryToUse += `(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE id != (SELECT id FROM raw_data WHERE key='${key}' ORDER BY id DESC LIMIT 1) AND timestamp > ${weekTimestamp} AND key='${key}') as ${key}WeekOld,`;
+        queryToUse += `(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE id != (SELECT id FROM raw_data WHERE key='${key}' ORDER BY id DESC LIMIT 1) AND timestamp > ${monthTimestamp} AND key='${key}') as ${key}MonthOld,`;
+        queryToUse += `(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE id != (SELECT id FROM raw_data WHERE key='${key}' ORDER BY id DESC LIMIT 1) AND timestamp > ${quarterTimestamp} AND key='${key}') as ${key}QuarterOld,`;
+        queryToUse += `(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE id != (SELECT id FROM raw_data WHERE key='${key}' ORDER BY id DESC LIMIT 1) AND timestamp > ${yearTimestamp} AND key='${key}') as ${key}YearOld,`;
+        queryToUse += `(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE id != (SELECT id FROM raw_data WHERE key='${key}' ORDER BY id DESC LIMIT 1) AND timestamp > ${athTimestamp} AND key='${key}') as ${key}AllTimeOld`;
+
         console.log(queryToUse);
 
         postgres.client.query(
@@ -184,10 +188,17 @@ function printGraph(
             console.log(c);
             let finalText = ["Moving averages for " + key];
             for (let i = 0; i < rows.length; i++) {
+              let newValue = c[key.toLowerCase() + rows[i]];
+              let oldValue = c[key.toLowerCase() + rows[i] + "old"];
+
               finalText.push(
-                roundNumberExactly(c[key.toLowerCase() + rows[i]], 2) +
+                roundNumberExactly(newValue, 2) +
                   " - " +
-                  rows[i]
+                  rows[i] +
+                  " (" +
+                  (newValue - oldValue > 0 ? "+" : "") +
+                  roundNumberExactly(newValue - oldValue, 2) +
+                  ")"
               );
             }
             ctx.reply(finalText.join("\n"));
