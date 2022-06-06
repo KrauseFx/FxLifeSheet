@@ -46,6 +46,7 @@ class Server
     query += "(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE timestamp > #{all_time_timestamp} AND timestamp <= #{eod_timestamp} AND key='#{key}') as all_time"
 
     res = db[query].to_a.first.collect { |k, v| [k, v ? v.to_f : nil] }.to_h # convert BigFloat
+    cache[cache_key] = res
     store_cache_to_disk(cache_key, res)
     return res
   end
