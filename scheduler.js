@@ -4,7 +4,7 @@ var config = require("./classes/config.js");
 var postgres = require("./classes/postgres.js");
 var telegram = require("./classes/telegram.js");
 
-cron.schedule(`* * */1 * *`, async () => {
+cron.schedule(`0 * * * *`, async () => {
   console.log("Checking if we need to send a reminder to the user...");
 
   // timeout to load the JSON file
