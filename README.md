@@ -252,10 +252,10 @@ export LIFESHEET_JSON_URL=""
 
 ### Scheduler
 
-Use the Heroku scheduler, and set it to run every hour to remind you to run certain commands according to the defined schedule (`weekly`, etc)
+Not using Heroku any more, in railway.app, just add this as its own service
 
 ```
-npm run reminder
+npm run scheduler
 ```
 
 ### Postgres

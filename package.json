@@ -1,15 +1,16 @@
 {
     "scripts": {
-        "prettier": "prettier worker.ts web.ts reminder.ts classes/*.ts --write",
+        "prettier": "prettier worker.ts web.ts classes/*.ts --write",
         "typescript": "tsc --p tsconfig.json",
         "dev": "source .keys && npm run prettier && npm run typescript && heroku local",
         "web": "node web.js",
         "worker": "node worker.js",
-        "reminder": "node reminder.js"
+        "scheduler": "node scheduler.js"
     },
     "dependencies": {
         "moment": "^2.24.0",
         "needle": "^2.3.3",
+        "node-cron": "^3.0.2",
         "pg": "^8.7.1",
         "prettier": "^1.19.1",
         "telegraf": "^3.36.0",
