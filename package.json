@@ -8,7 +8,7 @@
         "scheduler": "node scheduler.js"
     },
     "dependencies": {
-        "moment": "^2.24.0",
+        "moment": "^2.29.4",
         "needle": "^2.3.3",
         "node-cron": "^3.0.2",
         "pg": "^8.7.1",
