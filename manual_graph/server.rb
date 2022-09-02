@@ -65,7 +65,7 @@ class Server
 
   def store_cache_to_disk(cache_key, res)
     @semaphore.synchronize do
-      cache = JSON.parse(File.read(cache_path))
+      cache = File.exist?(cache_path) ? JSON.parse(File.read(cache_path)) : {}
       cache[cache_key] = res
       File.write(cache_path, cache.to_json)
     end
