@@ -150,22 +150,7 @@ setInterval(function () {
     });
 }, 10000);
 function updateOverviewTable() {
-    var keysForDashboard = [
-        "mood",
-        "sleepDurationWithings",
-        "gym",
-        "macroAdherence",
-        "minutesRead",
-        "weight",
-        "veggies",
-        "meditated",
-        "healthy",
-        "headache",
-        "hoursDriving",
-        "alcoholIntake",
-        "withingsSleepingHR",
-        "watchedTVHours"
-    ];
+    var keysForDashboard = ["gym", "veggies", "withingsSleepingHR"];
     var queryToUse = "SELECT";
     var weekTimestamp = moment()
         .subtract(7, "days")
@@ -209,7 +194,7 @@ function updateOverviewTable() {
         };
     });
 }
-setInterval(updateOverviewTable, 5 * 60 * 1000);
+setInterval(updateOverviewTable, 60 * 60 * 1000);
 updateOverviewTable();
 http
     .createServer(function (req, res) {

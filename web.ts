@@ -192,22 +192,7 @@ setInterval(function() {
 }, 10000);
 
 function updateOverviewTable() {
-  const keysForDashboard = [
-    "mood",
-    "sleepDurationWithings",
-    "gym",
-    "macroAdherence",
-    "minutesRead",
-    "weight",
-    "veggies",
-    "meditated",
-    "healthy",
-    "headache",
-    "hoursDriving",
-    "alcoholIntake",
-    "withingsSleepingHR",
-    "watchedTVHours"
-  ];
+  const keysForDashboard = ["gym", "veggies", "withingsSleepingHR"];
   let queryToUse = "SELECT";
   const weekTimestamp =
     moment()
@@ -261,7 +246,7 @@ function updateOverviewTable() {
     }
   );
 }
-setInterval(updateOverviewTable, 5 * 60 * 1000);
+setInterval(updateOverviewTable, 60 * 60 * 1000);
 updateOverviewTable();
 
 http
