@@ -14,7 +14,6 @@ cron.schedule(`0 * * * *`, async () => {
         text: "SELECT * FROM last_run",
       },
       function(err, res) {
-        console.log(res);
         if (err) {
           console.error(err);
           return;
@@ -97,7 +96,6 @@ cron.schedule(`0 * * * *`, async () => {
                 if (err) {
                   console.log(err);
                 }
-                console.log(res);
               }
             );
           }
