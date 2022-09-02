@@ -20,7 +20,6 @@ function loadCurrentData(key) {
         text: query,
         values: [key]
     }, function (err, res) {
-        console.log(res);
         if (err) {
             console.error(err);
             return;
@@ -65,7 +64,6 @@ for (var i = 0; i < keys.length; i++) {
 postgres.client.query({
     text: "SELECT SUM(value::int) FROM raw_data WHERE key = 'rescue_time_daily_computer_used'"
 }, function (err, res) {
-    console.log(res);
     if (err) {
         console.error(err);
         return;
@@ -81,7 +79,6 @@ postgres.client.query({
 postgres.client.query({
     text: "SELECT COUNT(*) FROM raw_data"
 }, function (err, res) {
-    console.log(res);
     if (err) {
         console.error(err);
         return;
@@ -101,7 +98,6 @@ function loadKeysCountData(key) {
         text: query,
         values: [keyPlusHash]
     }, function (err, res) {
-        console.log(res);
         if (err) {
             console.error(err);
             return;

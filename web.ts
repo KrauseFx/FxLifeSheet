@@ -25,7 +25,6 @@ function loadCurrentData(key) {
       values: [key]
     },
     (err, res) => {
-      console.log(res);
       if (err) {
         console.error(err);
         return;
@@ -80,7 +79,6 @@ postgres.client.query(
       "SELECT SUM(value::int) FROM raw_data WHERE key = 'rescue_time_daily_computer_used'"
   },
   (err, res) => {
-    console.log(res);
     if (err) {
       console.error(err);
       return;
@@ -104,7 +102,6 @@ postgres.client.query(
     text: "SELECT COUNT(*) FROM raw_data"
   },
   (err, res) => {
-    console.log(res);
     if (err) {
       console.error(err);
       return;
@@ -123,7 +120,6 @@ const keysStartingWith = ["rescue_time", "swarm", "weather", "dailySteps"];
 function loadKeysCountData(key) {
   const keyPlusHash = key + "%";
   const query = "SELECT COUNT(*) AS value FROM raw_data WHERE key LIKE $1";
-
   console.log(query);
   postgres.client.query(
     {
@@ -131,7 +127,6 @@ function loadKeysCountData(key) {
       values: [keyPlusHash]
     },
     (err, res) => {
-      console.log(res);
       if (err) {
         console.error(err);
         return;
