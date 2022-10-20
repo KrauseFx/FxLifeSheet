@@ -11,6 +11,7 @@ end
 def json_response
   content_type 'application/json'
   response['Access-Control-Allow-Origin'] = 'http://127.0.0.1:8000'
+  headers 'Access-Control-Allow-Origin' => 'http://127.0.0.1:8000'
 end
 
 get "/data" do
