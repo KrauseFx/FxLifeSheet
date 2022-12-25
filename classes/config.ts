@@ -18,6 +18,7 @@ interface QuestionToAsk {
 }
 
 let url = process.env.LIFESHEET_JSON_URL;
+console.log(process.env.DATABASE_URL);
 if (url) {
   console.log("Loading remote JSON config...");
   needle.get(url, function(error, response, body) {
