@@ -11,7 +11,7 @@ if (url) {
     });
 }
 else {
-    var userConfig = require("../lifesheet.json");
+    var userConfig = require("../../lifesheet.json");
     console.log("Successfully loaded user config");
     module.exports.userConfig = userConfig;
 }
