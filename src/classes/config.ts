@@ -26,7 +26,7 @@ if (url) {
     module.exports.userConfig = userConfig;
   });
 } else {
-  let userConfig: { [key: string]: Command } = require("../lifesheet.json");
+  let userConfig: { [key: string]: Command } = require("../../lifesheet.json");
   console.log("Successfully loaded user config");
   module.exports.userConfig = userConfig;
 }

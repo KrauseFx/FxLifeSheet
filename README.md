@@ -1,36 +1,19 @@
-# FxLifeSheet
+# Matrix
+Extremely inspired and started as a fork from (FxLifeSheet)[https://github.com/KrauseFx/FxLifeSheet].
+All credits to  [![Twitter: @KrauseFx](https://img.shields.io/badge/contact-@KrauseFx-blue.svg?style=flat)](https://twitter.com/KrauseFx) for giving this idea and motivating us to start this.
 
-[![Twitter: @KrauseFx](https://img.shields.io/badge/contact-@KrauseFx-blue.svg?style=flat)](https://twitter.com/KrauseFx)
+This is a fork only to make it more usable for mine and @charutaks taste and liking and is a WIP!
 
----
 
-### See the outcome on [howisFelix.today](https://howisFelix.today/)
+# TODO
+[] Auth in front of visual playground
+[] Get rid of all ruby and create visual playground from scratch
+[] API Server for integrations with other apps
+  [] Base Server
+  [] Oura
+  [] Apple Watch
+  [] Networth?
 
-<img src="https://raw.githubusercontent.com/KrauseFx/howisFelix.today/master/screenshots/Desktop-1.png" />
-
-<h3 align=center>See the resulting work on <a href="https://howisFelix.today/">howisFelix.today</a>
-<p />
- 
-  
-<table>
-  <tr>
-    <td>
-      <img src="https://raw.githubusercontent.com/KrauseFx/howisFelix.today/master/screenshots/iPhone-1.png" />
-    </td>
-    <td>
-      <img src="https://raw.githubusercontent.com/KrauseFx/howisFelix.today/master/screenshots/iPhone-2.png" />
-    </td>
-    <td>
-      <img src="https://raw.githubusercontent.com/KrauseFx/howisFelix.today/master/screenshots/iPhone-3.png" />
-    </td>
-  </tr>
-</table>
- 
----
-
-<img src="https://raw.githubusercontent.com/KrauseFx/howisFelix.today/master/screenshots/Overview-Portrait-1.png" />
-
----
 
 ## Goals
 
