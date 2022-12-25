@@ -1,10 +1,10 @@
 {
     "scripts": {
-        "prettier": "prettier worker.ts web.ts classes/*.ts --write",
+        "prettier": "prettier src/worker.ts src/web.ts classes/*.ts --write",
         "typescript": "tsc --p tsconfig.json",
-        "worker": "npm run prettier && npm run typescript && node worker.js",
-        "web": "npm run prettier && npm run typescript && node web.js",
-        "scheduler": "npm run prettier && npm run typescript && node scheduler.js"
+        "worker": "npm run prettier && npm run typescript && node src/worker.js",
+        "web": "npm run prettier && npm run typescript && node src/web.js",
+        "scheduler": "npm run prettier && npm run typescript && node src/scheduler.js"
     },
     "dependencies": {
         "moment": "^2.24.0",

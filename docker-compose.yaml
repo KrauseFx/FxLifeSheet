@@ -12,7 +12,7 @@ services:
     ports:
       - '5432:5432'
   worker:
-    image: matrix
+    image: dementor/matrix
     command: npm run worker
     restart: always
     #ports:
@@ -22,7 +22,7 @@ services:
     depends_on:
       - db
   scheduler:
-    image: matrix
+    image: dementor/matrix
     command: npm run scheduler
     restart: always
     env_file:
