@@ -10,9 +10,9 @@
                 "5": "pumped, energized",
                 "4": "happy, excited",
                 "3": "good",
-                "2": "okay",
+                "2": "tired",
                 "1": "sad, unhappy",
-                "0": "nervous"
+                "0": "nervous, anxious"
             },
             "replies": {
                 "5": "💫 Awesome to hear, maybe take 2 minutes to reflect on why you're feeling great, and maybe add a note by running /track moodNotes",
@@ -27,29 +27,6 @@
         "questions": [{
                 "question": "🌇 Good morning",
                 "type": "header"
-            },
-            {
-                "key": "sleepQuality",
-                "question": "How would you rate your quality of sleep?",
-                "type": "range",
-                "buttons": {
-                    "5": "Excellent, feeling refreshed",
-                    "4": "Great, feeling good",
-                    "3": "Good, slighty above average",
-                    "2": "Solid, slightly tired",
-                    "1": "Tired, restless sleep",
-                    "0": "Miserable"
-                }
-            },
-            {
-                "key": "sleepDuration",
-                "question": "How long did you sleep tonight?",
-                "type": "number"
-            },
-            {
-                "key": "fitbitTimeAsleep",
-                "question": "How many hours asleep were you according to Fitbit (round to nearest 30mins)",
-                "type": "number"
             },
             {
                 "key": "sleepWokeUpYourself",
@@ -93,7 +70,7 @@
             },
             {
                 "key": "weight",
-                "question": "Current weight, in lbs",
+                "question": "Current weight, in kg",
                 "type": "number"
             }
         ]
@@ -147,30 +124,9 @@
                 }
             },
             {
-                "key": "macroAdherence",
-                "question": "How closely did you follow today's macro tracking?",
-                "type": "range",
-                "buttons": {
-                    "5": "Was able to scale 90% of my food",
-                    "4": "One outside meal, rest scaled",
-                    "3": "Two meals outside, rest scaled",
-                    "2": "Ate outside only",
-                    "1": "Didn't track, but used mind",
-                    "0": "Just ate whatever"
-                }
-            },
-            {
-                "key": "hungry",
-                "question": "Have you been feeling hungry today?",
-                "type": "range",
-                "buttons": {
-                    "5": "Felt full and energized",
-                    "4": "Macros aligned perfectly with my hunger",
-                    "3": "Comfortably matched my macros",
-                    "2": "Managed to squeeze in those macros",
-                    "1": "Felt hungry here and then",
-                    "0": "Stomach growling parts of the day"
-                }
+                "key": "numberOfMeals",
+                "question": "How many meals did you have today?",
+                "type": "number"
             },
             {
                 "key": "energy",
@@ -193,7 +149,7 @@
                     "5": "Very calm and aware",
                     "4": "Calm & relaxed",
                     "3": "Neutral",
-                    "2": "Lots to do",
+                    "2": "Somewhat stressed",
                     "1": "Stressed & Overwhelmed",
                     "0": "Very stressed, not sure where to start"
                 }
@@ -225,6 +181,11 @@
                 }
             },
             {
+                "key": "vitamins",
+                "question": "Did you take vitamins",
+                "type": "boolean"
+            },
+            {
                 "key": "gym",
                 "question": "Did you work out in a gym today?",
                 "type": "boolean"
@@ -240,111 +201,33 @@
                 "type": "boolean"
             },
             {
-                "key": "coldSymptons",
-                "question": "Did you have any cold symptons? (running nose, feeling dizzy, light ear pain)",
+                "key": "coke",
+                "question": "Did you have coke today?",
                 "type": "boolean"
             },
             {
-                "key": "healthy",
-                "question": "How healthy do you feel?",
-                "type": "range",
-                "buttons": {
-                    "5": "Fully healthy & energized",
-                    "4": "Healthy",
-                    "3": "Might have a slight cold",
-                    "2": "Having a cold",
-                    "1": "Stayed home due to health",
-                    "0": "Actually sick"
-                }
-            },
-            {
-                "key": "creatineIntake",
-                "question": "Did you take your creatine today?",
+                "key": "lays",
+                "question": "Did you have lays today?",
                 "type": "boolean"
-            },
-            {
-                "key": "fishoilIntake",
-                "question": "Did you take your fish oil today?",
-                "type": "boolean"
-            },
-            {
-                "key": "dailySteps",
-                "question": "How many steps did you take according to Apple Health?",
-                "type": "number"
-            },
-            {
-                "key": "fitbitRestingHeartRate",
-                "question": "What was today's resting heart rate according to FitBit",
-                "type": "number"
-            },
-            {
-                "key": "numberOfSwarmCheckins",
-                "question": "How many Swarm check-ins did you do today? Feel free to ignore train stations and other smaller check-ins, it's about how many actual places (restaurants, bars, sights) you visited today",
-                "type": "number"
             },
             {
                 "question": "👥 Let's talk social life",
                 "type": "header"
             },
             {
-                "key": "timeByMyself",
-                "question": "Do you feel like you'd have needed more time by yourself?",
-                "type": "range",
-                "buttons": {
-                    "5": "No",
-                    "4": "I've had just enough time",
-                    "3": "Good amount of time, could be more",
-                    "2": "Busy day, I need more time",
-                    "1": "Barely time for myself",
-                    "0": "No time by myself"
-                },
-                "replies": {
-                    "1": "Take a step back and think how you can improve this for the next days",
-                    "0": "Take a step back and think how you can improve this for the next days"
-                }
-            },
-            {
-                "key": "controlOfTime",
-                "question": "Did you feel like you were in control over your time and schedule?",
-                "type": "range",
-                "buttons": {
-                    "5": "In full control",
-                    "4": "In control, some constraints",
-                    "3": "A few constraints, but still in control",
-                    "2": "Average",
-                    "1": "Many constraints",
-                    "0": "Day was out of my control"
-                },
-                "replies": {
-                    "1": "Take a step back and think how you can improve this for the next days",
-                    "0": "Take a step back and think how you can improve this for the next days"
-                }
+                "key": "parents",
+                "question": "Did you call parents today?",
+                "type": "boolean"
             },
             {
                 "key": "socializing",
-                "question": "Do you feel like you need to socialize more?",
-                "type": "range",
-                "buttons": {
-                    "5": "No",
-                    "4": "Almost perfect amount",
-                    "3": "Socializing was okay",
-                    "2": "Feel like I should socialize more",
-                    "1": "Not enough socializing",
-                    "0": "Feeling isolated"
-                }
+                "question": "Did you socialize today?",
+                "type": "boolean"
             },
             {
-                "key": "goingOut",
-                "question": "Do you feel like you want to go out more, to restaurants, bars, dancing?",
-                "type": "range",
-                "buttons": {
-                    "5": "Don't feel like I need more",
-                    "4": "Felt pretty good about it",
-                    "3": "Did just enough",
-                    "2": "I want to go out more",
-                    "1": "I feel like I'm missing out",
-                    "0": "I'm unhappy about not getting out"
-                }
+                "key": "out",
+                "question": "Did you go out today?",
+                "type": "boolean"
             },
             {
                 "question": "⚙️ Let's talk personal growth",
@@ -364,49 +247,18 @@
                 }
             },
             {
-                "key": "comfortZone",
-                "question": "Did you get out of your comfort zone",
-                "type": "range",
-                "buttons": {
-                    "5": "Did something(s) I was really scared about",
-                    "4": "Did something(s) I was worried about",
-                    "3": "Did something I wouldn't have done before",
-                    "2": "Did something new",
-                    "1": "Did smaller tweaks",
-                    "0": "Didn't do anything new"
-                }
+                "key": "didRead",
+                "question": "Did you ready?",
+                "type": "boolean"
             },
             {
-                "key": "problemSolving",
-                "question": "Did you work on any technical challenges and problem solving?",
-                "type": "range",
-                "buttons": {
-                    "5": "Exciting challenges",
-                    "4": "Interesting challenges",
-                    "3": "Did some coding",
-                    "2": "No actual challenges",
-                    "1": "Just a little bit",
-                    "0": "Nothing"
-                }
-            },
-            {
-                "key": "minutesRead",
-                "question": "How many minutes of Audible did you listen to today?",
-                "type": "number"
+                "key": "chess",
+                "question": "Did you play chess today?",
+                "type": "boolean"
             },
             {
                 "question": "🧠 Let's talk productivity",
                 "type": "header"
-            },
-            {
-                "key": "meditated",
-                "question": "How many minutes did you meditate today?",
-                "type": "number"
-            },
-            {
-                "key": "mindWandering",
-                "question": "Did you feel like you had enough time for your mind to wander around?",
-                "type": "boolean"
             },
             {
                 "key": "watchedTV",
@@ -459,19 +311,6 @@
                 "key": "moodNotes",
                 "question": "What do you think was the main influence to your mood ratings today?",
                 "type": "text"
-            },
-            {
-                "key": "bedTime",
-                "question": "When did you go to bed tonight?",
-                "type": "range",
-                "buttons": {
-                    "5": "Before 11:30",
-                    "4": "Before midnight",
-                    "3": "Before 0:30",
-                    "2": "Before 1:00",
-                    "1": "Before 1:30",
-                    "0": "Later"
-                }
             }
         ]
     },
@@ -480,78 +319,6 @@
         "schedule": "weekly",
         "questions": [{
                 "question": "💪 Let's talk fitness first",
-                "type": "header"
-            },
-            {
-                "question": "⌲ Now onto the body measurements, please make sure to enter the number in cm!",
-                "type": "header"
-            },
-            {
-                "key": "measurementTapeChest",
-                "question": "Chest tape measurement, covers lats, measure on one level, engage chest",
-                "type": "number"
-            },
-            {
-                "key": "measurementTapeRightArm",
-                "question": "Right arm tape measurement, lift up and flex",
-                "type": "number"
-            },
-            {
-                "key": "measurementTapeLeftArm",
-                "question": "Left arm tape measurement, lift up and flex",
-                "type": "number"
-            },
-            {
-                "key": "measurementTapeAboveBelly",
-                "question": "Measure 3 fingers above belly button",
-                "type": "number"
-            },
-            {
-                "key": "measurementTapeAroundBelly",
-                "question": "Measure around belly button",
-                "type": "number"
-            },
-            {
-                "key": "measurementTapeUnderBelly",
-                "question": "Measure 3 fingers under belly button",
-                "type": "number"
-            },
-            {
-                "key": "measurementTapeHip",
-                "question": "Measure tape around hip, should measure butt also",
-                "type": "number"
-            },
-            {
-                "key": "measurementTapeRightThigh",
-                "question": "Measure tape around right thigh, widest part of the leg, engage pressing down against the floor",
-                "type": "number"
-            },
-            {
-                "key": "measurementTapeLeftThigh",
-                "question": "Measure tape around left thigh, widest part of the leg, engage pressing down against the floor",
-                "type": "number"
-            },
-            {
-                "question": "🎅 Now onto the fat caliper measurements",
-                "type": "header"
-            },
-            {
-                "key": "measurementFatCaliperBiceps",
-                "question": "Fat caliper, average value for both left and right biceps",
-                "type": "number"
-            },
-            {
-                "key": "measurementFatCaliperAboveBelly",
-                "question": "Fat caliper, right above belly button, from top",
-                "type": "number"
-            },
-            {
-                "key": "measurementFatCaliperNextToBelly",
-                "question": "Fat caliper, right next to belly button, from top",
-                "type": "number"
-            },
-            {
-                "question": "💪 Enough measurements, let's talk fitness metadata",
                 "type": "header"
             },
             {
@@ -566,26 +333,6 @@
                     "1": "Not enough energy for good workouts",
                     "0": "Worked out less than 3 times last week"
                 }
-            },
-            {
-                "key": "macrosCarbs",
-                "question": "How many daily grams of carbs was your MFP goal?",
-                "type": "number"
-            },
-            {
-                "key": "macrosProtein",
-                "question": "How many daily grams of protein was your MFP goal?",
-                "type": "number"
-            },
-            {
-                "key": "macrosFat",
-                "question": "How many daily grams of fat was your MFP goal?",
-                "type": "number"
-            },
-            {
-                "key": "macroNotes",
-                "question": "Notes about your macros, anything that stood out?",
-                "type": "text"
             },
             {
                 "key": "trainingNotes",
@@ -616,23 +363,13 @@
             },
             {
                 "key": "openTrelloTasks",
-                "question": "How many open todos do you currently have? Take from https://howisFelix.today",
+                "question": "How many open todos do you currently have?",
                 "type": "number"
             },
             {
                 "key": "inboxZero",
                 "question": "Do you have less than 5 emails in your inbox?",
                 "type": "boolean"
-            },
-            {
-                "key": "weeklyComputerTime",
-                "question": "How many hours did you spend on your computer last week? Check Timing app, select `Past 7 days` and use `Total time`, round to nearest fullest hour",
-                "type": "number"
-            },
-            {
-                "key": "weeklyPhoneTime",
-                "question": "How many hours did you spend on your phone last week? Check Screen Time and remove all Fitness apps from the time",
-                "type": "number"
             },
             {
                 "question": "👥 Let's talk social life",
@@ -667,58 +404,6 @@
             {
                 "question": "🎁 Let's wrap things up",
                 "type": "header"
-            },
-            {
-                "key": "travel",
-                "question": "How much did you travel last week?",
-                "type": "range",
-                "buttons": {
-                    "5": "Mostly stationary, minimal commute",
-                    "4": "Normal travel/commute",
-                    "3": "More than usual travels through car or train",
-                    "2": "Longer travels through car or train",
-                    "1": "1 flight",
-                    "0": "2 flights or more"
-                }
-            },
-            {
-                "key": "travelLiving",
-                "question": "Did you live stationary?",
-                "type": "range",
-                "buttons": {
-                    "5": "Stayed in a familiar env",
-                    "4": "Stayed in a semi-permanent env",
-                    "3": "Stayed in a new environment",
-                    "2": "Stayed at least 2 places",
-                    "1": "Stayed at more than 3 places",
-                    "0": "Lots of one-off stays"
-                }
-            },
-            {
-                "key": "urgeToTravel",
-                "question": "Do you feel like you have to travel somewhere, or otherwise you might be missing out?",
-                "type": "range",
-                "buttons": {
-                    "5": "Happy and statisfied - no travels needed",
-                    "4": "Happy with the current situation",
-                    "3": "Got a little urge to go somewhere",
-                    "2": "Feel like needing a little change",
-                    "1": "I'd like to travel somewhere for a bit",
-                    "0": "I'd like to do a longer travel again"
-                }
-            },
-            {
-                "key": "fomo",
-                "question": "Do you feel like you're missing out on things?",
-                "type": "range",
-                "buttons": {
-                    "5": "Happy and statisfied",
-                    "4": "Overall happy",
-                    "3": "Did things, but could have done better",
-                    "2": "Felt like I didn't do enough",
-                    "1": "Felt like I missed out on things",
-                    "0": "Felt like I missed out on major things"
-                }
             },
             {
                 "key": "playedComputerGamesAlone",
