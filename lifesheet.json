@@ -248,7 +248,7 @@
             },
             {
                 "key": "didRead",
-                "question": "Did you ready?",
+                "question": "Did you read today?",
                 "type": "boolean"
             },
             {
