@@ -1,4 +1,3 @@
-.keys
 credentials.json
 .DS_STORE
 node_modules
@@ -22,3 +21,6 @@ checkins.json
 /visual_playground/frontend/tracks_just_to_test.json
 /manual_graph/_cache.json
 /ruby_importers/importers/spotify/full-archive
+data
+.env
+local.env

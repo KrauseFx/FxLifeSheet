@@ -1,0 +1,31 @@
+version: '3.9'
+services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=soumyadeepmukherjee
+      - POSTGRES_PASSWORD=ILovePostgres
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d
+      - ./data:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+  worker:
+    image: matrix
+    command: npm run worker
+    restart: always
+    #ports:
+    #- '3000:3000'
+    env_file:
+    - .env
+    depends_on:
+      - db
+  scheduler:
+    image: matrix
+    command: npm run scheduler
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      - db
