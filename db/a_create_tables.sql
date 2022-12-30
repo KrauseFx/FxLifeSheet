@@ -34,7 +34,8 @@ CREATE TABLE last_run (
     id SERIAL PRIMARY KEY,
     command text,
     last_run bigint,
-    last_message bigint
+    last_message bigint,
+    UNIQUE (command)
 );
 
 
