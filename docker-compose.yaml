@@ -12,17 +12,17 @@ services:
     ports:
       - '5432:5432'
   worker:
-    image: matrix
+    build:
+     context: .
     command: npm run worker
     restart: always
-    #ports:
-    #- '3000:3000'
     env_file:
     - .env
     depends_on:
       - db
   scheduler:
-    image: matrix
+    build:
+     context: .
     command: npm run scheduler
     restart: always
     env_file:
