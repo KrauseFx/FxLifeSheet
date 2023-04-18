@@ -14,7 +14,7 @@
     }
 
     function updateData() {
-        getRequest("https://where-is-felix-today-backend.herokuapp.com/api.json", function(data) {
+        getRequest("https://backend.howisfelix.today/api.json", function(data) {
             const overviewTable = JSON.parse(data)["otherFxLifeData"]["overviewTable"]["value"];
             const keys = [{
                 "name": "mood",
