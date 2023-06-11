@@ -213,7 +213,6 @@ This will trigger questions that take longer to reply, so they're only done week
 
 ```
 skip - Skip a question that was asked
-report - Generate one page report
 track - Track a specific value only
 mood - Track your mood
 awake - First thing in the morning

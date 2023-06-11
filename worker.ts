@@ -486,7 +486,7 @@ function parseUserInput(ctx, text = null) {
 function sendAvailableCommands(ctx) {
   ctx.reply("Available commands:").then(({ message_id }) => {
     ctx.reply(
-      "\n\n/skip\n/report\n\n/" + Object.keys(config.userConfig).join("\n/")
+      "\n\n/skip\n\n/" + Object.keys(config.userConfig).join("\n/")
     );
   });
 }
