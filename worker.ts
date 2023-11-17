@@ -228,7 +228,7 @@ function printGraph(
                   " - Previous Quarter (" +
                   (newValue - newQuarterValue > 0 ? "+" : "") +
                   roundNumberExactly(newValue - newQuarterValue, 2) +
-                  " compared to prev. Q)";
+                  ")";
               }
               // year
               if (rows[i] == "year") {
@@ -239,7 +239,7 @@ function printGraph(
                   " - Previous Year (" +
                   (newValue - newYearValue > 0 ? "+" : "") +
                   roundNumberExactly(newValue - newYearValue, 2) +
-                  " compared to prev Y)";
+                  ")";
               }
 
               finalText.push(stringToPush);

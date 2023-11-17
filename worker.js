@@ -163,7 +163,7 @@ function printGraph(key, ctx, numberOfRecentValuesToPrint, additionalValue, skip
                                 " - Previous Quarter (" +
                                 (newValue - newQuarterValue > 0 ? "+" : "") +
                                 roundNumberExactly(newValue - newQuarterValue, 2) +
-                                " compared to prev. Q)";
+                                ")";
                     }
                     if (rows[i] == "year") {
                         var newYearValue = c[key.toLowerCase() + "previousyear"];
@@ -173,7 +173,7 @@ function printGraph(key, ctx, numberOfRecentValuesToPrint, additionalValue, skip
                                 " - Previous Year (" +
                                 (newValue - newYearValue > 0 ? "+" : "") +
                                 roundNumberExactly(newValue - newYearValue, 2) +
-                                " compared to prev Y)";
+                                ")";
                     }
                     finalText.push(stringToPush);
                 }
