@@ -174,7 +174,27 @@ function printGraph(
         queryToUse += `(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE id != (SELECT id FROM raw_data WHERE key='${key}' ORDER BY id DESC LIMIT 1) AND timestamp > ${monthTimestamp} AND key='${key}') as ${key}MonthOld,`;
         queryToUse += `(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE id != (SELECT id FROM raw_data WHERE key='${key}' ORDER BY id DESC LIMIT 1) AND timestamp > ${quarterTimestamp} AND key='${key}') as ${key}QuarterOld,`;
         queryToUse += `(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE id != (SELECT id FROM raw_data WHERE key='${key}' ORDER BY id DESC LIMIT 1) AND timestamp > ${yearTimestamp} AND key='${key}') as ${key}YearOld,`;
-        queryToUse += `(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE id != (SELECT id FROM raw_data WHERE key='${key}' ORDER BY id DESC LIMIT 1) AND timestamp > ${athTimestamp} AND key='${key}') as ${key}AllTimeOld`;
+        queryToUse += `(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE id != (SELECT id FROM raw_data WHERE key='${key}' ORDER BY id DESC LIMIT 1) AND timestamp > ${athTimestamp} AND key='${key}') as ${key}AllTimeOld,`;
+
+        // Previous Year values
+        let previousYearStart =
+          moment()
+            .subtract(365 * 2, "days")
+            .unix() * 1000;
+        let previousYearEnd =
+          moment()
+            .subtract(365, "days")
+            .unix() * 1000;
+        queryToUse += `(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE timestamp > ${previousYearStart} AND timestamp < ${previousYearEnd} AND key='${key}') as ${key}PreviousYear,`;
+        let previousQuarterStart =
+          moment()
+            .subtract(90 * 2, "days")
+            .unix() * 1000;
+        let previousQuarterEnd =
+          moment()
+            .subtract(90, "days")
+            .unix() * 1000;
+        queryToUse += `(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE timestamp > ${previousQuarterStart} AND timestamp < ${previousQuarterEnd} AND key='${key}') as ${key}PreviousQuarter,`;
 
         console.log(queryToUse);
 
@@ -186,20 +206,41 @@ function printGraph(
             const rows = ["week", "month", "quarter", "year", "alltime"];
             let c = res.rows[0];
             console.log(c);
-            let finalText = ["Moving averages for " + key];
+            var finalText = ["Moving averages for " + key];
             for (let i = 0; i < rows.length; i++) {
               let newValue = c[key.toLowerCase() + rows[i]];
               let oldValue = c[key.toLowerCase() + rows[i] + "old"];
 
-              finalText.push(
+              var stringToPush =
                 roundNumberExactly(newValue, 2) +
-                  " - " +
-                  rows[i] +
-                  " (" +
+                " - " +
+                rows[i] +
+                " (" +
+                (newValue - oldValue > 0 ? "+" : "") +
+                roundNumberExactly(newValue - oldValue, 2);
+
+              // quarter
+              if (rows[i] == "quarter") {
+                let newValue = c[key.toLowerCase() + "previousquarter"];
+                stringToPush +=
+                  " - Previous Quarter (" +
                   (newValue - oldValue > 0 ? "+" : "") +
                   roundNumberExactly(newValue - oldValue, 2) +
-                  ")"
-              );
+                  ")";
+              }
+              // year
+              if (rows[i] == "year") {
+                let newValue = c[key.toLowerCase() + "previousyear"];
+                stringToPush +=
+                  " - Previous Year (" +
+                  (newValue - oldValue > 0 ? "+" : "") +
+                  roundNumberExactly(newValue - oldValue, 2) +
+                  ")";
+              }
+
+              stringToPush += ")";
+
+              finalText.push(stringToPush);
             }
             ctx.reply(finalText.join("\n"));
           }
