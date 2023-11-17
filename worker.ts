@@ -216,28 +216,31 @@ function printGraph(
                 rows[i] +
                 " (" +
                 (newValue - oldValue > 0 ? "+" : "") +
-                roundNumberExactly(newValue - oldValue, 2);
+                roundNumberExactly(newValue - oldValue, 2) +
+                ")";
 
               // quarter
               if (rows[i] == "quarter") {
-                let newValue = c[key.toLowerCase() + "previousquarter"];
+                let newQuarterValue = c[key.toLowerCase() + "previousquarter"];
                 stringToPush +=
-                  " - Previous Quarter (" +
-                  (newValue - oldValue > 0 ? "+" : "") +
-                  roundNumberExactly(newValue - oldValue, 2) +
+                  "\n   " +
+                  roundNumberExactly(newQuarterValue, 2) +
+                  "Previous Quarter (" +
+                  (newValue - newQuarterValue > 0 ? "+" : "") +
+                  roundNumberExactly(newValue - newQuarterValue, 2) +
                   ")";
               }
               // year
               if (rows[i] == "year") {
-                let newValue = c[key.toLowerCase() + "previousyear"];
+                let newYearValue = c[key.toLowerCase() + "previousyear"];
                 stringToPush +=
-                  " - Previous Year (" +
-                  (newValue - oldValue > 0 ? "+" : "") +
-                  roundNumberExactly(newValue - oldValue, 2) +
+                  "\n   " +
+                  roundNumberExactly(newYearValue, 2) +
+                  "Previous Year (" +
+                  (newValue - newYearValue > 0 ? "+" : "") +
+                  roundNumberExactly(newValue - newYearValue, 2) +
                   ")";
               }
-
-              stringToPush += ")";
 
               finalText.push(stringToPush);
             }

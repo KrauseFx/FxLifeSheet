@@ -153,24 +153,28 @@ function printGraph(key, ctx, numberOfRecentValuesToPrint, additionalValue, skip
                         rows[i] +
                         " (" +
                         (newValue - oldValue > 0 ? "+" : "") +
-                        roundNumberExactly(newValue - oldValue, 2);
+                        roundNumberExactly(newValue - oldValue, 2) +
+                        ")";
                     if (rows[i] == "quarter") {
-                        var newValue_1 = c[key.toLowerCase() + "previousquarter"];
+                        var newQuarterValue = c[key.toLowerCase() + "previousquarter"];
                         stringToPush +=
-                            " - Previous Quarter (" +
-                                (newValue_1 - oldValue > 0 ? "+" : "") +
-                                roundNumberExactly(newValue_1 - oldValue, 2) +
+                            "\n   " +
+                                roundNumberExactly(newQuarterValue, 2) +
+                                "Previous Quarter (" +
+                                (newValue - newQuarterValue > 0 ? "+" : "") +
+                                roundNumberExactly(newValue - newQuarterValue, 2) +
                                 ")";
                     }
                     if (rows[i] == "year") {
-                        var newValue_2 = c[key.toLowerCase() + "previousyear"];
+                        var newYearValue = c[key.toLowerCase() + "previousyear"];
                         stringToPush +=
-                            " - Previous Year (" +
-                                (newValue_2 - oldValue > 0 ? "+" : "") +
-                                roundNumberExactly(newValue_2 - oldValue, 2) +
+                            "\n   " +
+                                roundNumberExactly(newYearValue, 2) +
+                                "Previous Year (" +
+                                (newValue - newYearValue > 0 ? "+" : "") +
+                                roundNumberExactly(newValue - newYearValue, 2) +
                                 ")";
                     }
-                    stringToPush += ")";
                     finalText.push(stringToPush);
                 }
                 ctx.reply(finalText.join("\n"));
