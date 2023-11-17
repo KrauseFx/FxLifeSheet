@@ -160,20 +160,20 @@ function printGraph(key, ctx, numberOfRecentValuesToPrint, additionalValue, skip
                         stringToPush +=
                             "\n   " +
                                 roundNumberExactly(newQuarterValue, 2) +
-                                "Previous Quarter (" +
+                                " - Previous Quarter (" +
                                 (newValue - newQuarterValue > 0 ? "+" : "") +
                                 roundNumberExactly(newValue - newQuarterValue, 2) +
-                                ")";
+                                " compared to prev. Q)";
                     }
                     if (rows[i] == "year") {
                         var newYearValue = c[key.toLowerCase() + "previousyear"];
                         stringToPush +=
                             "\n   " +
                                 roundNumberExactly(newYearValue, 2) +
-                                "Previous Year (" +
+                                " - Previous Year (" +
                                 (newValue - newYearValue > 0 ? "+" : "") +
                                 roundNumberExactly(newValue - newYearValue, 2) +
-                                ")";
+                                " compared to prev Y)";
                     }
                     finalText.push(stringToPush);
                 }
