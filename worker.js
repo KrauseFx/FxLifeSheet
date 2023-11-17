@@ -136,7 +136,7 @@ function printGraph(key, ctx, numberOfRecentValuesToPrint, additionalValue, skip
             var previousQuarterEnd = moment()
                 .subtract(90, "days")
                 .unix() * 1000;
-            queryToUse += "(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE timestamp > " + previousQuarterStart + " AND timestamp < " + previousQuarterEnd + " AND key='" + key + "') as " + key + "PreviousQuarter,";
+            queryToUse += "(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE timestamp > " + previousQuarterStart + " AND timestamp < " + previousQuarterEnd + " AND key='" + key + "') as " + key + "PreviousQuarter";
             console.log(queryToUse);
             postgres.client.query({
                 text: queryToUse
