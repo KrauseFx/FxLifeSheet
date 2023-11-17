@@ -64,7 +64,6 @@ function printGraph(
       values: [key]
     },
     (err, res) => {
-      console.log(res);
       if (err) {
         console.error(err);
         ctx.reply(err);
@@ -386,7 +385,6 @@ function insertNewValue(parsedUserValue, ctx, key, type, fakeDate = null) {
       values: Object.values(row)
     },
     (err, res) => {
-      console.log(res);
       if (err) {
         ctx.reply("Error saving value: " + err);
         console.log(err.stack);

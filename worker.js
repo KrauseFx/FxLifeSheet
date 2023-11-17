@@ -40,7 +40,6 @@ function printGraph(key, ctx, numberOfRecentValuesToPrint, additionalValue, skip
         text: "SELECT * FROM raw_data WHERE key = $1 ORDER BY timestamp DESC LIMIT 300",
         values: [key]
     }, function (err, res) {
-        console.log(res);
         if (err) {
             console.error(err);
             ctx.reply(err);
@@ -294,7 +293,6 @@ function insertNewValue(parsedUserValue, ctx, key, type, fakeDate) {
             ") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)",
         values: Object.values(row)
     }, function (err, res) {
-        console.log(res);
         if (err) {
             ctx.reply("Error saving value: " + err);
             console.log(err.stack);
