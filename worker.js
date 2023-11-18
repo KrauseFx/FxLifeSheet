@@ -130,6 +130,7 @@ function printGraph(key, ctx, numberOfRecentValuesToPrint, additionalValue, skip
                 .subtract(365, "days")
                 .unix() * 1000;
             queryToUse += "(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE timestamp > " + previousYearStart + " AND timestamp < " + previousYearEnd + " AND key='" + key + "') as " + key + "PreviousYear,";
+            queryToUse += "(SELECT ROUND(AVG(value::numeric), 4) FROM raw_data WHERE timestamp < " + previousYearEnd + " AND key='" + key + "') as " + key + "BeforeLastYear,";
             var previousQuarterStart = moment()
                 .subtract(90 * 2, "days")
                 .unix() * 1000;
@@ -173,6 +174,14 @@ function printGraph(key, ctx, numberOfRecentValuesToPrint, additionalValue, skip
                                 " - Previous Year (" +
                                 (newValue - newYearValue > 0 ? "+" : "") +
                                 roundNumberExactly(newValue - newYearValue, 2) +
+                                ")";
+                        var newBeforeLastYearValue = c[key.toLowerCase() + "beforelastyear"];
+                        stringToPush +=
+                            "\n   " +
+                                roundNumberExactly(newBeforeLastYearValue, 2) +
+                                " - Before Last Year (" +
+                                (newValue - newBeforeLastYearValue > 0 ? "+" : "") +
+                                roundNumberExactly(newValue - newBeforeLastYearValue, 2) +
                                 ")";
                     }
                     finalText.push(stringToPush);
