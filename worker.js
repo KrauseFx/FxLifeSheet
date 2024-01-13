@@ -77,24 +77,24 @@ function printGraph(key, ctx, numberOfRecentValuesToPrint, additionalValue, skip
         if (numberOfRecentValuesToPrint > 2) {
             ctx.reply(rawText.join("\n") + "\nMinimum: " + minimum + "\nMaximum: " + maximum);
         }
-        if (!skipImage) {
-            minimum -= 2;
-            maximum += 2;
-            var url = "https://chart.googleapis.com/chart?cht=lc&chd=t:" +
-                allValues.join(",") +
-                "&chs=800x350&chl=" +
-                allTimes.join("%7C") +
-                "&chtt=" +
-                key +
-                "&chf=bg,s,e0e0e0&chco=000000,0000FF&chma=30,30,30,30&chds=" +
-                minimum +
-                "," +
-                maximum;
-            console.log(url);
-            ctx.replyWithPhoto({
-                url: url
-            });
-        }
+        // if (!skipImage) {
+        //     minimum -= 2;
+        //     maximum += 2;
+        //     var url = "https://chart.googleapis.com/chart?cht=lc&chd=t:" +
+        //         allValues.join(",") +
+        //         "&chs=800x350&chl=" +
+        //         allTimes.join("%7C") +
+        //         "&chtt=" +
+        //         key +
+        //         "&chf=bg,s,e0e0e0&chco=000000,0000FF&chma=30,30,30,30&chds=" +
+        //         minimum +
+        //         "," +
+        //         maximum;
+        //     console.log(url);
+        //     ctx.replyWithPhoto({
+        //         url: url
+        //     });
+        // }
         if (numberOfRecentValuesToPrint > 0) {
             var queryToUse = "SELECT";
             var weekTimestamp = moment()
