@@ -36,7 +36,7 @@ be ruby importers/weather/backfill_weather.rb
 
 ### Apple Health: Steps
 
-1. Export Apple Health data using the QS Acecss app
+1. Export Apple Health data using the QS Access app
 1. Choose `1 Day` & `Steps`
 1. `Create Table`
 1. Airdrop to Mac
