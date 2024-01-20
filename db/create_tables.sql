@@ -37,6 +37,10 @@ CREATE TABLE last_run (
     last_message bigint
 );
 
+-- Unique constraints required for `last_run` updating
+CREATE UNIQUE INDEX CONCURRENTLY last_run_command_uix ON last_run (command);
+ALTER TABLE last_run ADD CONSTRAINT last_run_command_uc UNIQUE USING INDEX last_run_command_uix;
+
 
 -- View needed for metrics
 
