@@ -646,6 +646,27 @@ function initBot() {
     }
 
     let key = ctx.match[1];
+    let question: QuestionToAsk = null;
+
+    Object.keys(config.userConfig).forEach(function(key) {
+      var survey = config.userConfig[key];
+      for (let i = 0; i < survey.questions.length; i++) {
+        let currentQuestion = survey.questions[i];
+        if (currentQuestion.key == key) {
+          question = currentQuestion;
+          return;
+        }
+      }
+    });
+
+    if (question.type == "text" || question.type == "location") {
+      ctx
+      .reply(
+        `Sorry, the key ${key} is a ${question.type} based question and unable to graph it out.`
+      )
+      return;
+    }
+
     console.log("User wants to graph a specific value " + key);
 
     printGraph(key, ctx, 100, null, false);

@@ -462,6 +462,22 @@ function initBot() {
             return;
         }
         var key = ctx.match[1];
+        var question = null;
+        Object.keys(config.userConfig).forEach(function (key) {
+            var survey = config.userConfig[key];
+            for (var i = 0; i < survey.questions.length; i++) {
+                var currentQuestion = survey.questions[i];
+                if (currentQuestion.key == key) {
+                    question = currentQuestion;
+                    return;
+                }
+            }
+        });
+        if (question.type == "text" || question.type == "location") {
+            ctx
+                .reply("Sorry, the key " + key + " is a " + question.type + " based question and unable to graph it out.");
+            return;
+        }
         console.log("User wants to graph a specific value " + key);
         printGraph(key, ctx, 100, null, false);
     });
