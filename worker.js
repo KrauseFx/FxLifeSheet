@@ -389,7 +389,7 @@ function parseUserInput(ctx, text) {
 function sendAvailableCommands(ctx) {
     ctx.reply("Available commands:").then(function (_a) {
         var message_id = _a.message_id;
-        ctx.reply("\n\n/skip\n/report\n\n/" + Object.keys(config.userConfig).join("\n/"));
+        ctx.reply("\n\n/skip\n\n/" + Object.keys(config.userConfig).join("\n/"));
     });
 }
 function saveLastRun(command) {
